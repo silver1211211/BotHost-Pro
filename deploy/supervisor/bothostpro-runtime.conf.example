@@ -1,0 +1,24 @@
+; BotHost Pro Node runtime supervisor example.
+; Copy to /etc/supervisor/conf.d/bothostpro-runtime.conf and replace placeholders.
+
+[program:bothostpro-runtime]
+directory=/var/www/bothostpro/runtime-node
+command=/usr/bin/node server.js
+user=www-data
+numprocs=1
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+redirect_stderr=true
+stdout_logfile=/var/www/bothostpro/storage/logs/node-runtime.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=5
+environment=HOST="127.0.0.1",PORT="8787",NODE_RUNTIME_SECRET="CHANGE_ME_RANDOM_64_CHARS",APP_URL="https://app.example.com"
+
+; Placeholders:
+; - Project path: /var/www/bothostpro
+; - Linux user: www-data
+; - Node path: /usr/bin/node
+; - APP_URL: https://app.example.com
+; - NODE_RUNTIME_SECRET: CHANGE_ME_RANDOM_64_CHARS

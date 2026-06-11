@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\laragon\\\\www\\\\bot\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"DIR\"}else{\"FILE\"}}} | Format-Table -AutoSize)",
+      "Bash(findstr /V /I \"token secret password key hash\")",
+      "Bash(findstr \"RUNTIME CACHE DB_CON APP_URL QUEUE\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 8787 -ErrorAction SilentlyContinue)",
+      "PowerShell(\\(Get-Item \"c:\\\\laragon\\\\www\\\\bot\\\\storage\\\\logs\\\\laravel.log\"\\).Length; Get-Content \"c:\\\\laragon\\\\www\\\\bot\\\\storage\\\\logs\\\\laravel.log\" -Tail 80 | Where-Object { $_ -match \"Runtime path|fallback_used|node_runtime_attempted|health check|local_runtime\" })",
+      "PowerShell(Get-Content \"c:\\\\laragon\\\\www\\\\bot\\\\storage\\\\logs\\\\laravel.log\" -Tail 200 | Select-String \"14:0[2-5]:\" | Select-Object -First 80 | ForEach-Object { $_.Line })",
+      "PowerShell(Get-Content \"c:\\\\laragon\\\\www\\\\bot\\\\storage\\\\logs\\\\laravel.log\" -Tail 400 | Select-String \"14:0[2-9]:|14:1[0-9]:\" | Select-Object -First 120 | ForEach-Object { $_.Line })",
+      "PowerShell(Get-Content \"c:\\\\laragon\\\\www\\\\bot\\\\storage\\\\logs\\\\laravel.log\" -Tail 500 | Select-String \"smoke|/smoke|execution_time_ms|telegram_send_ms|total_command_ms|runtime_execution_ms|bot_lookup_ms|command_match_ms|Runtime path|runtime_execution_started|runtime_execution_finished|Telegram bridge|storage bridge|TelegramBotService\\\\.sendMessage|bridge_url|sendMessage API|persistRuntimeResult\" | Select-Object -Last 120 | ForEach-Object { $_.Line })",
+      "PowerShell(Get-Content \"c:\\\\laragon\\\\www\\\\bot\\\\storage\\\\logs\\\\laravel.log\" -Tail 600 | Select-String \"14:40:|14:41:|storage_bridge|telegram_bridge|runtime/storage|runtime/telegram|slow_command|total_command_ms|runtime_execution_ms|bot_lookup_ms|command_match_ms|StorageBridge|TelegramBridge|cross_user_mutation|user_data_mutation_received|bot_data_mutation_received\" | ForEach-Object { $_.Line })"
+    ]
+  }
+}

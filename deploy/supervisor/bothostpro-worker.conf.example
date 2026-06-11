@@ -1,0 +1,23 @@
+; BotHost Pro queue worker supervisor example.
+; Copy to /etc/supervisor/conf.d/bothostpro-worker.conf and replace placeholders.
+
+[program:bothostpro-worker]
+directory=/var/www/bothostpro
+command=/usr/bin/php artisan queue:work redis --sleep=3 --tries=3 --timeout=120 --max-time=3600
+user=www-data
+numprocs=1
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+redirect_stderr=true
+stdout_logfile=/var/www/bothostpro/storage/logs/worker.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=5
+environment=APP_ENV="production",APP_URL="https://app.example.com"
+
+; Placeholders:
+; - Project path: /var/www/bothostpro
+; - Linux user: www-data
+; - PHP path: /usr/bin/php
+; - APP_URL: https://app.example.com

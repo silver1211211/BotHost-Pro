@@ -1,0 +1,22 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: bothost-redis
+    command: ["sh", "-c", "redis-server --appendonly yes --protected-mode yes --requirepass \"$${REDIS_PASSWORD}\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in the deployment environment}
+    ports:
+      - "127.0.0.1:6379:6379"
+    restart: unless-stopped
+
+  node-runtime-image:
+    image: bothost-node-runtime
+    build:
+      context: ./runtime-node
+    command: ["node", "-e", "console.log('bothost-node-runtime image built')"]
+    profiles:
+      - build-only
+
+networks:
+  default:
+    name: bothost-runtime

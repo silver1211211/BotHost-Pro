@@ -1,0 +1,9 @@
+# BotHost Pro Laravel scheduler cron example.
+# Copy to /etc/cron.d/bothostpro-scheduler and replace placeholders.
+
+* * * * * www-data cd /var/www/bothostpro && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+
+# Placeholders:
+# - Project path: /var/www/bothostpro
+# - Linux user: www-data
+# - PHP path: /usr/bin/php

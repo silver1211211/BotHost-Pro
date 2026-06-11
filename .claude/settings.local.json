@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\laragon\\\\www\\\\bot\\\\routes\" -Filter \"*.php\")",
+      "Bash(Select-Object FullName)",
+      "Bash(php -r \"require 'vendor/autoload.php'; echo 'PHP OK';\")",
+      "PowerShell(cd c:\\\\laragon\\\\www\\\\bot; php artisan tinker --execute=\"echo App\\\\Models\\\\BotCommand::where\\('bot_id', 11\\)->where\\('trigger_type', 'direct_message'\\)->value\\('code'\\);\" 2>&1 | Out-File -Encoding utf8 \"$env:TEMP\\\\dmh_code.txt\"; Get-Content \"$env:TEMP\\\\dmh_code.txt\" | Select-Object -Skip 210)",
+      "Bash(php -r ' *)",
+      "Bash(node --check runtime-node/server.js)",
+      "Bash(php tools/test_support_flow_isolation.php 14 7701909986)",
+      "Bash(php tools/test_payment_error_isolation.php 11 7701909986)"
+    ]
+  }
+}
