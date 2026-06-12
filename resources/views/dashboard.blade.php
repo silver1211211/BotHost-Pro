@@ -101,7 +101,7 @@
                     </div>
                 </div>
                 <p class="mt-3 text-3xl font-black text-white">{{ is_numeric($m['value']) ? number_format($m['value']) : $m['value'] }}</p>
-                <p class="mt-0.5 text-xs text-[#71717A]">{{ $m['hint'] }}</p>
+                <p class="mt-0.5 text-xs text-slate-300">{{ $m['hint'] }}</p>
             </div>
         @endforeach
     </section>
@@ -119,7 +119,7 @@
                     </div>
                 </div>
                 <p class="mt-3 text-3xl font-black text-white">{{ number_format($m['value']) }}</p>
-                <p class="mt-0.5 text-xs text-[#71717A]">{{ $m['hint'] }}</p>
+                <p class="mt-0.5 text-xs text-slate-300">{{ $m['hint'] }}</p>
             </div>
         @endforeach
     </section>
