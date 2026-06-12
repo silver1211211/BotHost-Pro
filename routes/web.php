@@ -71,7 +71,9 @@ Route::post('/runtime/storage', RuntimeStorageController::class)->name('runtime.
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AdminAuthenticatedSessionController::class, 'store'])->name('login.store');
-    Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
+        ->middleware(['auth', 'admin'])
+        ->name('logout');
 });
 
 // Locked screen — auth required, but NOT the 'active' middleware (to prevent redirect loop)

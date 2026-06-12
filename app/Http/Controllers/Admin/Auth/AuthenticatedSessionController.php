@@ -74,6 +74,8 @@ class AuthenticatedSessionController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
+        abort_unless($request->user()?->isAdmin(), 403);
+
         $admin = $request->user();
 
         $this->audit->log('security', 'logout', 'Admin logged out.', [

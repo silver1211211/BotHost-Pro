@@ -35,6 +35,10 @@ class AuthenticatedSessionController extends Controller
             'email' => $request->user()?->email,
         ], $request->user());
 
+        if ($request->user()?->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
