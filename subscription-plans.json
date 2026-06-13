@@ -1,0 +1,53 @@
+[
+    {
+        "id": 1,
+        "name": "Pro Monthly",
+        "slug": "pro",
+        "description": "For growing bot workspaces.",
+        "price": "10.00",
+        "currency": "USD",
+        "billing_period": "monthly",
+        "status": "active",
+        "features": [
+            "More bot capacity",
+            "Premium marketplace access"
+        ],
+        "limits": null,
+        "sort_order": 10,
+        "created_at": "2026-05-23T15:39:18.000000Z",
+        "updated_at": "2026-05-28T08:44:27.000000Z"
+    },
+    {
+        "id": 2,
+        "name": "Business Monthly",
+        "slug": "business",
+        "description": "For high-volume teams and serious bot operations.",
+        "price": "29.00",
+        "currency": "USD",
+        "billing_period": "monthly",
+        "status": "active",
+        "features": [
+            "Business marketplace access",
+            "Higher operating limits"
+        ],
+        "limits": null,
+        "sort_order": 20,
+        "created_at": "2026-05-23T15:39:18.000000Z",
+        "updated_at": "2026-05-28T08:44:18.000000Z"
+    },
+    {
+        "id": 3,
+        "name": "Free",
+        "slug": "free",
+        "description": "Get started with Telegram bot building.",
+        "price": "0.00",
+        "currency": "USD",
+        "billing_period": "monthly",
+        "status": "active",
+        "features": null,
+        "limits": null,
+        "sort_order": 0,
+        "created_at": "2026-05-24T17:05:11.000000Z",
+        "updated_at": "2026-05-24T17:05:11.000000Z"
+    }
+]

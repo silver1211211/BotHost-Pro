@@ -66,20 +66,20 @@
     >
         {{-- Logo --}}
         <div class="flex h-[72px] shrink-0 items-center gap-3 px-5" style="border-bottom: 1px solid #27213D;">
-            <div class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="background: linear-gradient(135deg, #5B21B6 0%, #8B5CF6 100%); box-shadow: 0 0 24px rgba(139,92,246,0.45);">
-                @if($branding['admin_logo_url'])
-                    <img src="{{ $branding['admin_logo_url'] }}" alt="Admin Logo" class="h-full w-full object-contain">
-                @else
+            @if($branding['admin_logo_url'])
+                <img src="{{ $branding['admin_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-11 w-auto max-w-[170px] shrink-0 object-contain">
+            @else
+                <div class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="background: linear-gradient(135deg, #5B21B6 0%, #8B5CF6 100%); box-shadow: 0 0 24px rgba(139,92,246,0.45);">
                     <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                     </svg>
-                @endif
-                <span class="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-[#080711] bg-[#22C55E]"></span>
-            </div>
-            <div class="min-w-0 flex-1">
-                <p class="text-sm font-black tracking-tight text-white">BotHost Pro</p>
-                <span class="inline-flex rounded px-2 py-0.5 text-[9px] font-black uppercase tracking-widest" style="background: rgba(139,92,246,0.15); color: #A855F7;">Admin Panel</span>
-            </div>
+                    <span class="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-[#080711] bg-[#22C55E]"></span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-black tracking-tight text-white">BotHost Pro</p>
+                    <span class="inline-flex rounded px-2 py-0.5 text-[9px] font-black uppercase tracking-widest" style="background: rgba(139,92,246,0.15); color: #A855F7;">Admin Panel</span>
+                </div>
+            @endif
             <button @click="sidebarOpen = false" class="flex h-7 w-7 items-center justify-center rounded-lg text-[#71717A] transition hover:text-white lg:hidden">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />

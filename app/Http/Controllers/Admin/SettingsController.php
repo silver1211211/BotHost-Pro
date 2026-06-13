@@ -30,6 +30,8 @@ use App\Support\Branding;
 
 class SettingsController extends Controller
 {
+    private const BRANDING_UPLOAD_DIR = 'branding';
+
     public function __construct(
         private readonly PlatformSettingsService $settings,
         private readonly AuditLogService $audit,
@@ -228,17 +230,40 @@ class SettingsController extends Controller
             return;
         }
 
-        $oldPath = (string) $this->settings->get($settingKey, '');
-        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'png');
-        $path = $file->storeAs('branding', $name.'-'.time().'-'.bin2hex(random_bytes(4)).'.'.$extension, 'public');
+        $oldPath = $this->normalizeStoredBrandingPath((string) $this->settings->get($settingKey, ''));
+        $path = $file->storeAs(self::BRANDING_UPLOAD_DIR, $this->brandingFilename($file, $name), 'public');
 
         if ($path) {
             $this->settings->set($settingKey, $path);
 
-            if ($oldPath !== '' && str_starts_with($oldPath, 'branding/') && $oldPath !== $path) {
+            if ($oldPath !== null && $oldPath !== $path && Storage::disk('public')->exists($oldPath)) {
                 Storage::disk('public')->delete($oldPath);
             }
         }
+    }
+
+    private function brandingFilename(UploadedFile $file, string $name): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'png');
+        $extension = preg_replace('/[^a-z0-9]/', '', $extension) ?: 'png';
+
+        return $name.'-'.time().'-'.bin2hex(random_bytes(4)).'.'.$extension;
+    }
+
+    private function normalizeStoredBrandingPath(string $path): ?string
+    {
+        $path = trim(str_replace('\\', '/', $path));
+        $path = ltrim($path, '/');
+
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
+        if (! str_starts_with($path, self::BRANDING_UPLOAD_DIR.'/') || str_contains($path, '..')) {
+            return null;
+        }
+
+        return $path;
     }
 
     public function saveLinks(Request $request): RedirectResponse

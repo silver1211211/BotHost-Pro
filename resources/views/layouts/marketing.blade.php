@@ -25,14 +25,14 @@
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="group flex items-center gap-3">
                     @if($branding['platform_logo_url'])
-                        <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-11 w-11 rounded-xl object-contain">
+                        <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-11 w-auto max-w-[190px] object-contain">
                     @else
                         <span class="relative grid h-11 w-11 place-items-center rounded-xl border border-[#229ED9]/40 bg-[#0B1220] text-lg font-black text-[#38BDF8] shadow-[0_0_24px_rgba(34,158,217,0.18)]">
                             B
                             <span class="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-[#229ED9]"></span>
                         </span>
+                        <span class="text-lg font-extrabold tracking-tight text-[#F8FAFC]">BotHost <span class="text-[#38BDF8]">Pro</span></span>
                     @endif
-                    <span class="text-lg font-extrabold tracking-tight text-[#F8FAFC]">BotHost <span class="text-[#38BDF8]">Pro</span></span>
                 </a>
 
                 {{-- Desktop nav links --}}

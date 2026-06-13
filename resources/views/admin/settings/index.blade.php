@@ -46,7 +46,7 @@
         <div class="flex gap-1 overflow-x-auto pb-2 lg:hidden" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
             @foreach($tabs as $t)
             <button
-                @click="tab = '{{ $t['id'] }}'"
+                @click="tab = '{{ $t['id'] }}'; history.replaceState(null, '', '?tab={{ $t['id'] }}')"
                 :class="tab === '{{ $t['id'] }}'
                     ? '{{ $t['danger'] ? 'border-[#EF4444]/40 bg-[#EF4444]/10 text-[#EF4444]' : 'border-[#8B5CF6] bg-[#8B5CF6]/12 text-white' }}'
                     : '{{ $t['danger'] ? 'border-[#27213D] text-[#EF4444]/50' : 'border-[#27213D] text-[#71717A]' }}'"
@@ -59,7 +59,7 @@
         <nav class="hidden max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-1.5 lg:flex lg:flex-col">
             @foreach($tabs as $t)
             <button
-                @click="tab = '{{ $t['id'] }}'"
+                @click="tab = '{{ $t['id'] }}'; history.replaceState(null, '', '?tab={{ $t['id'] }}')"
                 :class="tab === '{{ $t['id'] }}'
                     ? '{{ $t['danger'] ? 'bg-[#EF4444]/8 text-[#EF4444]' : 'bg-[#8B5CF6]/12 text-[#F8FAFC]' }}'
                     : '{{ $t['danger'] ? 'text-[#EF4444]/60 hover:bg-[#EF4444]/5 hover:text-[#EF4444]' : 'text-[#71717A] hover:bg-[#151225] hover:text-[#F8FAFC]' }}'"
@@ -188,19 +188,124 @@
              BRANDING
         ─────────────────────────────── --}}
         <div x-show="tab === 'branding'" x-cloak>
-            <form method="POST" action="{{ route('admin.settings.branding.save') }}" enctype="multipart/form-data" class="space-y-4">
+            <form method="POST" action="{{ route('admin.settings.branding.save') }}" enctype="multipart/form-data" class="space-y-5">
                 @csrf
+
+                {{-- ── Page header ────────────────────────────────── --}}
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Branding Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Customize the platform's visual identity.</p>
+                        <p class="text-xs text-[#71717A] mt-0.5">Customize the platform's visual identity — logos, colors, and page text.</p>
                     </div>
-                    <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
+                    <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                        Save Changes
+                    </button>
                 </div>
 
-                {{-- Colors --}}
+                {{-- ── Platform Logo ──────────────────────────────── --}}
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] overflow-hidden">
+                    <div class="px-5 pt-5 pb-4 border-b border-[#1B172B]">
+                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Platform Logo</p>
+                        <p class="mt-0.5 text-[11px] text-[#52525B]">Displayed on the marketing site, login page, and user dashboard sidebar.</p>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        {{-- Wide transparent-grid preview area --}}
+                        <div class="flex-1 flex flex-col items-center justify-center p-10 min-h-[148px]"
+                             style="background-color:#07060F;background-image:linear-gradient(45deg,#0F0C1C 25%,transparent 25%),linear-gradient(-45deg,#0F0C1C 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#0F0C1C 75%),linear-gradient(-45deg,transparent 75%,#0F0C1C 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0">
+                            @if($platformLogoUrl)
+                                <img src="{{ $platformLogoUrl }}" alt="Platform Logo" class="h-12 w-auto max-w-[240px] object-contain">
+                                <span class="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[#3D3657]">Current logo</span>
+                            @else
+                                <div class="flex flex-col items-center gap-2">
+                                    <svg class="h-7 w-7 text-[#27213D]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                                    <p class="text-[11px] text-[#3D3657]">No platform logo uploaded</p>
+                                </div>
+                            @endif
+                        </div>
+                        {{-- Upload panel --}}
+                        <div class="shrink-0 border-t lg:border-t-0 lg:border-l border-[#1B172B] p-5 space-y-3 lg:w-60">
+                            <label class="flex w-full cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-[#27213D] bg-[#11101C] p-4 text-center transition hover:border-[#8B5CF6]/50 hover:bg-[#151225]">
+                                <svg class="h-5 w-5 text-[#52525B]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                                <div>
+                                    <p class="text-[11px] font-bold text-[#A1A1AA]">Upload new logo</p>
+                                    <p class="mt-0.5 text-[10px] text-[#52525B]">PNG, JPG, WEBP, SVG</p>
+                                </div>
+                                <input type="file" name="platform_logo" class="sr-only" accept=".png,.jpg,.jpeg,.webp,.svg">
+                            </label>
+                            <p class="text-[10px] leading-relaxed text-[#3D3657]">Use a wide transparent PNG or SVG for best results. Replaces the existing logo on save.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── Admin Logo ──────────────────────────────────── --}}
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] overflow-hidden">
+                    <div class="px-5 pt-5 pb-4 border-b border-[#1B172B]">
+                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Admin Logo</p>
+                        <p class="mt-0.5 text-[11px] text-[#52525B]">Shown in the admin panel sidebar. Falls back to the Platform Logo if not set.</p>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        {{-- Wide transparent-grid preview area --}}
+                        <div class="flex-1 flex flex-col items-center justify-center p-10 min-h-[148px]"
+                             style="background-color:#07060F;background-image:linear-gradient(45deg,#0F0C1C 25%,transparent 25%),linear-gradient(-45deg,#0F0C1C 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#0F0C1C 75%),linear-gradient(-45deg,transparent 75%,#0F0C1C 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0">
+                            @if($adminLogoUrl)
+                                <img src="{{ $adminLogoUrl }}" alt="Admin Logo" class="h-12 w-auto max-w-[240px] object-contain">
+                                <span class="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[#3D3657]">
+                                    {{ ($adminLogoUrl === $platformLogoUrl && $platformLogoUrl) ? 'Inheriting Platform Logo' : 'Current admin logo' }}
+                                </span>
+                            @else
+                                <div class="flex flex-col items-center gap-2">
+                                    <svg class="h-7 w-7 text-[#27213D]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                                    <p class="text-[11px] text-[#3D3657]">No admin logo — using default icon</p>
+                                </div>
+                            @endif
+                        </div>
+                        {{-- Upload panel --}}
+                        <div class="shrink-0 border-t lg:border-t-0 lg:border-l border-[#1B172B] p-5 space-y-3 lg:w-60">
+                            <label class="flex w-full cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-[#27213D] bg-[#11101C] p-4 text-center transition hover:border-[#8B5CF6]/50 hover:bg-[#151225]">
+                                <svg class="h-5 w-5 text-[#52525B]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                                <div>
+                                    <p class="text-[11px] font-bold text-[#A1A1AA]">Upload admin logo</p>
+                                    <p class="mt-0.5 text-[10px] text-[#52525B]">PNG, JPG, WEBP, SVG</p>
+                                </div>
+                                <input type="file" name="admin_logo" class="sr-only" accept=".png,.jpg,.jpeg,.webp,.svg">
+                            </label>
+                            <p class="text-[10px] leading-relaxed text-[#3D3657]">Leave blank to inherit the Platform Logo. Replaces the existing admin logo on save.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── Favicon ─────────────────────────────────────── --}}
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+                        <div class="flex items-start gap-4 flex-1 min-w-0">
+                            <div class="h-14 w-14 shrink-0 rounded-xl border border-[#1B172B] bg-[#060510] flex items-center justify-center overflow-hidden">
+                                @if($faviconUrl)
+                                    <img src="{{ $faviconUrl }}" alt="Favicon" class="h-10 w-10 object-contain">
+                                @else
+                                    <svg class="h-5 w-5 text-[#27213D]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                                @endif
+                            </div>
+                            <div class="min-w-0 pt-0.5">
+                                <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Favicon</p>
+                                <p class="mt-0.5 text-[11px] text-[#52525B] leading-relaxed">Shown in browser tabs and bookmarks. Use a square ICO, PNG, or SVG — 32×32 or 64×64 px recommended.</p>
+                            </div>
+                        </div>
+                        <label class="block shrink-0 sm:w-52 cursor-pointer rounded-xl border border-dashed border-[#27213D] bg-[#11101C] p-3 text-center transition hover:border-[#8B5CF6]/50 hover:bg-[#151225]">
+                            <svg class="mx-auto mb-1 h-4 w-4 text-[#52525B]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                            <p class="text-[11px] font-bold text-[#A1A1AA]">Upload favicon</p>
+                            <p class="text-[10px] text-[#52525B]">ICO, PNG, SVG</p>
+                            <input type="file" name="favicon" class="sr-only" accept=".png,.jpg,.jpeg,.webp,.svg,.ico">
+                        </label>
+                    </div>
+                </div>
+
+                {{-- ── Brand Colors ─────────────────────────────────── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Colors</h3>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Brand Colors</p>
+                        <p class="mt-0.5 text-[11px] text-[#52525B]">Primary and accent colors used across the platform UI.</p>
+                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Primary Color</label>
@@ -225,53 +330,37 @@
                     </div>
                 </div>
 
-                {{-- Login Page --}}
+                {{-- ── Login Page & Site Text ───────────────────────── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Login Page</h3>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Login Page & Site Text</p>
+                        <p class="mt-0.5 text-[11px] text-[#52525B]">Text displayed on the login screen and across public page footers.</p>
+                    </div>
                     <div>
                         <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Login Title</label>
                         <input type="text" name="login_page_title" value="{{ old('login_page_title', $loginTitle) }}" placeholder="Sign in to BotHost Pro"
-                            class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
+                            class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Login Subtitle</label>
                         <input type="text" name="login_page_subtitle" value="{{ old('login_page_subtitle', $loginSubtitle) }}" placeholder="Build powerful Telegram bots"
-                            class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
+                            class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Footer Text</label>
                         <input type="text" name="footer_text" value="{{ old('footer_text', $footerText) }}" placeholder="© 2026 BotHost Pro. All rights reserved."
-                            class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
+                            class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                        <p class="mt-1 text-[11px] text-[#52525B]">Shown at the bottom of all public and auth pages.</p>
                     </div>
                 </div>
 
-                {{-- Logo & Favicon --}}
-                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Logo & Favicon</h3>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        @foreach([
-                            ['label' => 'Platform Logo', 'name' => 'platform_logo', 'url' => $platformLogoUrl ?? null, 'hint' => 'PNG, JPG, WEBP, SVG'],
-                            ['label' => 'Favicon', 'name' => 'favicon', 'url' => $faviconUrl ?? null, 'hint' => 'ICO, PNG, SVG'],
-                            ['label' => 'Admin Logo', 'name' => 'admin_logo', 'url' => $adminLogoUrl ?? null, 'hint' => 'PNG, JPG, WEBP, SVG'],
-                        ] as $asset)
-                        <label class="block rounded-xl border border-dashed border-[#27213D] bg-[#11101C] p-4 text-center transition hover:border-[#8B5CF6]/50 hover:bg-[#151225]">
-                            <div class="h-12 w-12 mx-auto mb-3 rounded-xl bg-[#27213D] flex items-center justify-center overflow-hidden">
-                                @if($asset['url'])
-                                    <img src="{{ $asset['url'] }}" alt="{{ $asset['label'] }}" class="h-full w-full object-contain">
-                                @else
-                                    <svg class="h-5 w-5 text-[#71717A]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
-                                @endif
-                            </div>
-                            <p class="text-[11px] font-semibold text-[#A1A1AA]">{{ $asset['label'] }}</p>
-                            <p class="mt-1 text-[10px] font-medium text-[#52525B]">{{ $asset['hint'] }}</p>
-                            <span class="mt-3 inline-flex rounded-lg border border-[#27213D] px-3 py-1.5 text-[10px] font-black uppercase tracking-wide text-[#71717A]">Choose File</span>
-                            <input type="file" name="{{ $asset['name'] }}" class="sr-only" accept=".png,.jpg,.jpeg,.webp,.svg{{ $asset['name'] === 'favicon' ? ',.ico' : '' }}">
-                        </label>
-                        @endforeach
-                    </div>
-                    <p class="mt-3 text-[11px] leading-5 text-[#52525B]">New uploads replace the current asset when you save changes.</p>
+                {{-- ── Save footer bar ──────────────────────────────── --}}
+                <div class="flex items-center justify-between gap-3 rounded-2xl border border-[#1B172B] bg-[#0B0A14] px-5 py-4">
+                    <p class="text-[11px] text-[#3D3657]">Uploading a new file replaces the existing one. All changes apply after saving.</p>
+                    <button type="submit" class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#8B5CF6] px-5 py-2.5 text-xs font-black text-white hover:bg-[#7C3AED] transition shadow-[0_0_18px_rgba(139,92,246,0.25)]">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                        Save Branding
+                    </button>
                 </div>
             </form>
         </div>
@@ -1190,26 +1279,28 @@
         {{-- ───────────────────────────────
              MAINTENANCE
         ─────────────────────────────── --}}
-        <div x-show="tab === 'maintenance'" x-cloak class="space-y-4">
+        <div x-show="tab === 'maintenance'" x-cloak class="space-y-3">
+
+            {{-- ── Header ── --}}
             <div>
                 <h2 class="text-base font-black text-[#F8FAFC]">Maintenance Tools</h2>
                 <p class="text-xs text-[#71717A] mt-0.5">Cache management, asset links, and system diagnostics.</p>
             </div>
 
             {{-- ── Platform Maintenance Mode ── --}}
-            <div class="rounded-2xl border {{ $platformMode === 'maintenance' ? 'border-[#F59E0B]/30 bg-[#F59E0B]/4' : 'border-[#27213D] bg-[#0F0D1A]' }} p-5">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="flex items-start gap-3">
+            <div class="rounded-2xl border {{ $platformMode === 'maintenance' ? 'border-[#F59E0B]/30 bg-[#F59E0B]/4' : 'border-[#27213D] bg-[#0F0D1A]' }} p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3 min-w-0">
                         <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl {{ $platformMode === 'maintenance' ? 'border border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#F59E0B]' : 'border border-[#27213D] bg-[#151225] text-[#71717A]' }}">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l5.654-4.654m5.664-9.499 3.86 3.86M6.26 6.26 3.102 3.102m0 0L2.25 2.25m.852.852c-.208.224-.408.454-.595.694M10.05 10.05l3.9-3.9m.748 9.9 3.182-3.182M6.26 6.26l-.694.595"/></svg>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-black text-[#F8FAFC]">Platform Maintenance Mode</p>
                             <p class="mt-0.5 text-xs text-[#71717A]">Temporarily disable user access while admins continue managing the platform.</p>
                             <div class="mt-1.5 flex items-center gap-1.5">
                                 @if($platformMode === 'maintenance')
                                     <span class="h-2 w-2 animate-pulse rounded-full bg-[#F59E0B]"></span>
-                                    <span class="text-[11px] font-black text-[#F59E0B]">Maintenance Mode Active — users see the maintenance page</span>
+                                    <span class="text-[11px] font-black text-[#F59E0B]">Active — users see maintenance page</span>
                                 @else
                                     <span class="h-2 w-2 rounded-full bg-[#22C55E]"></span>
                                     <span class="text-[11px] font-black text-[#22C55E]">Platform is Live</span>
@@ -1217,7 +1308,7 @@
                             </div>
                         </div>
                     </div>
-                    <div x-data="{}" class="flex shrink-0 gap-2">
+                    <div x-data="{}" class="shrink-0">
                         @if($platformMode === 'maintenance')
                             <form x-ref="maintTabDisableForm" method="POST" action="{{ route('admin.settings.maintenance-mode') }}">
                                 @csrf
@@ -1230,8 +1321,8 @@
                                     data-confirm-title="Disable maintenance mode?"
                                     data-confirm-message="Users will regain access to the platform immediately."
                                     data-confirm-btn="Restore Live Mode"
-                                    class="rounded-xl bg-[#22C55E] px-4 py-2 text-xs font-black text-white transition hover:bg-green-400"
-                                >Restore Live Mode</button>
+                                    class="rounded-xl bg-[#22C55E] px-3 py-2 text-xs font-black text-white transition hover:bg-green-400"
+                                >Restore Live</button>
                             </form>
                         @else
                             <form x-ref="maintTabEnableForm" method="POST" action="{{ route('admin.settings.maintenance-mode') }}">
@@ -1245,8 +1336,8 @@
                                     data-confirm-title="Enable maintenance mode?"
                                     data-confirm-message="Normal users will be temporarily blocked from accessing the platform. Admin access and callback routes remain available."
                                     data-confirm-btn="Enable Maintenance"
-                                    class="rounded-xl border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-4 py-2 text-xs font-black text-[#F59E0B] transition hover:bg-[#F59E0B]/18"
-                                >Enable Maintenance</button>
+                                    class="rounded-xl border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-3 py-2 text-xs font-black text-[#F59E0B] transition hover:bg-[#F59E0B]/18"
+                                >Enable Maint.</button>
                             </form>
                         @endif
                     </div>
@@ -1254,22 +1345,23 @@
             </div>
 
             {{-- Runtime / Performance --}}
-            <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
+            <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
+                {{-- Section header + quick-action buttons --}}
+                <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0">
                         <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Runtime Performance</h3>
-                        <p class="mt-1 text-xs text-[#71717A]">Redis, queue, JavaScript runtime, and command logging controls.</p>
+                        <p class="mt-0.5 text-[11px] text-[#52525B]">Redis, queue, JavaScript runtime, and command logging controls.</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-1.5">
                         @foreach([
-                            ['route' => 'admin.settings.test-redis', 'label' => 'Test Redis Connection'],
-                            ['route' => 'admin.settings.test-docker', 'label' => 'Test Docker Availability'],
-                            ['route' => 'admin.settings.check-runtime-image', 'label' => 'Check Runtime Image'],
-                            ['route' => 'admin.settings.build-runtime-image', 'label' => 'Build Runtime Image'],
+                            ['route' => 'admin.settings.test-redis', 'label' => 'Test Redis'],
+                            ['route' => 'admin.settings.test-docker', 'label' => 'Test Docker'],
+                            ['route' => 'admin.settings.check-runtime-image', 'label' => 'Check Image'],
+                            ['route' => 'admin.settings.build-runtime-image', 'label' => 'Build Image'],
                         ] as $action)
                             <form method="POST" action="{{ route($action['route']) }}">
                                 @csrf
-                                <button type="submit" class="rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-2 text-xs font-black text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-white">{{ $action['label'] }}</button>
+                                <button type="submit" class="w-full rounded-lg border border-[#27213D] bg-[#11101C] px-3 py-1.5 text-[11px] font-black text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-white sm:w-auto">{{ $action['label'] }}</button>
                             </form>
                         @endforeach
                     </div>
@@ -1305,7 +1397,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-4 grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="mb-3 grid grid-cols-2 gap-2 text-[11px] lg:grid-cols-4">
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
                                 <p class="font-black uppercase tracking-wide text-[#71717A]">Runtime Status</p>
                                 <p class="mt-1 font-black {{ $runtimeStatusClass }}">{{ $runtimeStatusLabel }}</p>
@@ -1319,7 +1411,7 @@
                                 <p class="mt-1 font-black {{ ($runtimeSettings['runtime_docker_enabled'] ?? false) ? 'text-[#22C55E]' : 'text-[#A1A1AA]' }}">{{ ($runtimeSettings['runtime_docker_enabled'] ?? false) ? 'Enabled' : 'Disabled' }}</p>
                             </div>
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
-                                <p class="font-black uppercase tracking-wide text-[#71717A]">Last Runtime Error</p>
+                                <p class="font-black uppercase tracking-wide text-[#71717A]">Last Error</p>
                                 <p class="mt-1 break-words font-semibold {{ $lastRuntimeError === 'None reported' ? 'text-[#A1A1AA]' : 'text-[#FCA5A5]' }}">{{ $lastRuntimeError }}</p>
                             </div>
                         </div>
@@ -1440,7 +1532,7 @@
                                     Last Docker error: {{ \Illuminate\Support\Str::limit($runtimeDockerStatus['last_error'], 180) }}
                                 </div>
                             @endif
-                            <div class="mb-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
+                            <div class="mb-3 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
                                 @foreach([
                                     ['label' => 'Docker', 'value' => ($runtimeDockerStatus['docker_available'] ?? false) ? 'Available' : 'Unavailable', 'ok' => ($runtimeDockerStatus['docker_available'] ?? false)],
                                     ['label' => 'Image', 'value' => ($runtimeDockerStatus['image_exists'] ?? false) ? 'Ready' : 'Missing', 'ok' => ($runtimeDockerStatus['image_exists'] ?? false)],
@@ -1506,7 +1598,7 @@
                                 </label>
                             </div>
 
-                            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                                 @foreach([
                                     ['key' => 'runtime_warm_enabled', 'label' => 'Warm Runtime', 'desc' => 'Prefer the already running local Node bridge.', 'default' => true],
                                     ['key' => 'queue_simple_commands', 'label' => 'Queue Simple Commands', 'desc' => 'Keep off for fastest replies.', 'default' => false],
@@ -1543,9 +1635,9 @@
             </div>
 
             {{-- Cache Actions --}}
-            <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">Cache Management</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
+                <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-2.5">Cache Management</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-2">
                     @foreach([
                         ['action' => 'clear-cache',  'label' => 'Clear Cache',       'desc' => 'Application + config cache', 'route' => 'admin.settings.maintenance.clear-cache',  'color' => 'blue'],
                         ['action' => 'clear-views',  'label' => 'Clear View Cache',  'desc' => 'Compiled Blade templates',   'route' => 'admin.settings.maintenance.clear-views',  'color' => 'blue'],
@@ -1554,65 +1646,66 @@
                     ] as $tool)
                     <form method="POST" action="{{ route($tool['route']) }}">
                         @csrf
-                        <button type="submit" class="w-full rounded-xl border border-[#27213D] bg-[#11101C] p-4 text-left transition hover:border-[#8B5CF6]/40 hover:bg-[#151225] group">
-                            <div class="flex items-center gap-2 mb-1.5">
-                                <svg class="h-4 w-4 text-[#4D4868] group-hover:text-[#8B5CF6] transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"/></svg>
-                                <span class="text-sm font-black text-[#F8FAFC]">{{ $tool['label'] }}</span>
+                        <button type="submit" class="w-full rounded-xl border border-[#27213D] bg-[#11101C] p-3 text-left transition hover:border-[#8B5CF6]/40 hover:bg-[#151225] group">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-[#4D4868] group-hover:text-[#8B5CF6] transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"/></svg>
+                                <span class="text-xs font-black text-[#F8FAFC]">{{ $tool['label'] }}</span>
                             </div>
-                            <p class="text-[11px] text-[#71717A]">{{ $tool['desc'] }}</p>
+                            <p class="text-[11px] text-[#52525B]">{{ $tool['desc'] }}</p>
                         </button>
                     </form>
                     @endforeach
                 </div>
             </div>
 
-            {{-- System Status --}}
-            <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">System Status</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    @php
-                        $storageLinkExists = is_link(public_path('storage'));
-                    @endphp
-                    <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-3.5">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="h-2 w-2 rounded-full {{ $storageLinkExists ? 'bg-[#22C55E]' : 'bg-[#EF4444]' }}"></span>
-                            <p class="text-xs font-black text-[#A1A1AA]">Storage Symlink</p>
-                        </div>
-                        <p class="text-[11px] text-[#71717A]">{{ $storageLinkExists ? 'public/storage → storage/app/public' : 'Not linked. Click "Storage Link" to create.' }}</p>
-                    </div>
-                    <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-3.5">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="h-2 w-2 rounded-full bg-[#F59E0B]"></span>
-                            <p class="text-xs font-black text-[#A1A1AA]">Queue Status</p>
-                        </div>
-                        <p class="text-[11px] text-[#71717A]">Monitor via queue dashboard or supervisor logs.</p>
-                    </div>
-                    <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-3.5">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="h-2 w-2 rounded-full bg-[#F59E0B]"></span>
-                            <p class="text-xs font-black text-[#A1A1AA]">Scheduler</p>
-                        </div>
-                        <p class="text-[11px] text-[#71717A]">Verify cron entry runs <code class="font-mono">schedule:run</code> every minute.</p>
-                    </div>
-                </div>
-            </div>
+            {{-- System Status + Environment Info (inline row on larger screens) --}}
+            <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
 
-            {{-- PHP / App Info --}}
-            <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">Environment Info</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
-                    @foreach([
-                        ['label' => 'Laravel',     'value' => app()->version()],
-                        ['label' => 'PHP',         'value' => PHP_VERSION],
-                        ['label' => 'Environment', 'value' => app()->environment()],
-                        ['label' => 'Debug Mode',  'value' => config('app.debug') ? 'ON' : 'off'],
-                    ] as $info)
-                    <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5">
-                        <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">{{ $info['label'] }}</p>
-                        <p class="font-mono text-[#A1A1AA] mt-0.5">{{ $info['value'] }}</p>
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-2.5">System Status</h3>
+                    @php $storageLinkExists = is_link(public_path('storage')); @endphp
+                    <div class="space-y-2">
+                        <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 flex items-start gap-2">
+                            <span class="mt-1 h-2 w-2 shrink-0 rounded-full {{ $storageLinkExists ? 'bg-[#22C55E]' : 'bg-[#EF4444]' }}"></span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-black text-[#A1A1AA]">Storage Symlink</p>
+                                <p class="text-[11px] text-[#52525B]">{{ $storageLinkExists ? 'public/storage → storage/app/public' : 'Not linked — use Storage Link above.' }}</p>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 flex items-start gap-2">
+                            <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#F59E0B]"></span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-black text-[#A1A1AA]">Queue Status</p>
+                                <p class="text-[11px] text-[#52525B]">Monitor via queue dashboard or supervisor logs.</p>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 flex items-start gap-2">
+                            <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#F59E0B]"></span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-black text-[#A1A1AA]">Scheduler</p>
+                                <p class="text-[11px] text-[#52525B]">Verify cron entry runs <code class="font-mono">schedule:run</code> every minute.</p>
+                            </div>
+                        </div>
                     </div>
-                    @endforeach
                 </div>
+
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-2.5">Environment Info</h3>
+                    <div class="grid grid-cols-2 gap-2 text-[11px]">
+                        @foreach([
+                            ['label' => 'Laravel',     'value' => app()->version()],
+                            ['label' => 'PHP',         'value' => PHP_VERSION],
+                            ['label' => 'Environment', 'value' => app()->environment()],
+                            ['label' => 'Debug Mode',  'value' => config('app.debug') ? 'ON' : 'off'],
+                        ] as $info)
+                        <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5">
+                            <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">{{ $info['label'] }}</p>
+                            <p class="font-mono text-[#A1A1AA] mt-0.5">{{ $info['value'] }}</p>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
             </div>
         </div>
 

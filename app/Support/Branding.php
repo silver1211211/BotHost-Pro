@@ -28,7 +28,8 @@ class Branding
 
     public static function adminLogoUrl(): ?string
     {
-        return self::publicUrl((string) PlatformSetting::getValue('admin_logo_path', ''));
+        return self::publicUrl((string) PlatformSetting::getValue('admin_logo_path', ''))
+            ?? self::platformLogoUrl();
     }
 
     public static function faviconUrl(): ?string
@@ -49,13 +50,28 @@ class Branding
 
     private static function publicUrl(string $path): ?string
     {
-        $path = trim($path);
+        $path = self::normalizePublicPath($path);
 
-        if ($path === '') {
+        if ($path === null || ! Storage::disk('public')->exists($path)) {
             return null;
         }
 
-        return Storage::disk('public')->url($path);
+        return asset('storage/'.$path);
+    }
+
+    private static function normalizePublicPath(string $path): ?string
+    {
+        $path = trim(str_replace('\\', '/', $path));
+        $path = ltrim($path, '/');
+
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
+        if ($path === '' || str_contains($path, '..')) {
+            return null;
+        }
+
+        return $path;
     }
 }
-

@@ -98,13 +98,13 @@ $faqs = [
 
         <a href="{{ route('home') }}" class="flex items-center gap-2.5">
             @if($branding['platform_logo_url'])
-                <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-9 w-9 rounded-xl object-contain">
+                <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-10 w-auto max-w-[170px] object-contain">
             @else
                 <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#229ED9] shadow-[0_0_20px_rgba(139,92,246,0.48)]">
                     <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.75 12 14.5-7.25-3.2 14.5-4.12-4.18-3.08 3.18.45-4.55L4.75 12Z"/></svg>
                 </div>
+                <span class="text-base font-black text-[#F8FAFC]">BotHost<span class="bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span></span>
             @endif
-            <span class="text-base font-black text-[#F8FAFC]">BotHost<span class="bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span></span>
         </a>
 
         <div class="hidden items-center gap-6 text-sm font-semibold text-[#71717A] lg:flex">
@@ -627,13 +627,13 @@ $faqs = [
             <div>
                 <div class="flex items-center gap-2.5">
                     @if($branding['platform_logo_url'])
-                        <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-9 w-9 rounded-xl object-contain">
+                        <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-10 w-auto max-w-[180px] object-contain">
                     @else
                         <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#229ED9] shadow-[0_0_16px_rgba(139,92,246,0.36)]">
                             <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.75 12 14.5-7.25-3.2 14.5-4.12-4.18-3.08 3.18.45-4.55L4.75 12Z"/></svg>
                         </div>
+                        <span class="text-base font-black text-[#F8FAFC]">BotHost<span class="bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span></span>
                     @endif
-                    <span class="text-base font-black text-[#F8FAFC]">BotHost<span class="bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span></span>
                 </div>
                 <p class="mt-4 max-w-xs text-sm leading-6 text-[#4D4868]">Create, manage, and grow Telegram bot workspaces with commands, templates, broadcasts, transfers, and webhooks.</p>
                 <div class="mt-6 flex flex-wrap gap-2">

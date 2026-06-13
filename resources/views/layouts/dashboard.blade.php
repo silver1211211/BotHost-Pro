@@ -260,16 +260,16 @@
         <div class="relative flex shrink-0 items-center justify-between px-4 py-4">
             <a href="{{ route('dashboard') }}" class="group flex items-center gap-3">
                 @if($branding['platform_logo_url'])
-                    <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-9 w-9 shrink-0 rounded-xl object-contain">
+                    <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-10 w-auto max-w-[160px] shrink-0 object-contain">
                 @else
                     <div class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#229ED9] shadow-[0_0_22px_rgba(139,92,246,0.5)]">
                         <svg class="h-4.5 w-4.5 text-white" style="height:18px;width:18px" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.75 12 14.5-7.25-3.2 14.5-4.12-4.18-3.08 3.18.45-4.55L4.75 12Z"/></svg>
                     </div>
+                    <div class="leading-none">
+                        <span class="text-[15px] font-black tracking-tight text-[#F8FAFC]">BotHost</span>
+                        <span class="text-[15px] font-black bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span>
+                    </div>
                 @endif
-                <div class="leading-none">
-                    <span class="text-[15px] font-black tracking-tight text-[#F8FAFC]">BotHost</span>
-                    <span class="text-[15px] font-black bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span>
-                </div>
             </a>
             <button type="button" class="grid h-7 w-7 place-items-center rounded-lg text-[#71717A] transition hover:text-white lg:hidden" @click="open = false" aria-label="Close sidebar">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
@@ -388,7 +388,13 @@
 
                     {{-- Breadcrumb-style title --}}
                     <div class="flex min-w-0 items-center gap-2">
-                        <a href="{{ route('dashboard') }}" class="hidden text-xs text-[#4D4868] transition hover:text-[#71717A] sm:block">BotHost</a>
+                        <a href="{{ route('dashboard') }}" class="hidden transition hover:opacity-80 sm:block">
+                            @if($branding['platform_logo_url'])
+                                <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-5 w-auto max-w-[90px] object-contain">
+                            @else
+                                <span class="text-xs text-[#4D4868] transition hover:text-[#71717A]">BotHost</span>
+                            @endif
+                        </a>
                         <svg class="hidden h-3 w-3 shrink-0 text-[#3D3657] sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                         <h1 class="truncate text-sm font-black text-[#F8FAFC]">{{ $title }}</h1>
                     </div>

@@ -9,14 +9,14 @@
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                         @if($branding['platform_logo_url'])
-                            <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-8 w-8 rounded-lg object-contain">
+                            <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-9 w-auto max-w-[150px] object-contain">
                         @else
                             <span class="relative grid h-8 w-8 place-items-center rounded-lg border border-[#229ED9]/40 bg-[#0B1220] text-sm font-black text-[#38BDF8] shadow-[0_0_16px_rgba(34,158,217,0.18)]">
                                 B
                                 <span class="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[#229ED9]"></span>
                             </span>
+                            <span class="text-base font-black tracking-tight text-[#F8FAFC]">BotHost <span class="text-[#38BDF8]">Pro</span></span>
                         @endif
-                        <span class="text-base font-black tracking-tight text-[#F8FAFC]">BotHost <span class="text-[#38BDF8]">Pro</span></span>
                     </a>
                 </div>
 

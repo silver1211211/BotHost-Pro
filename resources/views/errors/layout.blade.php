@@ -24,15 +24,15 @@
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="mx-auto mb-10 flex w-fit items-center gap-3">
             @if($branding['platform_logo_url'])
-                <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-11 w-11 rounded-2xl object-contain">
+                <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-12 w-auto max-w-[230px] object-contain">
             @else
                 <span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#8B5CF6] via-[#A855F7] to-[#229ED9] shadow-[0_0_32px_rgba(139,92,246,0.35)]">
                     <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.75 12 14.5-7.25-3.2 14.5-4.12-4.18-3.08 3.18.45-4.55L4.75 12Z"/>
                     </svg>
                 </span>
+                <span class="text-lg font-black tracking-tight">BotHost <span class="bg-gradient-to-r from-[#38BDF8] to-[#A855F7] bg-clip-text text-transparent">Pro</span></span>
             @endif
-            <span class="text-lg font-black tracking-tight">BotHost <span class="bg-gradient-to-r from-[#38BDF8] to-[#A855F7] bg-clip-text text-transparent">Pro</span></span>
         </a>
 
         {{-- Error code --}}
