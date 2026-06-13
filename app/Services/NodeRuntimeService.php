@@ -26,7 +26,7 @@ class NodeRuntimeService
     public function executeCommand(Bot $bot, BotCommand $command, array $telegramContext): array
     {
         $runtimeSettings = $this->settings->all();
-        $runtimeSettings['command_timeout_ms'] = max(20000, (int) ($runtimeSettings['command_timeout_ms'] ?? 15000));
+        $runtimeSettings['command_timeout_ms'] = min(150000, max(1000, (int) ($runtimeSettings['command_timeout_ms'] ?? 150000)));
         $runtimeMode = $runtimeSettings['runtime_mode'] ?? 'local';
         $payload = $this->buildPayload($bot, $command, $telegramContext, $runtimeSettings, includeToken: true);
         $executionContext = $this->runtimeLogContext($bot, $command, $telegramContext);
@@ -97,7 +97,7 @@ class NodeRuntimeService
             return $result;
         }
 
-        $requestTimeout = max(10, (int) ceil(((int) $runtimeSettings['command_timeout_ms']) / 1000) + 10);
+        $requestTimeout = max(10, (int) ceil(((int) $runtimeSettings['command_timeout_ms']) / 1000) + 5);
         $request = Http::connectTimeout(1)->timeout($requestTimeout)->acceptJson();
         $secret = config('services.node_runtime.secret');
 
@@ -159,7 +159,10 @@ class NodeRuntimeService
                 'error_type' => is_array($payload) ? ($payload['error_type'] ?? 'RuntimeRequestFailed') : 'RuntimeRequestFailed',
                 'error_stack' => is_array($payload) ? ($payload['error_stack'] ?? null) : null,
             ];
-            $result = $this->fallbackResult($payload, $runtimeSettings, $path, $runtimeFailure);
+            $normalizedFailure = $this->normalizeRuntimeResult($runtimeFailure);
+            $result = count($normalizedFailure['replies'] ?? []) > 0
+                ? $normalizedFailure
+                : $this->fallbackResult($payload, $runtimeSettings, $path, $normalizedFailure);
 
             $this->persistRuntimeResultMutations($bot, $telegramContext, $result);
             $this->logRuntimeExecutionOutcome($result, $executionContext);
@@ -189,9 +192,11 @@ class NodeRuntimeService
 
         if (($payload['ok'] ?? false) !== true) {
             $runtimeFailure = $this->normalizeRuntimeResult($payload);
-            $result = $this->shouldFallbackFromRuntimeError($runtimeFailure['error_type'] ?? null)
+            $result = count($runtimeFailure['replies'] ?? []) > 0
+                ? $runtimeFailure
+                : ($this->shouldFallbackFromRuntimeError($runtimeFailure['error_type'] ?? null)
                 ? $this->fallbackResult($payload, $runtimeSettings, $path, $runtimeFailure)
-                : $runtimeFailure;
+                : $runtimeFailure);
 
             $this->persistRuntimeResultMutations($bot, $telegramContext, $result);
             $this->logRuntimeExecutionOutcome($result, $executionContext);
@@ -276,19 +281,28 @@ class NodeRuntimeService
         return $healthUrl !== '' ? $healthUrl : ($baseUrl !== '' ? $baseUrl.'/health' : '');
     }
 
+    private function runtimeBridgeBaseUrl(): string
+    {
+        $internal = rtrim(trim((string) config('services.node_runtime.internal_url', '')), '/');
+        if ($internal !== '') {
+            return $internal;
+        }
+        return rtrim(PublicCallbackUrl::base(), '/');
+    }
+
     private function runtimeOxaPayBridgeUrl(): string
     {
-        return PublicCallbackUrl::to('/runtime/oxapay');
+        return $this->runtimeBridgeBaseUrl().'/runtime/oxapay';
     }
 
     private function runtimeTelegramBridgeUrl(): string
     {
-        return PublicCallbackUrl::to('/runtime/telegram');
+        return $this->runtimeBridgeBaseUrl().'/runtime/telegram';
     }
 
     private function runtimeStorageBridgeUrl(): string
     {
-        return PublicCallbackUrl::to('/runtime/storage');
+        return $this->runtimeBridgeBaseUrl().'/runtime/storage';
     }
 
     private function localRuntimeHealthy(array $runtimeSettings): bool
@@ -332,7 +346,7 @@ class NodeRuntimeService
             'fallback_error' => isset($fallback['error']) ? $this->safeRuntimeMessage((string) $fallback['error']) : null,
         ]);
 
-        return ($fallback['ok'] ?? false) ? $fallback : ($previousFailure ?? $fallback);
+        return ($fallback['ok'] ?? false) || count($fallback['replies'] ?? []) > 0 ? $fallback : ($previousFailure ?? $fallback);
     }
 
     private function shouldFallbackFromRuntimeError(?string $errorType): bool
@@ -386,7 +400,7 @@ class NodeRuntimeService
             return $this->runtimeUnavailableResult('Local runtime fallback is missing.', 'RuntimeConfigurationError');
         }
 
-        $timeout = max(10, (int) ceil(((int) ($runtimeSettings['command_timeout_ms'] ?? 15000)) / 1000) + 10);
+        $timeout = max(10, (int) ceil(((int) ($runtimeSettings['command_timeout_ms'] ?? 30000)) / 1000) + 5);
 
         try {
             $process = new Process(
@@ -400,7 +414,7 @@ class NodeRuntimeService
         } catch (Throwable $exception) {
             $this->logRuntimeFallbackFailure($exception->getMessage(), [
                 'timeout_seconds' => $timeout,
-                'command_timeout_ms' => (int) ($runtimeSettings['command_timeout_ms'] ?? 15000),
+                'command_timeout_ms' => (int) ($runtimeSettings['command_timeout_ms'] ?? 30000),
             ]);
 
             return $this->runtimeUnavailableResult('Local runtime fallback unavailable.', 'RuntimeUnavailable');
@@ -409,7 +423,7 @@ class NodeRuntimeService
         if (! $process->isSuccessful()) {
             $this->logRuntimeFallbackFailure($process->getErrorOutput() ?: $process->getOutput(), [
                 'timeout_seconds' => $timeout,
-                'command_timeout_ms' => (int) ($runtimeSettings['command_timeout_ms'] ?? 15000),
+                'command_timeout_ms' => (int) ($runtimeSettings['command_timeout_ms'] ?? 30000),
                 'exit_code' => $process->getExitCode(),
             ]);
 

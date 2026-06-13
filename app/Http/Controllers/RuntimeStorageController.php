@@ -32,7 +32,7 @@ class RuntimeStorageController extends Controller
             return response()->json(['ok' => false, 'error' => 'Storage key is invalid.'], 422);
         }
 
-        if (! in_array($action, ['bot.get', 'user.get', 'bot.set', 'user.set'], true)) {
+        if (! in_array($action, ['bot.get', 'user.get', 'bot.set', 'user.set', 'user.find'], true)) {
             return response()->json(['ok' => false, 'error' => 'Unsupported runtime storage action.'], 422);
         }
 
@@ -50,6 +50,7 @@ class RuntimeStorageController extends Controller
                 'user.get' => $this->userValue($bot->id, (string) $request->input('telegram_user_id', ''), $key),
                 'bot.set' => $this->setBotValue($bot->id, $key, $request->input('value')),
                 'user.set' => $this->setUserValue($bot->id, (string) $request->input('telegram_user_id', ''), $key, $request->input('value')),
+                'user.find' => $this->findUserValue($bot->id, $key, $request->input('value')),
             };
         } catch (Throwable $exception) {
             Log::error('[BotHost] runtime_storage_bridge_failed', [
@@ -66,6 +67,7 @@ class RuntimeStorageController extends Controller
             'ok' => true,
             'found' => $value['found'],
             'value' => $value['value'],
+            'user_id' => $value['user_id'] ?? null,
         ]);
     }
 
@@ -127,6 +129,32 @@ class RuntimeStorageController extends Controller
         return ['found' => true, 'value' => $row->value];
     }
 
+    private function findUserValue(int $botId, string $key, mixed $value): array
+    {
+        $needle = $this->canonicalStorageValue($value);
+
+        if ($needle === null) {
+            return ['found' => false, 'value' => null, 'user_id' => null];
+        }
+
+        $rows = BotUserRuntimeData::query()
+            ->where('bot_id', $botId)
+            ->where('key', $key)
+            ->get(['telegram_user_id', 'value']);
+
+        foreach ($rows as $row) {
+            if ($this->canonicalStorageValue($row->value) === $needle) {
+                return [
+                    'found' => true,
+                    'user_id' => (string) $row->telegram_user_id,
+                    'value' => $row->value,
+                ];
+            }
+        }
+
+        return ['found' => false, 'value' => null, 'user_id' => null];
+    }
+
     private function isSecretStorageKey(string $key): bool
     {
         return in_array($key, [
@@ -152,5 +180,18 @@ class RuntimeStorageController extends Controller
         }
 
         return false;
+    }
+
+    private function canonicalStorageValue(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            return strtolower(trim($value));
+        }
+
+        return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

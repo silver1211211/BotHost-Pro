@@ -142,7 +142,7 @@ class RuntimeSettingsService
             'queue_connection' => $this->option('queue_connection', config('queue.default', 'database'), ['sync', 'database', 'redis']),
             'runtime_warm_enabled' => $this->settingBool('runtime_warm_enabled', true),
             'queue_simple_commands' => $this->settingBool('queue_simple_commands', false),
-            'command_timeout_ms' => $this->settingInt('command_timeout_ms', 15000, 1000, 30000),
+            'command_timeout_ms' => $this->settingInt('command_timeout_ms', 30000, 1000, 30000),
             'max_delay_ms' => $this->settingInt('max_delay_ms', 10000, 0, 30000),
             'slow_command_threshold_ms' => $this->settingInt('slow_command_threshold_ms', 1000, 100, 30000),
             'log_slow_commands' => $this->settingBool('log_slow_commands', false),

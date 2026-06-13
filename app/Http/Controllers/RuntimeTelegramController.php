@@ -94,6 +94,11 @@ class RuntimeTelegramController extends Controller
                     $options['chat_id'] ?? '',
                     $options['user_id'] ?? '',
                 ),
+                'telegram.checkChannelMember' => $telegram->checkTelegramChannelMember(
+                    $token,
+                    $options['chat_id'] ?? '',
+                    $options['user_id'] ?? '',
+                ),
                 'telegram.deleteMessage' => $telegram->deleteMessage($token, $options['chat_id'] ?? '', $options['message_id'] ?? ''),
                 'telegram.answerCallbackQuery' => $telegram->answerCallbackQuery(
                     $token,
@@ -115,7 +120,11 @@ class RuntimeTelegramController extends Controller
             $result = ['ok' => false, 'message' => 'Telegram request failed.'];
         }
 
-        return response()->json($this->safeResult($result));
+        return response()->json(
+            $action === 'telegram.checkChannelMember'
+                ? $this->safeMembershipResult($result)
+                : $this->safeResult($result)
+        );
     }
 
     private function decryptBotToken(Bot $bot): ?string
@@ -138,5 +147,21 @@ class RuntimeTelegramController extends Controller
         return ($result['ok'] ?? false)
             ? ['ok' => true, 'result' => $result['data'] ?? null]
             : ['ok' => false, 'error' => $result['message'] ?? 'Telegram request failed.'];
+    }
+
+    private function safeMembershipResult(array $result): array
+    {
+        return [
+            'ok' => (bool) ($result['ok'] ?? false),
+            'is_member' => (bool) ($result['is_member'] ?? false),
+            'status' => (string) ($result['status'] ?? 'unknown'),
+            'message' => (string) ($result['message'] ?? 'Telegram membership check failed.'),
+            'error' => ($result['ok'] ?? false) ? null : (string) ($result['message'] ?? 'Telegram membership check failed.'),
+            'result' => [
+                'is_member' => (bool) ($result['is_member'] ?? false),
+                'status' => (string) ($result['status'] ?? 'unknown'),
+                'message' => (string) ($result['message'] ?? 'Telegram membership check failed.'),
+            ],
+        ];
     }
 }

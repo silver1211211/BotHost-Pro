@@ -1376,13 +1376,30 @@
                 <form method="POST" action="{{ route('admin.settings.runtime-performance.save') }}" class="space-y-5">
                     @csrf
                     @php
-                        $runtimeStatusLabel = $errors->has('runtime') || filled($runtimeDockerStatus['last_error'] ?? null) ? 'Offline' : 'Unknown';
-                        $runtimeStatusClass = $runtimeStatusLabel === 'Offline' ? 'text-[#EF4444]' : 'text-[#F59E0B]';
-                        $lastRuntimeError = filled($runtimeDockerStatus['last_error'] ?? null)
-                            ? \Illuminate\Support\Str::limit((string) $runtimeDockerStatus['last_error'], 180)
+                        $runtimeStatusLabel = match($runtimeStatusPersisted ?? 'unknown') {
+                            'online'  => 'Online',
+                            'offline' => 'Offline',
+                            default   => 'Unknown',
+                        };
+                        $runtimeStatusClass = match($runtimeStatusPersisted ?? 'unknown') {
+                            'online'  => 'text-[#22C55E]',
+                            'offline' => 'text-[#EF4444]',
+                            default   => 'text-[#F59E0B]',
+                        };
+                        $lastRuntimeError = filled($runtimeStatusLastError ?? '')
+                            ? \Illuminate\Support\Str::limit((string) $runtimeStatusLastError, 180)
                             : 'None reported';
+                        $lastCheckedAt = filled($runtimeStatusCheckedAt ?? '')
+                            ? \Illuminate\Support\Carbon::parse($runtimeStatusCheckedAt)->diffForHumans()
+                            : null;
                         $runtimeBaseHost = strtolower((string) parse_url((string) ($runtimeSettings['runtime_base_url'] ?? ''), PHP_URL_HOST));
-                        $runtimeLooksPublic = str_contains($runtimeBaseHost, 'trycloudflare.com') || str_contains($runtimeBaseHost, 'ngrok');
+                        $runtimeHealthHost = strtolower((string) parse_url((string) ($runtimeSettings['runtime_health_url'] ?? ''), PHP_URL_HOST));
+                        $_appHost    = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
+                        $_publicHost = strtolower((string) parse_url((string) (\App\Support\PublicCallbackUrl::base() ?? ''), PHP_URL_HOST));
+                        $runtimeLooksPublic = str_contains($runtimeBaseHost, 'trycloudflare.com')
+                            || str_contains($runtimeBaseHost, 'ngrok')
+                            || ($runtimeBaseHost !== '' && in_array($runtimeBaseHost, array_filter([$_appHost, $_publicHost]), true));
+                        $runtimeHealthLooksPublic = $runtimeHealthHost !== '' && in_array($runtimeHealthHost, array_filter([$_appHost, $_publicHost]), true);
                     @endphp
                     <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
                         <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -1401,6 +1418,7 @@
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
                                 <p class="font-black uppercase tracking-wide text-[#71717A]">Runtime Status</p>
                                 <p class="mt-1 font-black {{ $runtimeStatusClass }}">{{ $runtimeStatusLabel }}</p>
+                                @if($lastCheckedAt)<p class="mt-0.5 text-[10px] text-[#52525B]">Checked {{ $lastCheckedAt }}</p>@endif
                             </div>
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
                                 <p class="font-black uppercase tracking-wide text-[#71717A]">Runtime Mode</p>
@@ -1422,8 +1440,14 @@
                         </div>
                         @if($runtimeLooksPublic)
                             <div class="mb-4 rounded-xl border border-[#F59E0B]/25 bg-[#F59E0B]/8 px-4 py-3 text-xs font-semibold leading-relaxed text-[#FCD34D]">
-                                Runtime Base URL should point to the Node.js runtime server, not the public Cloudflare app URL.
-                                <span class="mt-1 block text-[#A1A1AA]">Use an internal URL such as http://127.0.0.1:8787 for local runtime.</span>
+                                Runtime Base URL points to your public app domain, not the Node.js runtime server.
+                                <span class="mt-1 block text-[#A1A1AA]">Set Runtime Base URL to the internal address, e.g. <code class="font-mono">http://127.0.0.1:8787</code>. Click <strong>Reset URLs</strong> to restore defaults.</span>
+                            </div>
+                        @endif
+                        @if($runtimeHealthLooksPublic)
+                            <div class="mb-4 rounded-xl border border-[#EF4444]/25 bg-[#EF4444]/8 px-4 py-3 text-xs font-semibold leading-relaxed text-[#FCA5A5]">
+                                Runtime Health URL points to your public app domain — health checks will never reach the Node.js runtime.
+                                <span class="mt-1 block text-[#A1A1AA]">Set Runtime Health URL to <code class="font-mono">http://127.0.0.1:8787/health</code>, or click <strong>Reset URLs</strong> to restore defaults.</span>
                             </div>
                         @endif
 
@@ -1461,7 +1485,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <div class="space-y-4">
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
                             <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#71717A]">Redis / Cache</p>
                             <div class="space-y-3">
@@ -1549,7 +1573,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 <label>
                                     <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Command Timeout (ms)</span>
                                     <input name="command_timeout_ms" type="number" min="1000" max="30000" value="{{ old('command_timeout_ms', $runtimeSettings['command_timeout_ms'] ?? 15000) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
@@ -1570,7 +1594,7 @@
                                         @endforeach
                                     </select>
                                 </label>
-                                <div x-data="{ val: {{ old('runtime_docker_enabled', $runtimeSettings['runtime_docker_enabled'] ?? false) ? 'true' : 'false' }} }" class="flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
+                                <div x-data="{ val: {{ old('runtime_docker_enabled', $runtimeSettings['runtime_docker_enabled'] ?? false) ? 'true' : 'false' }} }" class="sm:col-span-2 lg:col-span-1 flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
                                     <div>
                                         <p class="text-xs font-black text-[#F8FAFC]">Docker Enabled</p>
                                         <p class="text-[11px] text-[#71717A]">Allow isolated Docker runtime containers.</p>
@@ -1598,33 +1622,37 @@
                                 </label>
                             </div>
 
-                            <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                @foreach([
-                                    ['key' => 'runtime_warm_enabled', 'label' => 'Warm Runtime', 'desc' => 'Prefer the already running local Node bridge.', 'default' => true],
-                                    ['key' => 'queue_simple_commands', 'label' => 'Queue Simple Commands', 'desc' => 'Keep off for fastest replies.', 'default' => false],
-                                    ['key' => 'log_slow_commands', 'label' => 'Log Slow Commands', 'desc' => 'Only logs commands above the threshold.', 'default' => false],
-                                    ['key' => 'runtime_auto_restart', 'label' => 'Auto Restart Docker', 'desc' => 'Restart missing or unhealthy bot containers.', 'default' => true],
-                                    ['key' => 'runtime_keep_paused_warm', 'label' => 'Keep Paused Warm', 'desc' => 'Keep paused Docker containers running.', 'default' => false],
-                                    ['key' => 'show_user_code_errors_to_owners', 'label' => 'Show User Code Logs', 'desc' => 'Expose command debug logs to bot owners.', 'default' => false],
-                                    ['key' => 'log_user_code_errors', 'label' => 'Log User Code Errors', 'desc' => 'Store JavaScript command failures.', 'default' => false],
-                                    ['key' => 'log_backend_runtime_errors', 'label' => 'Log Backend Runtime Errors', 'desc' => 'Store serious runtime failures.', 'default' => true],
-                                    ['key' => 'log_webhook_errors', 'label' => 'Log Webhook Errors', 'desc' => 'Store webhook route failures.', 'default' => true],
-                                    ['key' => 'log_telegram_api_errors', 'label' => 'Log Telegram API Errors', 'desc' => 'Store Telegram send failures.', 'default' => true],
-                                    ['key' => 'log_redis_errors', 'label' => 'Log Redis Errors', 'desc' => 'Store Redis/cache failures.', 'default' => true],
-                                    ['key' => 'log_docker_errors', 'label' => 'Log Docker Errors', 'desc' => 'Store Docker runtime backend failures.', 'default' => true],
-                                ] as $toggle)
-                                    <div x-data="{ val: {{ old($toggle['key'], $runtimeSettings[$toggle['key']] ?? $toggle['default']) ? 'true' : 'false' }} }" class="flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
-                                        <div>
-                                            <p class="text-xs font-black text-[#F8FAFC]">{{ $toggle['label'] }}</p>
-                                            <p class="text-[11px] text-[#71717A]">{{ $toggle['desc'] }}</p>
-                                        </div>
-                                        <input type="hidden" name="{{ $toggle['key'] }}" :value="val ? '1' : '0'">
-                                        <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'" class="relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 focus:outline-none overflow-hidden">
-                                            <span :class="val ? 'translate-x-5 bg-white' : 'translate-x-0.5 bg-[#C4C4D4]'" class="absolute left-0 top-0.5 h-5 w-5 rounded-full shadow transition-all duration-200"></span>
-                                        </button>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
+                        <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#71717A]">Runtime Behavior</p>
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                            @foreach([
+                                ['key' => 'runtime_warm_enabled', 'label' => 'Warm Runtime', 'desc' => 'Prefer the already running local Node bridge.', 'default' => true],
+                                ['key' => 'queue_simple_commands', 'label' => 'Queue Simple Commands', 'desc' => 'Keep off for fastest replies.', 'default' => false],
+                                ['key' => 'log_slow_commands', 'label' => 'Log Slow Commands', 'desc' => 'Only logs commands above the threshold.', 'default' => false],
+                                ['key' => 'runtime_auto_restart', 'label' => 'Auto Restart Docker', 'desc' => 'Restart missing or unhealthy bot containers.', 'default' => true],
+                                ['key' => 'runtime_keep_paused_warm', 'label' => 'Keep Paused Warm', 'desc' => 'Keep paused Docker containers running.', 'default' => false],
+                                ['key' => 'show_user_code_errors_to_owners', 'label' => 'Show User Code Logs', 'desc' => 'Expose command debug logs to bot owners.', 'default' => false],
+                                ['key' => 'log_user_code_errors', 'label' => 'Log User Code Errors', 'desc' => 'Store JavaScript command failures.', 'default' => false],
+                                ['key' => 'log_backend_runtime_errors', 'label' => 'Log Backend Runtime Errors', 'desc' => 'Store serious runtime failures.', 'default' => true],
+                                ['key' => 'log_webhook_errors', 'label' => 'Log Webhook Errors', 'desc' => 'Store webhook route failures.', 'default' => true],
+                                ['key' => 'log_telegram_api_errors', 'label' => 'Log Telegram API Errors', 'desc' => 'Store Telegram send failures.', 'default' => true],
+                                ['key' => 'log_redis_errors', 'label' => 'Log Redis Errors', 'desc' => 'Store Redis/cache failures.', 'default' => true],
+                                ['key' => 'log_docker_errors', 'label' => 'Log Docker Errors', 'desc' => 'Store Docker runtime backend failures.', 'default' => true],
+                            ] as $toggle)
+                                <div x-data="{ val: {{ old($toggle['key'], $runtimeSettings[$toggle['key']] ?? $toggle['default']) ? 'true' : 'false' }} }" class="flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
+                                    <div>
+                                        <p class="text-xs font-black text-[#F8FAFC]">{{ $toggle['label'] }}</p>
+                                        <p class="text-[11px] text-[#71717A]">{{ $toggle['desc'] }}</p>
                                     </div>
-                                @endforeach
-                            </div>
+                                    <input type="hidden" name="{{ $toggle['key'] }}" :value="val ? '1' : '0'">
+                                    <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'" class="relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 focus:outline-none overflow-hidden">
+                                        <span :class="val ? 'translate-x-5 bg-white' : 'translate-x-0.5 bg-[#C4C4D4]'" class="absolute left-0 top-0.5 h-5 w-5 rounded-full shadow transition-all duration-200"></span>
+                                    </button>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 

@@ -295,7 +295,7 @@ class BotController extends Controller
         $slug = $base;
         $count = 2;
 
-        while (Bot::query()
+        while (Bot::withTrashed()
             ->where('user_id', $userId)
             ->where('slug', $slug)
             ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))

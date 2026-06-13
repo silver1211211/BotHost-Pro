@@ -42,7 +42,7 @@ class TemplateController extends Controller
         $data = $this->validatedTemplate($request);
         $parsedZip = $this->zipImporter->parse($request->file('template_zip'));
         $imagePath = $this->storeImage($request);
-        $zipPath = $this->zipImporter->storeZip($request->file('template_zip'));
+        $zipPath = $this->zipImporter->storeTemplateFile($request->file('template_zip'));
 
         $template = DB::transaction(function () use ($request, $data, $imagePath, $zipPath, $parsedZip): BotTemplate {
             $template = BotTemplate::create([
@@ -86,7 +86,7 @@ class TemplateController extends Controller
         $data = $this->validatedTemplate($request, $template);
         $parsedZip = $request->hasFile('template_zip') ? $this->zipImporter->parse($request->file('template_zip')) : null;
         $imagePath = $this->storeImage($request, $template);
-        $zipPath = $request->hasFile('template_zip') ? $this->zipImporter->storeZip($request->file('template_zip'), $template->template_zip_path) : null;
+        $zipPath = $request->hasFile('template_zip') ? $this->zipImporter->storeTemplateFile($request->file('template_zip'), $template->template_zip_path) : null;
         $status = $data['status'] ?? $template->status;
 
         DB::transaction(function () use ($request, $template, $data, $imagePath, $zipPath, $status, $parsedZip): void {
@@ -175,7 +175,7 @@ class TemplateController extends Controller
             'level' => ['required', Rule::in(BotTemplate::LEVELS)],
             'status' => ['required', Rule::in(BotTemplate::STATUSES)],
             'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:'.(int) config('templates.image_max_kb', 5120)],
-            'template_zip' => [$template ? 'nullable' : 'required', 'file', 'mimes:zip', 'max:'.(int) config('templates.zip_max_kb', 51200)],
+            'template_zip' => [$template ? 'nullable' : 'required', 'file', 'max:'.(int) config('templates.zip_max_kb', 51200)],
             'access_type' => ['required', Rule::in(['free', 'paid'])],
             'included_plan' => ['nullable', Rule::in(['free', 'pro', 'business'])],
             'price' => ['required_if:access_type,paid', 'numeric', 'min:0'],
@@ -196,7 +196,7 @@ class TemplateController extends Controller
         }
 
         if ($publishing && ! $request->hasFile('template_zip') && ! $template?->commands()->exists()) {
-            throw ValidationException::withMessages(['template_zip' => 'Upload a template ZIP with at least one command before listing or publishing.']);
+            throw ValidationException::withMessages(['template_zip' => 'Upload a template file with at least one command before listing or publishing.']);
         }
 
         if (($data['access_type'] ?? 'free') === 'paid' && (float) ($data['price'] ?? 0) <= 0) {

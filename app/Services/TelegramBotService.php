@@ -15,6 +15,12 @@ class TelegramBotService
 
     public function validateToken(string $token): array
     {
+        $token = $this->normalizeToken($token);
+
+        if (! $this->looksLikeBotToken($token)) {
+            return ['valid' => false, 'message' => self::INVALID_TOKEN_MESSAGE];
+        }
+
         $response = $this->request($token, 'getMe');
 
         if (! $response['ok']) {
@@ -278,18 +284,92 @@ class TelegramBotService
 
     public function getChatMember(string $token, int|string $chatId, int|string $userId): array
     {
-        $result = $this->request($token, 'getChatMember', [
-            'chat_id' => $chatId,
-            'user_id' => $userId,
-        ]);
+        $result = $this->checkTelegramChannelMember($token, $chatId, $userId);
 
         return ($result['ok'] ?? false)
-            ? ['ok' => true, 'data' => $result['result'] ?? []]
+            ? ['ok' => true, 'data' => $result['raw'] ?? []]
             : [
                 'ok' => false,
-                'message' => $result['description'] ?? $result['message'] ?? 'Telegram getChatMember failed.',
+                'message' => $result['message'] ?? 'Telegram getChatMember failed.',
                 'error_code' => $result['error_code'] ?? null,
             ];
+    }
+
+    public function checkTelegramChannelMember(string $token, int|string $chatId, int|string $telegramUserId): array
+    {
+        $token = $this->normalizeToken($token);
+
+        if (! $this->looksLikeBotToken($token)) {
+            return $this->channelMemberFailure('Invalid Telegram bot token.', 'unknown');
+        }
+
+        if ($chatId === '' || $telegramUserId === '') {
+            return $this->channelMemberFailure('Channel and Telegram user ID are required.', 'unknown');
+        }
+
+        $response = $this->requestQuick($token, 'getChatMember', [
+            'chat_id' => $chatId,
+            'user_id' => $telegramUserId,
+        ]);
+
+        if (! ($response['ok'] ?? false)) {
+            $payload = $response['payload'] ?? null;
+            $message = is_array($payload)
+                ? (string) ($payload['description'] ?? 'Telegram getChatMember failed.')
+                : 'Telegram getChatMember failed.';
+
+            Log::warning('Telegram getChatMember request failed.', [
+                'chat_id' => (string) $chatId,
+                'telegram_user_id' => (string) $telegramUserId,
+                'network_failed' => (bool) ($response['network_failed'] ?? false),
+                'error_code' => is_array($payload) ? ($payload['error_code'] ?? null) : null,
+                'message' => str($message)->limit(500, '')->toString(),
+            ]);
+
+            return $this->channelMemberFailure(
+                ($response['network_failed'] ?? false)
+                    ? 'Telegram API request timed out or is unavailable.'
+                    : $this->friendlyGetChatMemberError($message),
+                'unknown',
+                is_array($payload) ? ($payload['error_code'] ?? null) : null,
+                is_array($payload) ? $payload : null,
+            );
+        }
+
+        $payload = $response['payload'] ?? null;
+
+        if (! is_array($payload) || ($payload['ok'] ?? false) !== true || ! is_array($payload['result'] ?? null)) {
+            $message = is_array($payload)
+                ? (string) ($payload['description'] ?? 'Telegram getChatMember failed.')
+                : 'Telegram returned an invalid getChatMember response.';
+
+            Log::warning('Telegram getChatMember API returned an error.', [
+                'chat_id' => (string) $chatId,
+                'telegram_user_id' => (string) $telegramUserId,
+                'error_code' => is_array($payload) ? ($payload['error_code'] ?? null) : null,
+                'message' => str($message)->limit(500, '')->toString(),
+            ]);
+
+            return $this->channelMemberFailure(
+                $this->friendlyGetChatMemberError($message),
+                'unknown',
+                is_array($payload) ? ($payload['error_code'] ?? null) : null,
+                is_array($payload) ? $payload : null,
+            );
+        }
+
+        $member = $payload['result'];
+        $status = (string) ($member['status'] ?? 'unknown');
+        $isMember = in_array($status, ['creator', 'administrator', 'member'], true)
+            || ($status === 'restricted' && ($member['is_member'] ?? false) === true);
+
+        return [
+            'ok' => true,
+            'is_member' => $isMember,
+            'status' => $status,
+            'message' => $isMember ? 'User is a member.' : 'User is not a member.',
+            'raw' => $member,
+        ];
     }
 
     public function deleteMessage(string $token, int|string $chatId, int|string $messageId): array
@@ -543,8 +623,10 @@ class TelegramBotService
 
     private function request(string $token, string $method, array $payload = [], array $files = []): array
     {
+        $token = $this->normalizeToken($token);
+
         try {
-            $request = Http::timeout(5)->acceptJson();
+            $request = Http::connectTimeout(5)->timeout(15)->retry(2, 250, throw: false)->acceptJson();
             $url = "https://api.telegram.org/bot{$token}/{$method}";
 
             foreach ($files as $field => $pathOrUrl) {
@@ -596,5 +678,90 @@ class TelegramBotService
             'payload' => $responsePayload,
             'method' => $method,
         ];
+    }
+
+    private function requestQuick(string $token, string $method, array $payload = []): array
+    {
+        $token = $this->normalizeToken($token);
+
+        try {
+            $request = Http::connectTimeout(3)->timeout(20)->acceptJson();
+            $url = "https://api.telegram.org/bot{$token}/{$method}";
+            $response = $payload === [] ? $request->get($url) : $request->post($url, $payload);
+        } catch (ConnectionException $exception) {
+            Log::warning('Telegram API quick request failed.', ['method' => $method, 'error' => $exception->getMessage()]);
+
+            return ['ok' => false, 'network_failed' => true, 'payload' => null, 'method' => $method];
+        } catch (Throwable $exception) {
+            Log::warning('Telegram API quick request failed.', ['method' => $method, 'error' => $exception->getMessage()]);
+
+            return ['ok' => false, 'network_failed' => true, 'payload' => null, 'method' => $method];
+        }
+
+        try {
+            $responsePayload = $response->json();
+        } catch (Throwable) {
+            $responsePayload = null;
+        }
+
+        return [
+            'ok' => $response->successful(),
+            'network_failed' => false,
+            'payload' => $responsePayload,
+            'method' => $method,
+        ];
+    }
+
+    private function normalizeToken(string $token): string
+    {
+        return trim($token);
+    }
+
+    private function looksLikeBotToken(string $token): bool
+    {
+        return preg_match('/^\d+:[A-Za-z0-9_-]{10,}$/', $token) === 1;
+    }
+
+    private function channelMemberFailure(string $message, string $status = 'unknown', ?int $errorCode = null, ?array $raw = null): array
+    {
+        $result = [
+            'ok' => false,
+            'is_member' => false,
+            'status' => $status,
+            'message' => $message,
+        ];
+
+        if ($errorCode !== null) {
+            $result['error_code'] = $errorCode;
+        }
+
+        if ($raw !== null) {
+            $result['raw'] = $raw;
+        }
+
+        return $result;
+    }
+
+    private function friendlyGetChatMemberError(string $message): string
+    {
+        $lower = strtolower($message);
+
+        if (str_contains($lower, 'chat not found')) {
+            return 'Telegram channel or group was not found. Check the @username or numeric chat ID.';
+        }
+
+        if (str_contains($lower, 'user not found')) {
+            return 'Telegram user was not found in this chat.';
+        }
+
+        if (str_contains($lower, 'bot is not a member') || str_contains($lower, 'not enough rights') || str_contains($lower, 'member list is inaccessible')) {
+            return 'Bot cannot access this channel. Add the bot as an admin of the channel.';
+        }
+
+        if (str_contains($lower, 'unauthorized') || str_contains($lower, 'token')) {
+            return 'Invalid Telegram bot token.';
+        }
+
+        return 'Telegram getChatMember failed.';
     }
 }

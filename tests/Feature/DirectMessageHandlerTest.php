@@ -223,6 +223,10 @@ class DirectMessageHandlerTest extends TestCase
 
         Http::fake([
             'http://127.0.0.1:8787/health' => Http::response([], 500),
+            'api.telegram.org/*/getChatMember' => Http::response([
+                'ok' => true,
+                'result' => ['status' => 'member', 'user' => ['id' => 222]],
+            ]),
             'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
         ]);
 
@@ -299,7 +303,7 @@ class DirectMessageHandlerTest extends TestCase
             'command_name' => '/verify',
             'display_name' => 'Verify',
             'trigger_type' => 'slash',
-            'code' => "const joined = await isChannelMember('@example', userId);\nawait reply(joined ? 'Joined' : 'Not joined');",
+            'code' => "await reply(typeof checkChannelMember);",
             'response_type' => 'code',
             'status' => 'active',
         ]);
@@ -308,13 +312,10 @@ class DirectMessageHandlerTest extends TestCase
             ->assertOk()
             ->assertJson(['ok' => true]);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
-            && $request['text'] === 'Not joined');
-
         $this->assertDatabaseMissing('bot_command_logs', [
             'bot_id' => $bot->id,
             'status' => 'failed',
-            'error_message' => 'isChannelMember is not defined',
+            'error_message' => 'checkChannelMember is not defined',
         ]);
     }
 

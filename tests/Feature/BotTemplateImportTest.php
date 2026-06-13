@@ -36,6 +36,46 @@ function templateZipUpload(array $commands = null): UploadedFile
     return new UploadedFile($path, 'template.zip', 'application/zip', null, true);
 }
 
+function templateJsonUpload(array $commands = null, string $name = 'referral-bot-export-2026-06-04'): UploadedFile
+{
+    $commands ??= [
+        [
+            'command_name' => '/start',
+            'display_name' => '/start',
+            'trigger_type' => 'slash',
+            'code' => "await reply('Welcome from JSON!');",
+            'response_text' => 'Welcome from JSON!',
+            'aliases' => ['/begin'],
+            'folder' => 'General',
+            'status' => 'active',
+        ],
+    ];
+
+    $path = tempnam(sys_get_temp_dir(), 'template_json_');
+
+    file_put_contents($path, json_encode([
+        'metadata' => [
+            'format' => 'bothost_pro_bot_export',
+            'version' => '1',
+        ],
+        'version' => '1',
+        'bot_name' => 'Referral Faucet Bot',
+        'language' => 'javascript',
+        'commands' => $commands,
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+    return new UploadedFile($path, $name, 'application/json', null, true);
+}
+
+function invalidTemplateUpload(): UploadedFile
+{
+    $path = tempnam(sys_get_temp_dir(), 'template_invalid_');
+
+    file_put_contents($path, 'not a template export');
+
+    return new UploadedFile($path, 'notes.txt', 'text/plain', null, true);
+}
+
 function templateImportUser(array $attributes = []): User
 {
     return User::factory()->create(array_merge([
@@ -103,7 +143,7 @@ it('allows admins to create publish and add template commands', function (): voi
             'template_zip' => templateZipUpload(),
             'description' => 'A useful welcome template',
             'short_description' => 'Useful welcome commands',
-            'category' => 'starter',
+            'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'draft',
             'is_featured' => '1',
@@ -118,7 +158,7 @@ it('allows admins to create publish and add template commands', function (): voi
             'name' => 'Admin Welcome',
             'description' => 'A useful welcome template for new bot users.',
             'short_description' => 'Useful welcome commands',
-            'category' => 'starter',
+            'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'published',
             'marketplace_status' => 'listed',
@@ -137,6 +177,56 @@ it('allows admins to create publish and add template commands', function (): voi
     expect($template->fresh()->status)->toBe('published')
         ->and($template->fresh()->commands_count)->toBe(1)
         ->and($template->commands()->first()->command_name)->toBe('/start');
+});
+
+it('allows admins to create templates from BotHost JSON export files', function (): void {
+    $admin = templateImportUser(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.templates.store'), [
+            'name' => 'Referral Faucet Bot',
+            'template_zip' => templateJsonUpload(),
+            'description' => 'A useful referral faucet bot template.',
+            'category' => 'referral_bot',
+            'level' => 'beginner',
+            'status' => 'draft',
+            'access_type' => 'free',
+            'price' => 0,
+            'currency' => 'USD',
+            'marketplace_status' => 'unlisted',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $template = BotTemplate::query()->where('slug', 'referral-faucet-bot')->firstOrFail();
+
+    expect($template->template_zip_path)->not->toBeNull()
+        ->and(Storage::disk('local')->exists($template->template_zip_path))->toBeTrue()
+        ->and($template->commands_count)->toBe(1)
+        ->and($template->commands()->first()->command_name)->toBe('/start')
+        ->and($template->commands()->first()->metadata['source'] ?? null)->toBe('json')
+        ->and($template->metadata['zip_parse']['source'] ?? null)->toBe('json');
+});
+
+it('rejects uploaded template files that are not valid ZIP or JSON exports', function (): void {
+    $admin = templateImportUser(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.templates.store'), [
+            'name' => 'Invalid Template',
+            'template_zip' => invalidTemplateUpload(),
+            'description' => 'This file is not a valid template.',
+            'category' => 'referral_bot',
+            'level' => 'beginner',
+            'status' => 'draft',
+            'access_type' => 'free',
+            'price' => 0,
+            'currency' => 'USD',
+            'marketplace_status' => 'unlisted',
+        ])
+        ->assertSessionHasErrors('template_zip');
+
+    expect(BotTemplate::query()->where('slug', 'invalid-template')->exists())->toBeFalse();
 });
 
 it('imports published templates into owned bots with skip and rename conflict strategies', function (): void {

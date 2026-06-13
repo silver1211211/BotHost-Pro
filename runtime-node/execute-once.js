@@ -10,6 +10,7 @@ process.stdin.on('end', async () => {
   const startedAt = Date.now();
   const executionId = fallbackExecutionId();
   let helpers = null;
+  let actions = [];
 
   try {
     const payload = JSON.parse((input || '{}').replace(/^\uFEFF/, ''));
@@ -25,7 +26,7 @@ process.stdin.on('end', async () => {
     }
 
     const settings = normalizeRuntimeSettings(payload.settings || {});
-    const actions = [];
+    actions = [];
     helpers = buildHelpers(payload, actions, settings);
     const context = vm.createContext(Object.assign(Object.create(null), helpers), {
       name: 'bothost-command-runtime',
@@ -56,6 +57,7 @@ process.stdin.on('end', async () => {
       isTimeoutError(error) ? 'TimeoutError' : 'RuntimeError',
       error,
       helpers && typeof helpers.__storageMutations === 'function' ? helpers.__storageMutations() : null,
+      actions,
     );
   }
 });
@@ -133,11 +135,16 @@ function buildHelpers(payload, actions, settings) {
       return { ok: false, error: 'Telegram runtime bridge is not configured.' };
     }
 
-    return internalRuntimePost(telegramBridgeUrl, {
+    const result = await internalRuntimePost(telegramBridgeUrl, {
       bot_id: (payload.bot || {}).id || null,
       action,
       options: normalizeObject(options, 'Telegram helper options'),
-    }, telegramBridgeSecret, 8000, 'Telegram bridge');
+    }, telegramBridgeSecret, 15000, 'Telegram bridge');
+
+    if (result && !result.ok && typeof result.error === 'string' && result.error.endsWith(' timed out.')) {
+      return { ...result, error_type: 'TelegramBridgeTimeout' };
+    }
+    return result;
   };
 
   const storageRuntimeGet = async (action, key, defaultValue = null, targetTelegramUserId = null) => {
@@ -179,10 +186,48 @@ function buildHelpers(payload, actions, settings) {
     }, storageBridgeSecret, 500, 'storage bridge');
   };
 
-  const sendMessage = async (chatId, text, options = {}) => {
+  const storageRuntimeFindUser = async (key, value) => {
+    const normalizedKey = requireStorageKey(key);
+    const normalizedValue = jsonSafeValue(value);
+
+    if (!storageBridgeUrl || !storageBridgeSecret) {
+      const wanted = canonicalFindValue(normalizedValue);
+      if (wanted !== null && userData.has(normalizedKey) && canonicalFindValue(userData.get(normalizedKey)) === wanted) {
+        return { ok: true, found: true, user_id: String(safeUser.id), value: userData.get(normalizedKey) };
+      }
+      for (const [uid, data] of Object.entries(crossUsersData)) {
+        if (data && data.has(normalizedKey) && canonicalFindValue(data.get(normalizedKey)) === wanted) {
+          return { ok: true, found: true, user_id: String(uid), value: data.get(normalizedKey) };
+        }
+      }
+      return { ok: true, found: false, value: null };
+    }
+
+    return internalRuntimePost(storageBridgeUrl, {
+      bot_id: safeBot.id,
+      telegram_user_id: safeUser.id != null ? String(safeUser.id) : null,
+      action: 'user.find',
+      key: normalizedKey,
+      value: normalizedValue,
+    }, storageBridgeSecret, 1000, 'storage bridge');
+  };
+
+  const sendMessage = async (chatIdOrText, textOrOptions = undefined, opts = {}) => {
     try {
-      const targetChatId = requireChatId(chatId, 'sendMessage(chatId, text)');
-      const normalizedText = requireString(text, 'sendMessage(chatId, text)');
+      let chatId, text, options;
+      if (typeof textOrOptions === 'string') {
+        // sendMessage(chatId, text [, options])
+        chatId = chatIdOrText;
+        text = textOrOptions;
+        options = opts;
+      } else {
+        // sendMessage(text [, options]) — use current chat
+        chatId = safeChat.id;
+        text = chatIdOrText;
+        options = (textOrOptions !== null && typeof textOrOptions === 'object') ? textOrOptions : opts;
+      }
+      const targetChatId = requireChatId(chatId, 'sendMessage chatId');
+      const normalizedText = requireString(text, 'sendMessage text');
       const normalizedOptions = normalizeMessageOptions(options);
 
       if (!telegramBridgeUrl || !telegramBridgeSecret) {
@@ -541,23 +586,81 @@ function buildHelpers(payload, actions, settings) {
   };
 
   const isChannelMember = async (channelUsernameOrId, userId) => {
-    try {
-      const member = await getChatMember(channelUsernameOrId, userId);
-      const isMember = ['creator', 'administrator', 'member'].includes(member.status);
+    const result = await checkChannelMember(channelUsernameOrId, userId);
+    return !!result.is_member;
+  };
 
-      process.stderr.write('[BotHost] isChannelMember_result ' + JSON.stringify({
+  const checkChannelMember = async (channelUsernameOrId, userId = safeUser.id) => {
+    const startedAt = Date.now();
+    try {
+      const chatId = requireChatId(channelUsernameOrId, 'checkChannelMember(channel, userId)');
+      const targetUserId = requireChatId(userId, 'checkChannelMember(channel, userId)');
+
+      const response = await telegramRuntimeAction('telegram.checkChannelMember', {
+        chat_id: chatId,
+        user_id: targetUserId,
+      });
+
+      const elapsedMs = Date.now() - startedAt;
+      const isOk = !!response.ok;
+      const isBridgeTimeout = !isOk && response.error_type === 'TelegramBridgeTimeout';
+
+      let result;
+      if (isBridgeTimeout) {
+        result = {
+          ok: false,
+          is_member: false,
+          status: 'unknown',
+          error: 'Telegram getChatMember request timed out. The Telegram API did not respond in time.',
+          stage: 'telegram_get_chat_member',
+          elapsed_ms: elapsedMs,
+        };
+      } else {
+        const msgText = String(
+          response.message || response.error ||
+          (response.result && response.result.message) ||
+          (isOk ? 'Telegram membership check completed.' : 'Telegram membership check failed.')
+        );
+        result = isOk
+          ? {
+              ok: true,
+              is_member: !!(response.is_member ?? (response.result && response.result.is_member)),
+              status: String(response.status ?? (response.result && response.result.status) ?? 'unknown'),
+              message: msgText,
+              elapsed_ms: elapsedMs,
+            }
+          : { ok: false, is_member: false, status: String(response.status ?? 'unknown'), error: msgText, elapsed_ms: elapsedMs };
+      }
+
+      process.stderr.write('[BotHost] checkChannelMember_result ' + JSON.stringify({
+        helper: 'checkChannelMember',
         bot_id: (payload.bot || {}).id || null,
+        command_id: (payload.command || {}).id || null,
+        command_name: (payload.command || {}).name || null,
         channel: String(channelUsernameOrId),
-        target_user_id: userId,
-        status: member.status || null,
-        is_member: isMember,
+        user_id: targetUserId,
+        ok: result.ok,
+        status: result.status,
+        is_member: result.is_member,
+        stage: result.stage || (result.ok ? 'done' : 'telegram_api'),
+        error: result.ok ? null : (result.error || null),
+        elapsed_ms: elapsedMs,
       }) + '\n');
 
-      return isMember;
-    } catch (_) {
-      return false;
+      return result;
+    } catch (error) {
+      return {
+        ok: false,
+        is_member: false,
+        status: 'unknown',
+        error: String((error && error.message) || error || 'Telegram membership check failed.'),
+        stage: 'input_validation',
+        elapsed_ms: Date.now() - startedAt,
+      };
     }
   };
+
+  const verifyTelegramChannel = checkChannelMember;
 
   const delay = async (milliseconds) => {
     const ms = Number(milliseconds);
@@ -1395,6 +1498,18 @@ function buildHelpers(payload, actions, settings) {
     return value;
   };
 
+  const findUserByData = async (key, value) => {
+    try {
+      const result = await storageRuntimeFindUser(key, value);
+      if (result && result.ok && result.found && result.user_id !== undefined && result.user_id !== null) {
+        return { user_id: String(result.user_id), value: jsonSafeValue(result.value) };
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   const removeUserDataFor = async (telegramUserId, key) => {
     try {
       const uid = normalizeCrossUserId(telegramUserId, 'removeUserDataFor(userId, key)');
@@ -1537,11 +1652,27 @@ function buildHelpers(payload, actions, settings) {
       input_amount: amount,
       normalized_amount: safeAmt,
       currency: sym,
-      api_amount_sent: toFaucetPaySatoshis(safeAmt),
+      api_amount_sent: safeAmt,
     }));
     const result = await paymentRuntimeAction('faucetpay.send', { to: String(toEmail), amount: safeAmt, currency: sym });
     const ok = result && result.ok === true;
     return { ok: !!ok, status: (result && result.status) || 0, message: (result && result.message) || 'Unknown error', raw: plainObject(result || {}) };
+  };
+
+  const helperFaucetPayGetBalance = async (apiKey, currency = 'USDT') => {
+    const key = requireString(apiKey, 'faucetPayGetBalance(apiKey, currency)');
+    const sym = String(currency || 'USDT').toUpperCase();
+    const result = await paymentRuntimeAction('faucetpay.getBalance', { api_key: key, currency: sym });
+    const ok = result && result.ok === true;
+    return ok
+      ? {
+          ok: true,
+          balance: result.balance ?? 0,
+          currency: result.currency || sym,
+          message: result.message || 'FaucetPay balance loaded.',
+          data: plainObject(result.data || result.raw || {}),
+        }
+      : { ok: false, error: String((result && (result.error || result.message)) || 'FaucetPay getbalance failed.') };
   };
 
   const helperFaucetPayCheckAddress = async (currency, address) => {
@@ -1950,6 +2081,8 @@ function buildHelpers(payload, actions, settings) {
     safeCaption,
     safeTelegramError,
     getChatMember,
+    checkChannelMember,
+    verifyTelegramChannel,
     isChannelMember,
     getUserData,
     setUserData,
@@ -1999,17 +2132,20 @@ function buildHelpers(payload, actions, settings) {
     generatePaymentRef,
     generateWithdrawalRef,
     faucetPayBalance: helperFaucetPayBalance,
+    faucetPayGetBalance: helperFaucetPayGetBalance,
     faucetPaySend: helperFaucetPaySend,
     faucetPayWithdraw: helperFaucetPaySend,
     faucetPayCheckAddress: helperFaucetPayCheckAddress,
     faucetPayValidateKey: async (apiKey = null) => paymentRuntimeAction('faucetpay.validateKey', apiKey ? { api_key: String(apiKey) } : {}),
     faucetPayCheckEmail: async (email, currency = 'USDT') => paymentRuntimeAction('faucetpay.checkEmail', { email: String(email || ''), currency: String(currency || 'USDT').toUpperCase() }),
+    faucetPayGetCurrencies: async (apiKey = null) => paymentRuntimeAction('faucetpay.getCurrencies', apiKey ? { api_key: String(apiKey) } : {}),
     isFaucetPayCurrencySupported: (currency) => faucetPayCurrencyList.includes(String(currency || '').toUpperCase()),
     faucetPaySupportedCurrencies: () => [...faucetPayCurrencyList],
     faucetPayFormatAmount: (amount) => normalizePaymentAmount(amount, 8),
     faucetPayParseBalance: (rawBalance) => extractFaucetPayBalance(rawBalance, ''),
     faucetPaySafeResponse: (response) => plainObject(response || {}),
     faucetPayErrorMessage: (response) => String((response && (response.error || response.message)) || 'FaucetPay request failed'),
+    findUserByData,
     oxapayCreateInvoice,
     oxapayCreateWhiteLabel,
     oxapayCreateStaticAddress,
@@ -2616,7 +2752,7 @@ async function internalRuntimePost(url, payload, secret, timeoutMs = 8000, label
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Math.max(1, Math.min(Number(timeoutMs) || 8000, 8000)));
+  const timeout = setTimeout(() => controller.abort(), Math.max(1, Number(timeoutMs) || 8000));
   try {
     const response = await fetch(parsed.toString(), {
       method: 'POST',
@@ -2689,7 +2825,7 @@ function isPrivateAddress(address) {
 
 function isLoopbackHostname(hostname) {
   const value = String(hostname || '').toLowerCase();
-  return value === 'localhost' || value === '127.0.0.1' || value === '::1';
+  return value === 'localhost' || value === '127.0.0.1' || value === '::1' || value.endsWith('.test');
 }
 
 function normalizeMessageOptions(options) {
@@ -3087,7 +3223,7 @@ function renderTemplate(template, data) {
 
 function normalizeRuntimeSettings(settings) {
   return {
-    command_timeout_ms: Math.min(Math.max(Number(settings.command_timeout_ms || 15000), 1000), 30000),
+    command_timeout_ms: Math.min(Math.max(Number(settings.command_timeout_ms || 30000), 1000), 30000),
     max_delay_ms: Math.min(Math.max(Number(settings.max_delay_ms || 10000), 0), 30000),
   };
 }
@@ -3180,6 +3316,12 @@ function jsonSafeValue(value) {
   return normalized === undefined ? null : normalized;
 }
 
+function canonicalFindValue(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string') return value.trim().toLowerCase();
+  return safeJsonStringify(jsonSafeValue(value));
+}
+
 function safeJsonStringify(value) {
   try {
     return JSON.stringify(value);
@@ -3235,12 +3377,12 @@ function fallbackExecutionId() {
   return `fallback-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-function writeError(startedAt, executionId, error, errorType, originalError = null, storage = null) {
+function writeError(startedAt, executionId, error, errorType, originalError = null, storage = null, replies = []) {
   return writeJson({
     ok: false,
     execution_id: executionId,
     execution_time_ms: Date.now() - startedAt,
-    replies: [],
+    replies: Array.isArray(replies) ? replies : [],
     storage,
     error,
     error_type: errorType,

@@ -30,18 +30,48 @@
             </div>
             <div class="grid gap-4 p-4 md:grid-cols-2">
 
-                {{-- ZIP upload --}}
-                <div class="flex flex-col gap-2">
-                    <label class="flex cursor-pointer flex-col gap-2 rounded-xl border border-dashed border-[#27213D] bg-[#090713] p-4 text-sm transition hover:border-[#8B5CF6]/40">
-                        <span class="font-bold text-[#A1A1AA]">
-                            ZIP File
-                            @if(! $template->exists)<span class="text-[#EF4444]">*</span>@endif
-                        </span>
-                        <input name="template_zip" type="file" accept=".zip,application/zip"
-                               class="block w-full text-xs text-[#71717A] file:mr-3 file:rounded-lg file:border-0 file:bg-[#27213D] file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-[#A1A1AA]">
-                        <span class="text-xs text-[#71717A]">Upload the ZIP containing this template's commands. Commands are parsed automatically.</span>
+                {{-- Template upload --}}
+                <div class="flex flex-col gap-2"
+                     x-data="{
+                         dragging: false,
+                         fileName: '',
+                         handleDrop(e) {
+                             this.dragging = false;
+                             const file = e.dataTransfer.files[0];
+                             if (!file) return;
+                             const dt = new DataTransfer();
+                             dt.items.add(file);
+                             this.$refs.zipInput.files = dt.files;
+                             this.fileName = file.name;
+                         }
+                     }"
+                     x-on:dragover.prevent="dragging = true"
+                     x-on:dragleave.prevent="dragging = false"
+                     x-on:drop.prevent="handleDrop($event)">
+                    <label
+                        class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed bg-[#090713] p-5 text-sm transition"
+                        :class="dragging
+                            ? 'border-[#8B5CF6] bg-[#8B5CF6]/8 scale-[1.01]'
+                            : 'border-[#27213D] hover:border-[#8B5CF6]/40'"
+                    >
+                        <svg class="h-7 w-7 transition" :class="dragging ? 'text-[#8B5CF6]' : 'text-[#3D3657]'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+                        </svg>
+                        <div class="text-center">
+                            <p class="font-bold text-[#A1A1AA]">
+                                Template File @if(! $template->exists)<span class="text-[#EF4444]">*</span>@endif
+                            </p>
+                            <p class="mt-0.5 text-xs text-[#52525B]">
+                                <span x-show="!fileName">Drag & drop a template export here, or click to browse</span>
+                                <span x-show="fileName" class="font-mono text-[#22C55E]" x-text="fileName"></span>
+                            </p>
+                        </div>
+                        <input x-ref="zipInput" name="template_zip" type="file"
+                               class="hidden"
+                               x-on:change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                        <span class="rounded-lg border border-[#27213D] bg-[#11101C] px-3 py-1.5 text-[11px] font-bold text-[#71717A] transition group-hover:border-[#8B5CF6]/30">Browse file</span>
                         @if($template->template_zip_path)
-                            <span class="text-xs text-[#22C55E]">&#10003; ZIP already stored — upload to replace.</span>
+                            <span class="text-xs text-[#22C55E]">&#10003; Template file already stored - drop or click to replace.</span>
                         @endif
                     </label>
                 </div>
@@ -288,8 +318,8 @@
         <section class="overflow-hidden rounded-xl border border-[#27213D]">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#27213D] bg-[#0F0D1A] px-4 py-3">
                 <div>
-                    <h2 class="text-sm font-black">Extracted ZIP Commands</h2>
-                    <p class="mt-0.5 text-xs text-[#71717A]">Commands come from the uploaded ZIP. Re-upload to refresh.</p>
+                    <h2 class="text-sm font-black">Extracted Template Commands</h2>
+                    <p class="mt-0.5 text-xs text-[#71717A]">Commands come from the uploaded template file. Re-upload to refresh.</p>
                 </div>
                 @php($summary = $template->metadata['zip_parse'] ?? null)
                 @if($summary)

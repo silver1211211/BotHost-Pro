@@ -36,11 +36,16 @@ class RuntimeOxaPayController extends Controller
                 'secret.status' => $this->secretStatus($bot, (string) ($options['key'] ?? '')),
                 'faucetpay.keyStatus' => $faucetPay->keyStatus($bot),
                 'faucetpay.balance' => $faucetPay->balance($bot, isset($options['currency']) ? (string) $options['currency'] : null),
+                'faucetpay.getBalance' => $faucetPay->getBalanceWithKey(
+                    isset($options['api_key']) ? (string) $options['api_key'] : null,
+                    isset($options['currency']) ? (string) $options['currency'] : 'USDT',
+                ),
                 'faucetpay.send' => $faucetPay->send($bot, $options),
                 'faucetpay.validateKey' => $faucetPay->validateKey($bot, isset($options['api_key']) ? (string) $options['api_key'] : null),
                 'faucetpay.checkEmail' => $faucetPay->checkEmail($bot, (string) ($options['email'] ?? ''), isset($options['currency']) ? (string) $options['currency'] : null),
                 'faucetpay.checkAddress' => $faucetPay->checkAddress($bot, (string) ($options['currency'] ?? 'USDT'), (string) ($options['address'] ?? '')),
                 'faucetpay.supportedCurrencies' => ['ok' => true, 'currencies' => $faucetPay->supportedCurrencies()],
+                'faucetpay.getCurrencies' => ['ok' => true, 'currencies' => $faucetPay->supportedCurrencies()],
                 'faucetpay.isCurrencySupported' => [
                     'ok' => true,
                     'currency' => strtoupper((string) ($options['currency'] ?? '')),

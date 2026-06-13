@@ -155,6 +155,11 @@ class SettingsController extends Controller
                 'last_error' => $runtimeDockerSummary['error'] ?? null,
             ],
             'redisPasswordMasked' => PlatformSetting::maskedValue('redis_password'),
+
+            // Runtime health-check status (persisted across requests)
+            'runtimeStatusPersisted' => (string) PlatformSetting::getValue('runtime_status', 'unknown'),
+            'runtimeStatusCheckedAt' => (string) PlatformSetting::getValue('runtime_status_checked_at', ''),
+            'runtimeStatusLastError' => (string) PlatformSetting::getValue('runtime_status_last_error', ''),
         ]);
     }
 
@@ -638,28 +643,82 @@ class SettingsController extends Controller
 
     public function testRuntime(Request $request): RedirectResponse
     {
-        $settings = $this->runtimeSettings->all();
-        $url = rtrim((string) ($settings['runtime_health_url'] ?? ''), '/');
+        try {
+            $settings = $this->runtimeSettings->all();
+        } catch (Throwable $e) {
+            $this->safePersistRuntimeStatus('offline', 'Could not load settings: '.$this->safeRuntimeMessage($e->getMessage()));
+            return redirect()->route('admin.settings.index', ['tab' => 'maintenance'])
+                ->withErrors(['runtime' => 'Could not load runtime settings.']);
+        }
+
+        $savedUrl = rtrim((string) ($settings['runtime_health_url'] ?? ''), '/');
+        $url = $this->resolveRuntimeHealthUrl($savedUrl, $settings);
 
         if ($url === '' || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            $this->safePersistRuntimeStatus('offline', 'Invalid runtime health URL.');
             return redirect()->route('admin.settings.index', ['tab' => 'maintenance'])
                 ->withErrors(['runtime' => 'Runtime unavailable: invalid runtime health URL.']);
         }
 
         try {
-            $response = Http::connectTimeout(1)->timeout(2)->acceptJson()->get($url);
+            $response = Http::connectTimeout(3)->timeout(6)->acceptJson()->get($url);
         } catch (Throwable $exception) {
+            $errorMsg = $this->safeRuntimeMessage($exception->getMessage());
+            $this->safePersistRuntimeStatus('offline', $errorMsg);
             return redirect()->route('admin.settings.index', ['tab' => 'maintenance'])
-                ->withErrors(['runtime' => 'Runtime unavailable: '.$this->safeRuntimeMessage($exception->getMessage())]);
+                ->withErrors(['runtime' => 'Runtime unavailable: '.$errorMsg]);
         }
 
         if (! $response->successful()) {
+            $errorMsg = 'HTTP '.$response->status().'.';
+            $this->safePersistRuntimeStatus('offline', $errorMsg);
             return redirect()->route('admin.settings.index', ['tab' => 'maintenance'])
-                ->withErrors(['runtime' => 'Runtime unavailable: HTTP '.$response->status().'.']);
+                ->withErrors(['runtime' => 'Runtime unavailable: '.$errorMsg]);
         }
 
+        $this->safePersistRuntimeStatus('online', '');
         return redirect()->route('admin.settings.index', ['tab' => 'maintenance'])
-            ->with('status', 'Runtime online.');
+            ->with('status', 'Runtime online: '.$url);
+    }
+
+    private function resolveRuntimeHealthUrl(string $savedUrl, array $settings): string
+    {
+        $localUrl = 'http://'.($settings['runtime_host'] ?? '127.0.0.1').':'.($settings['runtime_port'] ?? 8787).'/health';
+
+        if ($savedUrl === '') {
+            return $localUrl;
+        }
+
+        $savedHost   = strtolower((string) parse_url($savedUrl, PHP_URL_HOST));
+        $appHost     = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
+        $publicHost  = strtolower((string) parse_url((string) \App\Support\PublicCallbackUrl::base(), PHP_URL_HOST));
+
+        // If the saved health URL points to the public app hostname, override with the local runtime address.
+        if ($savedHost !== '' && in_array($savedHost, array_filter([$appHost, $publicHost]), true)) {
+            return $localUrl;
+        }
+
+        return $savedUrl;
+    }
+
+    private function persistRuntimeStatus(string $status, string $error): void
+    {
+        PlatformSetting::setValue('runtime_status', $status);
+        PlatformSetting::setValue('runtime_status_last_error', $error);
+        PlatformSetting::setValue('runtime_status_checked_at', now()->toIso8601String());
+    }
+
+    private function safePersistRuntimeStatus(string $status, string $error): void
+    {
+        try {
+            $this->persistRuntimeStatus($status, $error);
+        } catch (Throwable $e) {
+            Log::error('Failed to persist runtime status.', [
+                'status'    => $status,
+                'error'     => $error,
+                'exception' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function resetRuntimeUrls(Request $request): RedirectResponse

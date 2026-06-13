@@ -44,12 +44,35 @@ Available helpers:
 - `replyMarkdown(text, options)`
 - `sendMessage(chatId, text, options)`
 - `sendPhoto(chatId, photoUrl, options)`
+- `checkChannelMember(channelUsernameOrId, userId = currentUserId)`
+- `verifyTelegramChannel(channelUsernameOrId, userId = currentUserId)`
+- `isChannelMember(channelUsernameOrId, userId = currentUserId)`
 - `delay(ms)`
 - `now()`
 - `random(min, max)`
 - `httpsRequest(url, options)`
 
 Security note: command code receives safe metadata only. Bot tokens, server files, environment variables, and secrets are not exposed to user code.
+
+## Telegram Channel Membership
+
+Use `checkChannelMember(channelUsernameOrId, userId)` to call Telegram `getChatMember` through BotHost's runtime bridge. It returns `{ ok, is_member, status, message }` and never exposes the bot token. `verifyTelegramChannel(...)` is an alias. `isChannelMember(...)` returns only `true` or `false`.
+
+The bot must be added to the channel/group before checking membership. Public channels can use `@username`; private channels usually need a numeric chat ID. For private channels and some groups, grant the bot admin access. Telegram user IDs are numeric and are not the same as usernames.
+
+Local test command:
+
+```js
+const channel = await getBotData("test_verify_channel", "@YOUR_TEST_CHANNEL_USERNAME");
+const result = await checkChannelMember(channel);
+
+await replyHTML(
+  `Channel checked: <code>${safeHTML(channel)}</code>\n` +
+  `User Telegram ID: <code>${safeHTML(userId)}</code>\n` +
+  `Membership status: <code>${safeHTML(result.status)}</code>\n\n` +
+  (result.is_member ? `You are a member of ${safeHTML(channel)}` : `You have not joined ${safeHTML(channel)} yet`)
+);
+```
 
 ## Menu / UI Helpers
 

@@ -119,6 +119,54 @@ class BotManagementTest extends TestCase
         $this->assertDatabaseCount('bots', 0);
     }
 
+    public function test_malformed_telegram_token_does_not_call_telegram(): void
+    {
+        Http::fake();
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/dashboard/bots', [
+            'token' => 'not a token',
+            'name' => 'Support Desk',
+            'setup_type' => 'custom',
+        ])->assertSessionHasErrors([
+            'token' => 'Invalid Telegram bot token. Please check the token from BotFather.',
+        ]);
+
+        Http::assertNothingSent();
+        $this->assertDatabaseCount('bots', 0);
+    }
+
+    public function test_token_pasted_with_whitespace_is_verified_and_stored_trimmed(): void
+    {
+        Http::fake([
+            'api.telegram.org/*/getMe' => Http::response([
+                'ok' => true,
+                'result' => [
+                    'id' => 123456789,
+                    'is_bot' => true,
+                    'first_name' => 'Support Desk',
+                    'username' => 'support_desk_bot',
+                ],
+            ]),
+        ]);
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/dashboard/bots', [
+            'token' => "  123456:AA-secret-token-with-whitespace  \n",
+            'name' => 'Support Desk',
+            'setup_type' => 'custom',
+        ])->assertRedirect();
+
+        $bot = Bot::query()->firstOrFail();
+
+        $this->assertSame('123456:AA-secret-token-with-whitespace', $bot->token_encrypted);
+        $this->assertSame('123456:AA-secret-token-with-whitespace', Crypt::decryptString($bot->getRawOriginal('token_encrypted')));
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'bot123456:AA-secret-token-with-whitespace/getMe'));
+    }
+
     public function test_template_setup_is_rejected_until_templates_are_ready(): void
     {
         $user = User::factory()->create();
@@ -558,6 +606,11 @@ class BotManagementTest extends TestCase
         config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);
 
         Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response(['ok' => true]),
+            'http://127.0.0.1:8787/execute' => Http::response([
+                'ok' => true,
+                'replies' => [],
+            ]),
             'http://127.0.0.1:8787/execute-command' => Http::response([
                 'ok' => true,
                 'replies' => [],
@@ -590,6 +643,11 @@ class BotManagementTest extends TestCase
         config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);
 
         Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response(['ok' => true]),
+            'http://127.0.0.1:8787/execute' => Http::response([
+                'ok' => false,
+                'error' => 'Test error',
+            ]),
             'http://127.0.0.1:8787/execute-command' => Http::response([
                 'ok' => false,
                 'error' => 'Test error',

@@ -188,9 +188,9 @@ class Bot extends Model
                     return null;
                 }
             },
-            set: fn (?string $value) => $value
+            set: fn (?string $value) => filled($value)
                 ? [
-                    'token_encrypted' => Crypt::encryptString($value),
+                    'token_encrypted' => Crypt::encryptString(trim($value)),
                     'token_hash' => self::tokenHash($value),
                 ]
                 : [
@@ -231,6 +231,8 @@ class Bot extends Model
                 }
 
                 try {
+                    $storedToken = trim($storedToken);
+
                     if (hash_equals($token, $storedToken)) {
                         $bot->forceFill(['token_hash' => $hash])->saveQuietly();
                     } else {

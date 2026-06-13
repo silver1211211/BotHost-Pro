@@ -17,6 +17,7 @@ use App\Services\RuntimeSettingsService;
 use App\Services\TelegramBotService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -452,6 +453,14 @@ class TelegramWebhookController extends Controller
                 ]);
             }
 
+            $updateId = $request->input('update_id');
+            if ($updateId !== null) {
+                $dedupeKey = "webhook_upd_{$bot->id}_{$updateId}";
+                if (! Cache::add($dedupeKey, 1, now()->addSeconds(120))) {
+                    return response()->json(['ok' => true]);
+                }
+            }
+
             $runtimeStarted = microtime(true);
             Log::info('[BotHost] Calling Node runtime', [
                 'bot_id' => $bot->id,
@@ -471,7 +480,9 @@ class TelegramWebhookController extends Controller
                 'runtime_path' => $result['runtime_path'] ?? null,
             ]);
 
-            if ($result['ok']) {
+            $runtimeReplyCount = is_countable($result['replies'] ?? null) ? count($result['replies']) : 0;
+
+            if (($result['ok'] ?? false) || $runtimeReplyCount > 0) {
                 $sentReply = false;
                 $usedFallback = (bool) data_get($result, 'runtime_path.fallback_used', false);
                 $replyCount = 0;
@@ -815,7 +826,7 @@ class TelegramWebhookController extends Controller
                     ]);
                 }
 
-                if (! $sentReply && filled($command->response_text)) {
+                if (! $sentReply && $runtimeReplyCount === 0 && filled($command->response_text)) {
                     $sendStarted = microtime(true);
                     $sendResult = $telegram->sendMessage($token, $chatId, $command->response_text);
                     $timings['telegram_send_ms'] = ($timings['telegram_send_ms'] ?? 0) + $this->elapsedMs($sendStarted);
@@ -835,14 +846,14 @@ class TelegramWebhookController extends Controller
                     'bot_id' => $bot->id,
                     'command_id' => $command->id,
                     'fallback_used' => $usedFallback,
-                    'action_count' => is_countable($result['replies'] ?? null) ? count($result['replies']) : 0,
+                    'action_count' => $runtimeReplyCount,
                     'first_action_type' => $result['replies'][0]['type'] ?? null,
                     'telegram_send_ok' => $sentReply,
                 ]);
 
                 $status = $sentReply
                     ? ($usedFallback ? 'fallback_response' : 'success')
-                    : 'no_reply';
+                    : (($result['ok'] ?? false) ? 'no_reply' : 'failed');
 
                 $this->commandLog($bot, $command, $telegramContext, [
                     'status' => $status,
@@ -851,7 +862,7 @@ class TelegramWebhookController extends Controller
                     'execution_time_ms' => $result['execution_time_ms'] ?? null,
                 ]);
 
-                if ($status !== 'no_reply') {
+                if (in_array($status, ['success', 'fallback_response'], true)) {
                     $this->markCommandSuccess($command);
                 }
 

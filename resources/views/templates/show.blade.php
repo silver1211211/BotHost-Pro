@@ -8,7 +8,9 @@
             <div class="relative mb-5 w-full overflow-hidden rounded-xl" style="aspect-ratio:16/9">
                 @if($template->thumbnail_url)
                     <img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}"
-                         class="absolute inset-0 h-full w-full object-cover">
+                         class="absolute inset-0 h-full w-full object-cover"
+                         onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    <div class="absolute inset-0 items-center justify-center bg-[#11101C] text-sm text-[#71717A]" style="display:none">No image</div>
                 @else
                     <div class="flex h-full w-full items-center justify-center border border-[#27213D] bg-[#11101C] text-sm text-[#71717A]">No image</div>
                 @endif

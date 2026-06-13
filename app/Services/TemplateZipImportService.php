@@ -16,6 +16,11 @@ class TemplateZipImportService
 
     public function storeZip(UploadedFile $file, ?string $oldPath = null): string
     {
+        return $this->storeTemplateFile($file, $oldPath);
+    }
+
+    public function storeTemplateFile(UploadedFile $file, ?string $oldPath = null): string
+    {
         $path = $file->store('templates/zips', 'local');
 
         if ($oldPath && $oldPath !== $path) {
@@ -28,10 +33,19 @@ class TemplateZipImportService
     public function parse(UploadedFile|string $file): array
     {
         $path = $file instanceof UploadedFile ? $file->getRealPath() : $file;
+
+        if (! $path || ! is_readable($path)) {
+            throw ValidationException::withMessages(['template_zip' => 'Template file could not be opened.']);
+        }
+
+        if ($this->looksLikeJsonFile($file, $path)) {
+            return $this->parseJsonExport((string) file_get_contents($path), $this->sourceName($file));
+        }
+
         $zip = new ZipArchive();
 
-        if (! $path || $zip->open($path) !== true) {
-            throw ValidationException::withMessages(['template_zip' => 'Template ZIP could not be opened.']);
+        if ($zip->open($path) !== true) {
+            throw ValidationException::withMessages(['template_zip' => 'Template file must be a valid ZIP or JSON export.']);
         }
 
         try {
@@ -42,7 +56,7 @@ class TemplateZipImportService
         }
 
         if ($commands === []) {
-            throw ValidationException::withMessages(['template_zip' => 'Template ZIP must contain at least one valid command.']);
+            throw ValidationException::withMessages(['template_zip' => 'Template file must contain at least one valid command.']);
         }
 
         return [
@@ -53,8 +67,84 @@ class TemplateZipImportService
                 'skipped' => 0,
                 'skipped_duplicates' => [],
                 'errors' => [],
+                'source' => 'zip',
             ],
         ];
+    }
+
+    private function looksLikeJsonFile(UploadedFile|string $file, string $path): bool
+    {
+        $extension = strtolower(pathinfo($this->sourceName($file), PATHINFO_EXTENSION));
+        $mime = $file instanceof UploadedFile ? strtolower((string) $file->getMimeType()) : '';
+
+        if ($extension === 'json' || str_contains($mime, 'json')) {
+            return true;
+        }
+
+        $handle = fopen($path, 'rb');
+
+        if ($handle === false) {
+            return false;
+        }
+
+        $prefix = ltrim((string) fread($handle, 64));
+        fclose($handle);
+
+        return str_starts_with($prefix, '{') || str_starts_with($prefix, '[');
+    }
+
+    private function sourceName(UploadedFile|string $file): string
+    {
+        return $file instanceof UploadedFile
+            ? (string) ($file->getClientOriginalName() ?: 'template.json')
+            : basename($file);
+    }
+
+    private function parseJsonExport(string $content, string $name): array
+    {
+        $payload = $this->decodeJson($content, $name, 'Template JSON export');
+        $definitions = $this->commandDefinitionsFromJson($payload);
+        $commands = [];
+
+        foreach ($definitions as $definition) {
+            if (is_array($definition)) {
+                $commands[] = $this->normalizeCommand($definition, [$name => $content], 'json');
+            }
+        }
+
+        $commands = array_values(array_filter($commands));
+
+        if ($commands === []) {
+            throw ValidationException::withMessages(['template_zip' => 'Template JSON export must contain at least one valid command.']);
+        }
+
+        return [
+            'commands' => $commands,
+            'summary' => [
+                'detected' => count($commands),
+                'imported' => count($commands),
+                'skipped' => 0,
+                'skipped_duplicates' => [],
+                'errors' => [],
+                'source' => 'json',
+            ],
+        ];
+    }
+
+    private function commandDefinitionsFromJson(array $payload): array
+    {
+        foreach ([
+            $payload['commands'] ?? null,
+            $payload['template']['commands'] ?? null,
+            $payload['bot']['commands'] ?? null,
+            $payload['data']['commands'] ?? null,
+        ] as $commands) {
+            if (is_array($commands)) {
+                return $commands;
+            }
+        }
+
+        return array_key_exists('command_name', $payload) ? [$payload] : [];
     }
 
     public function replaceTemplateCommands(BotTemplate $template, array $parsed): void
@@ -138,7 +228,7 @@ class TemplateZipImportService
         $commands = [];
 
         if (isset($files['template.json'])) {
-            $manifest = $this->decodeJson($files['template.json'], 'template.json');
+            $manifest = $this->decodeJson($files['template.json'], 'template.json', 'Template ZIP');
 
             foreach (($manifest['commands'] ?? []) as $definition) {
                 if (is_array($definition)) {
@@ -152,13 +242,13 @@ class TemplateZipImportService
                 continue;
             }
 
-            $commands[] = $this->normalizeCommand($this->decodeJson($content, $name), $files);
+            $commands[] = $this->normalizeCommand($this->decodeJson($content, $name, 'Template ZIP'), $files);
         }
 
         return array_values(array_filter($commands));
     }
 
-    private function normalizeCommand(array $definition, array $files): ?array
+    private function normalizeCommand(array $definition, array $files, string $source = 'zip'): ?array
     {
         $commandName = BotTemplateImporter::normalizeCommandName($definition['command_name'] ?? null);
 
@@ -197,7 +287,7 @@ class TemplateZipImportService
             'status' => $status,
             'runtime' => 'node',
             'language' => 'javascript',
-            'metadata' => ['source' => 'zip'],
+            'metadata' => ['source' => $source],
         ];
     }
 
@@ -217,12 +307,12 @@ class TemplateZipImportService
         return $normalized === [] ? null : $normalized;
     }
 
-    private function decodeJson(string $content, string $name): array
+    private function decodeJson(string $content, string $name, string $context): array
     {
         $decoded = json_decode($content, true);
 
         if (! is_array($decoded)) {
-            throw ValidationException::withMessages(['template_zip' => "Template ZIP has invalid JSON in {$name}."]);
+            throw ValidationException::withMessages(['template_zip' => "{$context} has invalid JSON in {$name}."]);
         }
 
         return $decoded;

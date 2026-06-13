@@ -38,6 +38,7 @@ return [
     'node_runtime' => [
         'url' => env('NODE_RUNTIME_URL', 'http://127.0.0.1:8787'),
         'secret' => env('NODE_RUNTIME_SECRET'),
+        'internal_url' => env('NODE_RUNTIME_INTERNAL_URL', ''),
     ],
 
 ];

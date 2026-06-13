@@ -30,24 +30,52 @@ class FaucetPayService
             return ['ok' => false, 'error' => 'Unsupported FaucetPay currency', 'currency' => $symbol];
         }
 
-        $raw = $this->post('/getbalance', array_filter([
-            'api_key' => $apiKey,
+        return $this->getBalanceWithKey($apiKey, $symbol);
+    }
+
+    public function getBalanceWithKey(?string $apiKey, ?string $currency = null): array
+    {
+        if (! filled($apiKey)) {
+            return ['ok' => false, 'error' => 'FaucetPay API key is not configured.'];
+        }
+
+        $symbol = $currency !== null ? $this->normalizeCurrency($currency) : 'USDT';
+        if ($symbol !== null && ! $this->isSupportedCurrency($symbol)) {
+            return ['ok' => false, 'error' => 'Unsupported FaucetPay currency.', 'currency' => $symbol];
+        }
+
+        $raw = $this->post('/getbalance', [
+            'api_key' => (string) $apiKey,
             'currency' => $symbol,
-        ]));
+        ]);
 
         if (! ($raw['ok'] ?? false)) {
             return $raw;
         }
 
-        $balance = $this->parseBalance($raw['raw'] ?? [], $symbol);
+        $response = $raw['raw'] ?? [];
+        $ok = (int) ($response['status'] ?? 0) === 200;
+
+        if (! $ok) {
+            return [
+                'ok' => false,
+                'error' => $this->friendlyError((string) ($response['message'] ?? 'FaucetPay getbalance failed.')),
+                'status' => $response['status'] ?? 0,
+                'currency' => $symbol,
+                'data' => $this->safeRaw($response),
+            ];
+        }
+
+        $balance = $this->parseBalance($response, $symbol);
 
         return array_filter([
             'ok' => true,
-            'status' => $raw['raw']['status'] ?? 200,
-            'message' => $raw['raw']['message'] ?? '',
+            'status' => $response['status'] ?? 200,
+            'message' => $response['message'] ?? 'FaucetPay balance loaded.',
             'currency' => $symbol,
             'balance' => $balance,
-            'raw' => $this->safeRaw($raw['raw'] ?? []),
+            'data' => $this->safeRaw($response),
+            'raw' => $this->safeRaw($response),
         ], fn (mixed $value) => $value !== null);
     }
 
@@ -69,12 +97,15 @@ class FaucetPayService
             return ['ok' => false, 'error' => 'FaucetPay recipient is required'];
         }
 
-        $amount = $this->normalizeDecimalAmount($options['amount'] ?? null);
-        $smallest = $this->toSmallestUnit($amount, 8);
+        try {
+            $amount = $this->normalizeDecimalAmount($options['amount'] ?? null);
+        } catch (Throwable) {
+            return ['ok' => false, 'error' => 'FaucetPay amount is invalid.'];
+        }
         $raw = $this->post('/send', [
             'api_key' => $apiKey,
             'to' => $to,
-            'amount' => $smallest,
+            'amount' => $amount,
             'currency' => $currency,
         ]);
 
@@ -89,9 +120,11 @@ class FaucetPayService
             'ok' => $ok,
             'status' => $response['status'] ?? 0,
             'message' => $response['message'] ?? ($ok ? 'OK' : 'FaucetPay request failed'),
+            'error' => $ok ? null : $this->friendlyError((string) ($response['message'] ?? 'FaucetPay send failed.')),
             'currency' => $currency,
             'amount' => $amount,
-            'amount_smallest_unit' => $smallest,
+            'amount_smallest_unit' => $amount,
+            'data' => $this->safeRaw($response),
             'raw' => $this->safeRaw($response),
         ];
     }
@@ -131,7 +164,9 @@ class FaucetPayService
             'ok' => $ok,
             'status' => $response['status'] ?? 0,
             'message' => $response['message'] ?? ($ok ? 'OK' : 'FaucetPay request failed'),
+            'error' => $ok ? null : $this->friendlyError((string) ($response['message'] ?? 'FaucetPay email/address is not linked.')),
             'currency' => $symbol,
+            'data' => $this->safeRaw($response),
             'raw' => $this->safeRaw($response),
         ];
     }
@@ -144,16 +179,22 @@ class FaucetPayService
             return ['ok' => false, 'valid' => false, 'error' => 'FaucetPay API key not configured'];
         }
 
-        $raw = $this->post('/getbalance', ['api_key' => $key, 'currency' => 'USDT']);
-        $response = $raw['raw'] ?? [];
-        $valid = (bool) ($raw['ok'] ?? false) && (int) ($response['status'] ?? 0) === 200;
+        $raw = $this->getBalanceWithKey($key, 'USDT');
+        $valid = (bool) ($raw['ok'] ?? false) && (int) ($raw['status'] ?? 0) === 200;
 
-        return [
-            'ok' => true,
-            'valid' => $valid,
-            'status' => $response['status'] ?? 0,
-            'message' => $valid ? 'FaucetPay API key is valid' : ($response['message'] ?? 'FaucetPay API key validation failed'),
-        ];
+        return $valid
+            ? [
+                'ok' => true,
+                'valid' => true,
+                'status' => $raw['status'] ?? 200,
+                'message' => 'FaucetPay API key is valid.',
+                'data' => $raw['data'] ?? $raw['raw'] ?? [],
+            ]
+            : [
+                'ok' => false,
+                'valid' => false,
+                'error' => $raw['error'] ?? $raw['message'] ?? 'FaucetPay API key is invalid.',
+            ];
     }
 
     public function keyStatus(Bot $bot): array
@@ -226,14 +267,20 @@ class FaucetPayService
                 ->timeout(20)
                 ->post(self::BASE_URL.$path, $form);
 
-            return ['ok' => $response->successful(), 'raw' => $response->json() ?: []];
+            $raw = $response->json() ?: [];
+
+            return [
+                'ok' => $response->successful(),
+                'error' => $response->successful() ? null : $this->friendlyError((string) ($raw['message'] ?? 'FaucetPay request failed.')),
+                'raw' => $raw,
+            ];
         } catch (Throwable $exception) {
             Log::warning('[BotHost] FaucetPay backend request failed', [
                 'path' => $path,
                 'error' => $this->safeMessage($exception->getMessage()),
             ]);
 
-            return ['ok' => false, 'error' => 'Unable to contact FaucetPay right now'];
+            return ['ok' => false, 'error' => 'FaucetPay request timed out.'];
         }
     }
 
@@ -309,5 +356,21 @@ class FaucetPayService
             ->replaceMatches('/(api[_-]?key|secret|token|password)=\S+/i', '$1=[redacted]')
             ->limit(500, '')
             ->toString();
+    }
+
+    private function friendlyError(string $message): string
+    {
+        $message = $this->safeMessage($message);
+        $lower = strtolower($message);
+
+        if (str_contains($lower, 'invalid') && str_contains($lower, 'api')) {
+            return 'FaucetPay API key is invalid.';
+        }
+
+        if (str_contains($lower, 'address') || str_contains($lower, 'linked') || str_contains($lower, 'payout')) {
+            return 'FaucetPay email/address is not linked.';
+        }
+
+        return $message !== '' ? $message : 'FaucetPay request failed.';
     }
 }
