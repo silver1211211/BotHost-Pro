@@ -349,22 +349,13 @@ function buildRuntimeHelpers(payload, actions) {
       const normalizedText = requireString(text, 'sendMessage text');
       const targetChatId = requireChatId(chatId, 'sendMessage chatId');
       const normalizedOptions = normalizeMessageOptions(options);
-      if (!telegramBridgeUrl || !telegramBridgeSecret) {
-        actions.push({
-          type: 'text',
-          chat_id: targetChatId,
-          text: normalizedText,
-          ...normalizedOptions,
-        });
-
-        return { ok: true, result: null, queued: true };
-      }
-
-      return telegramRuntimeAction('telegram.sendMessage', {
+      actions.push({
+        type: 'text',
         chat_id: targetChatId,
         text: normalizedText,
         ...normalizedOptions,
       });
+      return { ok: true, result: null, queued: true };
     } catch (err) {
       return { ok: false, error: String((err && err.message) || err) };
     }
@@ -708,11 +699,31 @@ function buildRuntimeHelpers(payload, actions) {
         elapsed_ms: Date.now() - startedAt,
       }));
 
-      return response && response.ok
-        ? plainObject(response.result || {})
-        : { ok: false, status: 'unknown', error: String((response && (response.error || response.description)) || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
+      if (!response || !response.ok) {
+        return {
+          ok: false,
+          is_member: false,
+          status: 'unknown',
+          error: String((response && (response.error || response.description)) || 'Telegram getChatMember failed.'),
+          elapsed_ms: Date.now() - startedAt,
+        };
+      }
+
+      const member = plainObject(response.result || {});
+      const status = String(member.status || 'unknown');
+      const isMember = isTelegramMembershipStatus(status) || (status === 'restricted' && !!member.is_member);
+      const resolvedUserId = (member.user && member.user.id != null) ? String(member.user.id) : String(targetUserId);
+      return {
+        ok: true,
+        is_member: isMember,
+        status,
+        user_id: resolvedUserId,
+        channel: String(chatId),
+        member,
+        elapsed_ms: Date.now() - startedAt,
+      };
     } catch (error) {
-      return { ok: false, status: 'unknown', error: String((error && error.message) || error || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
+      return { ok: false, is_member: false, status: 'unknown', error: String((error && error.message) || error || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
     }
   };
 
@@ -743,6 +754,8 @@ function buildRuntimeHelpers(payload, actions) {
           ok: false,
           is_member: false,
           status: 'unknown',
+          user_id: String(targetUserId),
+          channel: String(chatId),
           error: 'Telegram getChatMember request timed out. The Telegram API did not respond in time.',
           stage: 'telegram_get_chat_member',
           elapsed_ms: elapsedMs,
@@ -759,10 +772,12 @@ function buildRuntimeHelpers(payload, actions) {
               ok: true,
               is_member: isTelegramMembershipStatus(status) || !!(response.is_member ?? (response.result && response.result.is_member)),
               status,
+              user_id: String(targetUserId),
+              channel: String(chatId),
               message: msgText,
               elapsed_ms: elapsedMs,
             }
-          : { ok: false, is_member: false, status: String(response.status ?? 'unknown'), error: msgText, elapsed_ms: elapsedMs };
+          : { ok: false, is_member: false, status: String(response.status ?? 'unknown'), user_id: String(targetUserId), channel: String(chatId), error: msgText, elapsed_ms: elapsedMs };
       }
 
       console.log('[BotHost] checkChannelMember_result', JSON.stringify({
@@ -3730,14 +3745,14 @@ async function internalRuntimePost(url, payload, secret, timeoutMs = requestTime
       },
       body: safeJsonStringify(payload),
       signal: controller.signal,
-      redirect: 'error',
+      redirect: 'follow',
     });
 
     const text = await response.text();
     const data = parseJsonResponse(text);
 
     if (!data || typeof data !== 'object') {
-      return { ok: false, error: `${label} returned an invalid response.` };
+      return { ok: false, error: `${label} returned an invalid response (HTTP ${response.status}).` };
     }
 
     return data;
@@ -3751,7 +3766,8 @@ async function internalRuntimePost(url, payload, secret, timeoutMs = requestTime
       }
       return { ok: false, error: `${label} timed out.` };
     }
-    return { ok: false, error: `${label} request failed.` };
+    const msg = (error && error.message) ? String(error.message) : String(error || 'unknown');
+    return { ok: false, error: `${label} request failed: ${msg}` };
   } finally {
     clearTimeout(timeout);
   }

@@ -30,6 +30,7 @@ class NodeRuntimeService
         $runtimeSettings['command_timeout_ms'] = min(150000, max(1000, (int) ($runtimeSettings['command_timeout_ms'] ?? 150000)));
         $runtimeMode = $runtimeSettings['runtime_mode'] ?? 'local';
         $payload = $this->buildPayload($bot, $command, $telegramContext, $runtimeSettings, includeToken: true);
+        $commandPayload = $payload;
         $executionContext = $this->runtimeLogContext($bot, $command, $telegramContext);
 
         Log::info('[BotHost] runtime_execution_started', $executionContext + [
@@ -149,21 +150,21 @@ class NodeRuntimeService
         }
 
         if (! $response->successful()) {
-            $payload = $this->jsonPayload($response);
+            $responsePayload = $this->jsonPayload($response);
 
             $runtimeFailure = [
                 'ok' => false,
-                'execution_id' => is_array($payload) ? ($payload['execution_id'] ?? null) : null,
-                'execution_time_ms' => is_array($payload) ? ($payload['execution_time_ms'] ?? null) : null,
+                'execution_id' => is_array($responsePayload) ? ($responsePayload['execution_id'] ?? null) : null,
+                'execution_time_ms' => is_array($responsePayload) ? ($responsePayload['execution_time_ms'] ?? null) : null,
                 'replies' => [],
-                'error' => is_array($payload) ? ($payload['error'] ?? 'Runtime request failed.') : 'Runtime request failed.',
-                'error_type' => is_array($payload) ? ($payload['error_type'] ?? 'RuntimeRequestFailed') : 'RuntimeRequestFailed',
-                'error_stack' => is_array($payload) ? ($payload['error_stack'] ?? null) : null,
+                'error' => is_array($responsePayload) ? ($responsePayload['error'] ?? 'Runtime request failed.') : 'Runtime request failed.',
+                'error_type' => is_array($responsePayload) ? ($responsePayload['error_type'] ?? 'RuntimeRequestFailed') : 'RuntimeRequestFailed',
+                'error_stack' => is_array($responsePayload) ? ($responsePayload['error_stack'] ?? null) : null,
             ];
             $normalizedFailure = $this->normalizeRuntimeResult($runtimeFailure);
             $result = count($normalizedFailure['replies'] ?? []) > 0
                 ? $normalizedFailure
-                : $this->fallbackResult($payload, $runtimeSettings, $path, $normalizedFailure);
+                : $this->fallbackResult($commandPayload, $runtimeSettings, $path, $normalizedFailure);
 
             $this->persistRuntimeResultMutations($bot, $telegramContext, $result);
             $this->logRuntimeExecutionOutcome($result, $executionContext);
@@ -176,10 +177,10 @@ class NodeRuntimeService
             return $result;
         }
 
-        $payload = $this->jsonPayload($response);
+        $runtimePayload = $this->jsonPayload($response);
 
-        if (! is_array($payload)) {
-            $result = $this->fallbackResult($payload, $runtimeSettings, $path, $this->runtimeUnavailableResult('Runtime returned an invalid response.', 'InvalidRuntimeResponse'));
+        if (! is_array($runtimePayload)) {
+            $result = $this->fallbackResult($commandPayload, $runtimeSettings, $path, $this->runtimeUnavailableResult('Runtime returned an invalid response.', 'InvalidRuntimeResponse'));
 
             $this->persistRuntimeResultMutations($bot, $telegramContext, $result);
             $this->logRuntimeExecutionOutcome($result, $executionContext);
@@ -191,12 +192,12 @@ class NodeRuntimeService
             return $result;
         }
 
-        if (($payload['ok'] ?? false) !== true) {
-            $runtimeFailure = $this->normalizeRuntimeResult($payload);
+        if (($runtimePayload['ok'] ?? false) !== true) {
+            $runtimeFailure = $this->normalizeRuntimeResult($runtimePayload);
             $result = count($runtimeFailure['replies'] ?? []) > 0
                 ? $runtimeFailure
                 : ($this->shouldFallbackFromRuntimeError($runtimeFailure['error_type'] ?? null)
-                ? $this->fallbackResult($payload, $runtimeSettings, $path, $runtimeFailure)
+                ? $this->fallbackResult($commandPayload, $runtimeSettings, $path, $runtimeFailure)
                 : $runtimeFailure);
 
             $this->persistRuntimeResultMutations($bot, $telegramContext, $result);
@@ -209,7 +210,7 @@ class NodeRuntimeService
             return $result;
         }
 
-        $result = $this->normalizeRuntimeResult($payload);
+        $result = $this->normalizeRuntimeResult($runtimePayload);
         $this->persistRuntimeResultMutations($bot, $telegramContext, $result);
         $this->logRuntimeExecutionOutcome($result, $executionContext);
         unset($result['storage']);

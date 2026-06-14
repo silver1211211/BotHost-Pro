@@ -2107,9 +2107,9 @@
                 <div
                     x-data="commandCodeEditor(codeEditorPayload)"
                     x-on:keydown.escape.window="editorDialogOpen ? cancelEditorDialog() : (helpersOpen ? helpersOpen = false : (searchOpen ? closeSearch() : closeEditor()))"
-                    class="m-0 flex h-screen w-screen min-w-0 flex-col overflow-hidden bg-[#050509] text-[#F8FAFC] sm:m-3 sm:h-[calc(100vh-1.5rem)] sm:rounded-lg sm:border sm:border-[#303030] sm:shadow-2xl"
+                    class="m-0 flex h-dvh w-screen min-w-0 flex-col overflow-hidden overscroll-none bg-[#050509] text-[#F8FAFC] sm:m-3 sm:h-[calc(100dvh-1.5rem)] sm:rounded-lg sm:border sm:border-[#303030] sm:shadow-2xl"
                 >
-                    <div class="flex h-14 shrink-0 items-center gap-2 border-b border-[#242424] bg-[#1b1b1b] px-3">
+                    <div class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-[#242424] bg-[#1b1b1b] px-3">
                         <div class="flex min-w-0 flex-1 items-center gap-2">
                             <span class="flex h-8 w-8 shrink-0 items-center justify-center text-[#7db7ff]">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m17.25 6.75 4.5 4.5-4.5 4.5M6.75 6.75l-4.5 4.5 4.5 4.5m7.5-12-4.5 16.5"/></svg>
@@ -2133,7 +2133,7 @@
                         </div>
                     </div>
 
-                    <div class="flex h-12 shrink-0 items-center gap-1 overflow-x-auto border-b border-[#2d2d2d] bg-[#202020] px-3" style="scrollbar-width:none">
+                    <div class="relative z-20 flex h-12 shrink-0 items-center gap-1 overflow-x-auto border-b border-[#2d2d2d] bg-[#202020] px-3" style="scrollbar-width:none">
                         <button type="button" @click.prevent.stop="undo()" title="Undo" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg></button>
                         <button type="button" @click.prevent.stop="redo()" title="Redo" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"/></svg></button>
                         <span class="mx-1 h-5 w-px shrink-0 bg-[#3a3a3a]"></span>

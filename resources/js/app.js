@@ -244,12 +244,17 @@ Alpine.data('commandCodeEditor', (config) => ({
     saveShortcutHandler: null,
     browserBackHandler: null,
     browserBackArmed: false,
+    previousHtmlOverflowY: '',
+    previousBodyOverflowY: '',
 
     async init() {
         // Prevent the page from scrolling while the code editor is open.
         // Without this, mobile browsers scroll the page (not the CM scroller)
         // in response to scrollIntoView / focus(), pushing the header off-screen.
+        this.previousHtmlOverflowY = document.documentElement.style.overflowY || '';
+        this.previousBodyOverflowY = document.body.style.overflowY || '';
         document.documentElement.style.overflowY = 'hidden';
+        document.body.style.overflowY = 'hidden';
 
         this.mountTextareaFallback();
         await this.loadInitialCode();
@@ -495,7 +500,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.$refs.codeInput.value = initialValue;
         this.updateCursor();
         this.loaded = true;
-        this.editor.focus();
+        this.focusEditor({ preventScroll: true });
     },
 
     async loadInitialCode() {
@@ -603,7 +608,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.copied = true;
         this.saveStatus = 'Copied';
         this.saveError = '';
-        this.selectAllCode({ flash: true });
+        this.selectAllCode({ flash: true, preserveViewport: true });
         window.clearTimeout(this.copyResetTimer);
         this.copyResetTimer = window.setTimeout(() => {
             this.copied = false;
@@ -629,14 +634,17 @@ Alpine.data('commandCodeEditor', (config) => ({
         });
     },
 
-    selectAllCode({ flash = false } = {}) {
+    selectAllCode({ flash = false, preserveViewport = false } = {}) {
         window.clearTimeout(this.copyFlashTimer);
+        const pageScroll = this.capturePageScroll();
+        const editorScroll = this.captureEditorScroll();
 
         if (this.fallbackEditor) {
             const textarea = this.fallbackEditor;
 
-            textarea.focus();
+            this.focusEditor({ preventScroll: true });
             textarea.select();
+            if (preserveViewport) this.restoreViewport(pageScroll, editorScroll);
 
             return;
         }
@@ -650,7 +658,8 @@ Alpine.data('commandCodeEditor', (config) => ({
             selection: { anchor: 0, head: docLength },
             effects: effect ? [effect] : [],
         });
-        this.editor.focus();
+        this.focusEditor({ preventScroll: true });
+        if (preserveViewport) this.restoreViewport(pageScroll, editorScroll);
 
         if (flash) {
             this.copyFlashTimer = window.setTimeout(() => {
@@ -669,7 +678,7 @@ Alpine.data('commandCodeEditor', (config) => ({
                 this.fallbackRedoStack.push(current);
                 this.setEditorCode(previous);
             }
-            this.fallbackEditor.focus();
+            this.focusEditor({ preventScroll: true });
             return;
         }
         if (!this.editor || !this.cm) return;
@@ -679,13 +688,13 @@ Alpine.data('commandCodeEditor', (config) => ({
             this.fallbackRedoStack.push(current);
             this.setEditorCode(previous, { preserveHistory: true });
             this.updateCursor();
-            this.editor.focus();
+            this.focusEditor({ preventScroll: true });
             return;
         }
 
         this.cm.undo(this.editor);
         this.updateCursor();
-        this.editor.focus();
+        this.focusEditor({ preventScroll: true });
     },
 
     redo() {
@@ -696,7 +705,7 @@ Alpine.data('commandCodeEditor', (config) => ({
                 this.fallbackUndoStack.push(current);
                 this.setEditorCode(next);
             }
-            this.fallbackEditor.focus();
+            this.focusEditor({ preventScroll: true });
             return;
         }
         if (!this.editor || !this.cm) return;
@@ -706,13 +715,13 @@ Alpine.data('commandCodeEditor', (config) => ({
             this.fallbackUndoStack.push(current);
             this.setEditorCode(next, { preserveHistory: true });
             this.updateCursor();
-            this.editor.focus();
+            this.focusEditor({ preventScroll: true });
             return;
         }
 
         this.cm.redo(this.editor);
         this.updateCursor();
-        this.editor.focus();
+        this.focusEditor({ preventScroll: true });
     },
 
     async pasteCode() {
@@ -746,17 +755,7 @@ Alpine.data('commandCodeEditor', (config) => ({
             this.saveError = 'Nothing pasted. Use the box and paste with Ctrl+V / Cmd+V, then click Paste.';
             return;
         }
-        this.insertTextAtCursor(text);
-
-        // After paste, scroll to line 1 so the user sees the start of the pasted code,
-        // not the bottom (where the cursor lands after a full-replace paste on mobile).
-        this.$nextTick(() => requestAnimationFrame(() => {
-            if (this.editor && this.editor.scrollDOM) {
-                this.editor.scrollDOM.scrollTop = 0;
-            } else if (this.fallbackEditor) {
-                this.fallbackEditor.scrollTop = 0;
-            }
-        }));
+        this.replaceAllCode(text);
     },
 
     formatCode() {
@@ -775,7 +774,7 @@ Alpine.data('commandCodeEditor', (config) => ({
 
         if (this.editor && this.cm?.indentSelection) {
             this.cm.indentSelection(this.editor);
-            this.editor.focus();
+            this.focusEditor({ preventScroll: true });
             this.saveStatus = 'Formatted indentation';
             setTimeout(() => {
                 if (this.saveStatus === 'Formatted indentation') this.saveStatus = '';
@@ -787,18 +786,15 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.setEditorCode(value);
         // Scroll to line 1 after replacing all code — the previous cursor position
         // is meaningless once the content has been fully replaced.
-        this.$nextTick(() => requestAnimationFrame(() => {
-            if (this.editor && this.editor.scrollDOM) {
-                this.editor.scrollDOM.scrollTop = 0;
-            } else if (this.fallbackEditor) {
-                this.fallbackEditor.scrollTop = 0;
-            }
-        }));
+        this.resetEditorViewportTop();
     },
 
     setEditorCode(value, { markSaved = false, resetHistory = false, preserveHistory = false } = {}) {
         if (this.fallbackEditor) {
             this.fallbackEditor.value = value;
+            this.fallbackEditor.selectionStart = 0;
+            this.fallbackEditor.selectionEnd = 0;
+            this.fallbackEditor.scrollTop = 0;
             this.fallbackLastValue = value;
             this.historyLastValue = value;
             this.chars = value.length;
@@ -829,6 +825,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.suppressHistory = true;
         this.editor.dispatch({
             changes: { from: 0, to: this.editor.state.doc.length, insert: value },
+            selection: { anchor: 0 },
         });
         this.suppressHistory = previousSuppressHistory;
 
@@ -849,7 +846,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         document.documentElement.classList.toggle('overflow-hidden', this.fullscreen);
         this.$nextTick(() => {
             this.editor?.requestMeasure?.();
-            this.editor?.focus();
+            this.focusEditor({ preventScroll: true });
         });
     },
 
@@ -857,7 +854,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         if (this.fallbackEditor && !this.editor) {
             this.searchOpen = true;
             this.$nextTick(() => {
-                this.$refs.searchInput?.focus();
+                this.$refs.searchInput?.focus({ preventScroll: true });
                 this.$refs.searchInput?.select();
             });
             return;
@@ -865,7 +862,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         if (!this.editor || !this.cm) return;
         this.searchOpen = false;
         this.cm.openSearchPanel?.(this.editor);
-        this.editor.focus();
+        this.focusEditor({ preventScroll: true });
     },
 
     updateSearchQuery() {
@@ -914,7 +911,7 @@ Alpine.data('commandCodeEditor', (config) => ({
             this.cm.findNext(this.editor);
         }
 
-        this.$nextTick(() => this.$refs.searchInput?.focus());
+        this.$nextTick(() => this.$refs.searchInput?.focus({ preventScroll: true }));
     },
 
     findPreviousMatch() {
@@ -929,7 +926,7 @@ Alpine.data('commandCodeEditor', (config) => ({
             this.cm.findPrevious(this.editor);
         }
 
-        this.$nextTick(() => this.$refs.searchInput?.focus());
+        this.$nextTick(() => this.$refs.searchInput?.focus({ preventScroll: true }));
     },
 
     closeSearch() {
@@ -937,8 +934,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.searchQuery = '';
         this.updateSearchQuery();
         this.cm?.closeSearchPanel?.(this.editor);
-        this.editor?.focus();
-        this.fallbackEditor?.focus();
+        this.focusEditor({ preventScroll: true });
     },
 
     findInFallback(direction = 1) {
@@ -955,7 +951,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         }
 
         if (index >= 0) {
-            this.fallbackEditor.focus();
+            this.focusEditor({ preventScroll: true });
             this.fallbackEditor.setSelectionRange(index, index + query.length);
         }
     },
@@ -993,7 +989,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.fallbackLastValue = textarea.value;
         this.$refs.codeInput.value = textarea.value;
         this.loaded = true;
-        textarea.focus();
+        this.focusEditor({ preventScroll: true });
     },
 
     updateCursor() {
@@ -1087,6 +1083,8 @@ Alpine.data('commandCodeEditor', (config) => ({
             if (!ok) return;
         }
 
+        document.documentElement.style.overflowY = this.previousHtmlOverflowY || '';
+        document.body.style.overflowY = this.previousBodyOverflowY || '';
         document.documentElement.classList.remove('overflow-hidden');
         if (config.closeUrl) {
             window.location.href = config.closeUrl;
@@ -1113,7 +1111,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         return new Promise((resolve) => {
             this.editorDialogResolver = resolve;
             this.$nextTick(() => {
-                if (pasteMode) this.$refs.editorDialogPaste?.focus();
+                if (pasteMode) this.$refs.editorDialogPaste?.focus({ preventScroll: true });
             });
         });
     },
@@ -1136,7 +1134,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.resolveEditorDialog(true);
     },
 
-    insertTextAtCursor(text) {
+    insertTextAtCursor(text, { resetToTop = false } = {}) {
         if (!text) return;
 
         if (this.fallbackEditor) {
@@ -1144,9 +1142,10 @@ Alpine.data('commandCodeEditor', (config) => ({
             const start = el.selectionStart || 0;
             const end = el.selectionEnd || start;
             el.value = el.value.slice(0, start) + text + el.value.slice(end);
-            el.selectionStart = el.selectionEnd = start + text.length;
+            el.selectionStart = el.selectionEnd = resetToTop ? 0 : start + text.length;
             el.dispatchEvent(new Event('input'));
-            el.focus();
+            this.focusEditor({ preventScroll: true });
+            if (resetToTop) this.resetEditorViewportTop();
             return;
         }
 
@@ -1154,10 +1153,69 @@ Alpine.data('commandCodeEditor', (config) => ({
         const selection = this.editor.state.selection.main;
         this.editor.dispatch({
             changes: { from: selection.from, to: selection.to, insert: text },
-            selection: { anchor: selection.from + text.length },
-            scrollIntoView: true,
+            selection: { anchor: resetToTop ? 0 : selection.from + text.length },
         });
-        this.editor.focus();
+        this.updateCursor();
+        this.focusEditor({ preventScroll: true });
+        if (resetToTop) this.resetEditorViewportTop();
+    },
+
+    focusEditor({ preventScroll = true } = {}) {
+        if (this.fallbackEditor) {
+            try {
+                this.fallbackEditor.focus({ preventScroll });
+            } catch (_) {
+                this.fallbackEditor.focus();
+            }
+            return;
+        }
+
+        if (!this.editor) return;
+
+        try {
+            this.editor.contentDOM?.focus({ preventScroll });
+        } catch (_) {
+            this.editor.focus();
+        }
+    },
+
+    capturePageScroll() {
+        return {
+            x: window.scrollX || 0,
+            y: window.scrollY || 0,
+        };
+    },
+
+    captureEditorScroll() {
+        return this.editor?.scrollDOM?.scrollTop ?? this.fallbackEditor?.scrollTop ?? 0;
+    },
+
+    restoreViewport(pageScroll, editorScroll) {
+        this.$nextTick(() => requestAnimationFrame(() => {
+            if (this.editor?.scrollDOM) {
+                this.editor.scrollDOM.scrollTop = editorScroll;
+                this.editor.requestMeasure?.();
+            } else if (this.fallbackEditor) {
+                this.fallbackEditor.scrollTop = editorScroll;
+            }
+
+            window.scrollTo(pageScroll.x, pageScroll.y);
+        }));
+    },
+
+    resetEditorViewportTop() {
+        this.$nextTick(() => requestAnimationFrame(() => {
+            if (this.editor?.scrollDOM) {
+                this.editor.scrollDOM.scrollTop = 0;
+                this.editor.requestMeasure?.();
+            } else if (this.fallbackEditor) {
+                this.fallbackEditor.scrollTop = 0;
+                this.fallbackEditor.selectionStart = 0;
+                this.fallbackEditor.selectionEnd = 0;
+            }
+
+            window.scrollTo(0, 0);
+        }));
     },
 
     destroy() {
@@ -1172,7 +1230,8 @@ Alpine.data('commandCodeEditor', (config) => ({
         window.clearTimeout(this.copyFlashTimer);
         window.clearTimeout(this.copyResetTimer);
 
-        document.documentElement.style.overflowY = '';
+        document.documentElement.style.overflowY = this.previousHtmlOverflowY || '';
+        document.body.style.overflowY = this.previousBodyOverflowY || '';
         document.documentElement.classList.remove('overflow-hidden');
         this.editor?.destroy();
     },
