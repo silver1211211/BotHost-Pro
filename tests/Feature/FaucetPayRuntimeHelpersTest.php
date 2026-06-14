@@ -42,6 +42,7 @@ it('keeps FaucetPay global helpers available and fallback diagnostics off stdout
     $fallback = file_get_contents(base_path('runtime-node/execute-once.js'));
 
     foreach ([
+        'getSavedFaucetPayApiKey', 'saveFaucetPayApiKey', 'sendWithdrawalChannelNotice',
         'faucetPaySend', 'faucetPayWithdraw', 'faucetPayBalance', 'faucetPayGetBalance',
         'faucetPayCheckAddress', 'faucetPayCheckEmail', 'faucetPayValidateKey', 'faucetPayGetCurrencies',
         'findUserByData', 'findUserByDataInCurrentBot', 'findFirstUserByDataInCurrentBot',
@@ -69,9 +70,12 @@ it('exposes FaucetPay and user lookup helpers to command code', function (): voi
             'code' => <<<'JS'
 await reply([
   typeof faucetPayValidateKey,
+  typeof getSavedFaucetPayApiKey,
+  typeof saveFaucetPayApiKey,
   typeof faucetPayGetBalance,
   typeof faucetPayCheckEmail,
   typeof faucetPaySend,
+  typeof sendWithdrawalChannelNotice,
   typeof faucetPayGetCurrencies,
   typeof findUserByData,
   typeof findUserByDataInCurrentBot,
@@ -107,7 +111,7 @@ JS,
 
     $output = json_decode($process->getOutput(), true);
 
-    expect($output['replies'][0]['text'] ?? null)->toBe(str_repeat('function,', 19).'function');
+    expect($output['replies'][0]['text'] ?? null)->toBe(str_repeat('function,', 22).'function');
 });
 
 it('returns clean FaucetPay errors without a configured key or payment bridge', function (): void {
@@ -232,6 +236,71 @@ JS,
 
     expect($result['secret'])->toBe('fp_runtime_saved_key')
         ->and($result['data'])->toBe('fp_ru***key');
+});
+
+it('saves FaucetPay key helpers and queues withdrawal channel notice', function (): void {
+    $payload = [
+        'bot' => ['id' => 123, 'name' => 'FaucetPay Notice Bot', 'username' => 'NoticeBot'],
+        'runtime' => [],
+        'command' => [
+            'id' => 1,
+            'name' => '/fp-save-notice',
+            'trigger' => '/fp-save-notice',
+            'type' => 'code',
+            'code' => <<<'JS'
+const before = await getSavedFaucetPayApiKey(123);
+const saved = await saveFaucetPayApiKey(123, "fp_notice_saved_key_1234567890");
+const after = await getSavedFaucetPayApiKey(123);
+await setBotData("payout_channel", "@Withdrawals");
+const notice = await sendWithdrawalChannelNotice(123, 7701909986, "1.25", "USDT", "NoticeBot");
+const explicitSendShape = await faucetPaySend("explicit_fp_key_1234567890", "", "1", "USDT");
+await reply(JSON.stringify({
+  before,
+  saved,
+  after,
+  noticeOk: notice.ok,
+  explicitSendShape,
+  masked: await getBotData("faucetpay_api_key"),
+  aliasMasked: await getBotData("faucetpay_key"),
+  status: await getBotData("faucetpay_api_key_status"),
+  enabled: await getBotData("faucetpay_enabled")
+}));
+JS,
+        ],
+        'telegram' => [
+            'user_id' => 7701909986,
+            'chat_id' => 7701909986,
+            'message' => ['chat' => ['id' => 7701909986], 'from' => ['id' => 7701909986], 'text' => '/fp-save-notice'],
+        ],
+        'storage' => ['bot' => [], 'user' => [], 'cross_users' => []],
+        'settings' => ['command_timeout_ms' => 4000, 'max_delay_ms' => 1000],
+    ];
+
+    $process = new Process(['node', base_path('runtime-node/execute-once.js')], base_path(), null, json_encode($payload, JSON_UNESCAPED_SLASHES), 8);
+    $process->run();
+
+    expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
+
+    $output = json_decode($process->getOutput(), true);
+    $result = json_decode($output['replies'][1]['text'] ?? '', true);
+    $notice = $output['replies'][0] ?? [];
+
+    expect($result['before'])->toBeNull()
+        ->and($result['saved']['ok'])->toBeTrue()
+        ->and($result['after'])->toBe('fp_notice_saved_key_1234567890')
+        ->and($result['noticeOk'])->toBeTrue()
+        ->and($result['explicitSendShape']['ok'])->toBeFalse()
+        ->and($result['explicitSendShape']['error'])->toBe('FaucetPay email missing.')
+        ->and($result['masked'])->toBe('fp_no***890')
+        ->and($result['aliasMasked'])->toBe('fp_no***890')
+        ->and($result['status'])->toBe('saved')
+        ->and($result['enabled'])->toBeTrue()
+        ->and($notice['chat_id'] ?? null)->toBe('@Withdrawals')
+        ->and($notice['parse_mode'] ?? null)->toBe('HTML')
+        ->and($notice['text'] ?? '')->toContain('New withdrawal sent successfully')
+        ->and($notice['text'] ?? '')->toContain('7701909986')
+        ->and($notice['text'] ?? '')->toContain('1.25 USDT')
+        ->and($notice['text'] ?? '')->toContain('https://t.me/NoticeBot');
 });
 
 it('returns an explicit scoped object from findUserByData', function (): void {

@@ -152,6 +152,45 @@
             background: rgba(0, 0, 0, 0.75);
             color: #ffffff;
         }
+
+        @media (max-width: 767px) {
+            html:has(.command-code-editor-shell),
+            body:has(.command-code-editor-shell) {
+                height: 100%;
+                overflow: hidden !important;
+                overscroll-behavior: none;
+            }
+
+            .command-code-editor-shell {
+                position: fixed !important;
+                inset: 0 !important;
+                z-index: 9998 !important;
+                width: 100vw !important;
+                height: var(--command-editor-visual-height, 100dvh) !important;
+                margin: 0 !important;
+                transform: none !important;
+                overscroll-behavior: none;
+            }
+
+            .command-code-editor-shell .command-editor-surface {
+                min-height: 0;
+                overflow: hidden;
+                overscroll-behavior: contain;
+                touch-action: pan-y;
+            }
+
+            .command-code-editor-shell .cm-editor,
+            .command-code-editor-shell .cm-scroller {
+                height: 100%;
+                max-height: 100%;
+                overscroll-behavior: contain;
+            }
+
+            .command-code-editor-shell .cm-content {
+                -webkit-user-select: text;
+                user-select: text;
+            }
+        }
     </style>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />

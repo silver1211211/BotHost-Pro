@@ -2107,7 +2107,7 @@
                 <div
                     x-data="commandCodeEditor(codeEditorPayload)"
                     x-on:keydown.escape.window="editorDialogOpen ? cancelEditorDialog() : (helpersOpen ? helpersOpen = false : (searchOpen ? closeSearch() : closeEditor()))"
-                    class="m-0 flex h-dvh w-screen min-w-0 flex-col overflow-hidden overscroll-none bg-[#050509] text-[#F8FAFC] sm:m-3 sm:h-[calc(100dvh-1.5rem)] sm:rounded-lg sm:border sm:border-[#303030] sm:shadow-2xl"
+                    class="command-code-editor-shell m-0 flex h-dvh w-screen min-w-0 flex-col overflow-hidden overscroll-none bg-[#050509] text-[#F8FAFC] sm:m-3 sm:h-[calc(100dvh-1.5rem)] sm:rounded-lg sm:border sm:border-[#303030] sm:shadow-2xl"
                 >
                     <div class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-[#242424] bg-[#1b1b1b] px-3">
                         <div class="flex min-w-0 flex-1 items-center gap-2">

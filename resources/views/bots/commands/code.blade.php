@@ -36,7 +36,7 @@
     x-on:keydown.escape.window="editorDialogOpen ? cancelEditorDialog() : (helpersOpen ? helpersOpen = false : (searchOpen ? closeSearch() : closeEditor()))"
     :class="fullscreen ? 'fixed inset-0 z-[9998] m-0 bg-[#050509]' : '-mx-4 -mt-5 sm:-mx-5'"
     :style="fullscreen ? 'height: 100dvh;' : 'height: calc(100dvh - 54px);'"
-    class="code-page-prepaint flex min-w-0 flex-col overflow-hidden overscroll-none bg-[#050509] text-[#F8FAFC]"
+    class="command-code-editor-shell code-page-prepaint flex min-w-0 flex-col overflow-hidden overscroll-none bg-[#050509] text-[#F8FAFC]"
 >
     <div class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-[#242424] bg-[#1b1b1b] px-3">
         <div class="flex min-w-0 flex-1 items-center gap-2">

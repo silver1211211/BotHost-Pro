@@ -246,6 +246,7 @@ Alpine.data('commandCodeEditor', (config) => ({
     browserBackArmed: false,
     previousHtmlOverflowY: '',
     previousBodyOverflowY: '',
+    visualViewportHandler: null,
 
     async init() {
         // Prevent the page from scrolling while the code editor is open.
@@ -255,6 +256,10 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.previousBodyOverflowY = document.body.style.overflowY || '';
         document.documentElement.style.overflowY = 'hidden';
         document.body.style.overflowY = 'hidden';
+        this.updateEditorVisualViewport();
+        this.visualViewportHandler = () => this.updateEditorVisualViewport();
+        window.visualViewport?.addEventListener('resize', this.visualViewportHandler);
+        window.visualViewport?.addEventListener('scroll', this.visualViewportHandler);
 
         this.mountTextareaFallback();
         await this.loadInitialCode();
@@ -391,6 +396,19 @@ Alpine.data('commandCodeEditor', (config) => ({
 
             if (update.selectionSet || update.docChanged) {
                 this.updateCursor();
+            }
+
+            if (update.docChanged && this.isCompactMobile()) {
+                this.keepEditorShellAnchored();
+
+                const nativePaste = update.transactions.some((transaction) => {
+                    const event = transaction.annotation(cm.Transaction.userEvent);
+                    return typeof event === 'string' && event.includes('paste');
+                });
+
+                if (nativePaste) {
+                    this.resetEditorViewportTop();
+                }
             }
         });
 
@@ -639,6 +657,17 @@ Alpine.data('commandCodeEditor', (config) => ({
         const pageScroll = this.capturePageScroll();
         const editorScroll = this.captureEditorScroll();
 
+        if (this.isCompactMobile()) {
+            if (!flash) {
+                this.copyCode();
+                return;
+            }
+
+            this.flashWholeDocument();
+            if (preserveViewport) this.restoreViewport(pageScroll, editorScroll);
+            return;
+        }
+
         if (this.fallbackEditor) {
             const textarea = this.fallbackEditor;
 
@@ -668,6 +697,27 @@ Alpine.data('commandCodeEditor', (config) => ({
                 if (clearEffect) this.editor.dispatch({ effects: [clearEffect] });
             }, 3200);
         }
+    },
+
+    flashWholeDocument() {
+        if (this.fallbackEditor) {
+            const surface = this.$refs.editorContainer?.closest('.command-editor-surface');
+            surface?.classList.add('command-copy-surface-flash');
+            window.setTimeout(() => surface?.classList.remove('command-copy-surface-flash'), 1500);
+            return;
+        }
+
+        if (!this.editor || !this.copyHighlightEffect) return;
+        const docLength = this.editor.state.doc.length;
+        this.editor.dispatch({
+            effects: [this.copyHighlightEffect.of([{ from: 0, to: docLength }])],
+        });
+
+        this.copyFlashTimer = window.setTimeout(() => {
+            if (!this.editor) return;
+            const clearEffect = this.copyHighlightEffect?.of([]);
+            if (clearEffect) this.editor.dispatch({ effects: [clearEffect] });
+        }, 1600);
     },
 
     undo() {
@@ -1085,6 +1135,11 @@ Alpine.data('commandCodeEditor', (config) => ({
 
         document.documentElement.style.overflowY = this.previousHtmlOverflowY || '';
         document.body.style.overflowY = this.previousBodyOverflowY || '';
+        document.documentElement.style.removeProperty('--command-editor-visual-height');
+        if (this.visualViewportHandler) {
+            window.visualViewport?.removeEventListener('resize', this.visualViewportHandler);
+            window.visualViewport?.removeEventListener('scroll', this.visualViewportHandler);
+        }
         document.documentElement.classList.remove('overflow-hidden');
         if (config.closeUrl) {
             window.location.href = config.closeUrl;
@@ -1218,6 +1273,26 @@ Alpine.data('commandCodeEditor', (config) => ({
         }));
     },
 
+    isCompactMobile() {
+        return window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+    },
+
+    updateEditorVisualViewport() {
+        const height = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
+        if (height > 0) {
+            document.documentElement.style.setProperty('--command-editor-visual-height', `${height}px`);
+        }
+        this.keepEditorShellAnchored();
+    },
+
+    keepEditorShellAnchored() {
+        requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        });
+    },
+
     destroy() {
         if (this.saveShortcutHandler) {
             window.removeEventListener('keydown', this.saveShortcutHandler);
@@ -1230,6 +1305,11 @@ Alpine.data('commandCodeEditor', (config) => ({
         window.clearTimeout(this.copyFlashTimer);
         window.clearTimeout(this.copyResetTimer);
 
+        if (this.visualViewportHandler) {
+            window.visualViewport?.removeEventListener('resize', this.visualViewportHandler);
+            window.visualViewport?.removeEventListener('scroll', this.visualViewportHandler);
+        }
+        document.documentElement.style.removeProperty('--command-editor-visual-height');
         document.documentElement.style.overflowY = this.previousHtmlOverflowY || '';
         document.body.style.overflowY = this.previousBodyOverflowY || '';
         document.documentElement.classList.remove('overflow-hidden');

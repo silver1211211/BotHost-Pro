@@ -1712,13 +1712,52 @@ function buildHelpers(payload, actions, settings) {
   const httpRequest = async (method, url, options = {}) => httpsRequest(url, { ...normalizeObject(options, 'httpRequest options'), method });
   const httpGet = async (url, options = {}) => httpRequest('GET', url, options);
   const httpPost = async (url, body = {}, options = {}) => httpRequest('POST', url, { ...normalizeObject(options, 'httpPost options'), json: body });
-  const savedFaucetPayKey = () => runtimeSecrets.get('faucetpay_api_key') || faucetPayApiKey || '';
+  const faucetPayKeyNames = Object.freeze(['faucetpay_api_key', 'faucetpay_key', 'fp_api_key', 'faucetpayApiKey']);
+  const savedFaucetPayKey = () => {
+    for (const key of faucetPayKeyNames) {
+      const value = runtimeSecrets.get(key);
+      if (value && !isMaskedSecretValue(value)) return String(value).trim();
+    }
+    if (faucetPayApiKey && !isMaskedSecretValue(faucetPayApiKey)) return String(faucetPayApiKey).trim();
+    return '';
+  };
   const safeFaucetPayCall = async (fn) => {
     try {
       return await fn();
     } catch (err) {
       return { ok: false, error: String((err && err.message) || err || 'FaucetPay request failed.') };
     }
+  };
+
+  const helperGetSavedFaucetPayApiKey = async (_botId = null) => {
+    const direct = savedFaucetPayKey();
+    if (direct) return direct;
+
+    for (const key of faucetPayKeyNames) {
+      const value = await getBotData(key, null);
+      const text = String(value || '').trim();
+      if (text.length >= 10 && !isMaskedSecretValue(text)) return text;
+    }
+
+    return null;
+  };
+
+  const helperSaveFaucetPayApiKey = async (botIdOrApiKey, apiKey = undefined) => {
+    const cleanKey = String(apiKey === undefined ? botIdOrApiKey : apiKey || '').trim();
+    if (!cleanKey || cleanKey.length < 10) {
+      return { ok: false, message: 'Invalid FaucetPay API key.', error: 'Invalid FaucetPay API key.' };
+    }
+
+    const masked = maskSecretValue(cleanKey);
+    await setBotData('faucetpay_api_key', cleanKey);
+    await setBotData('faucetpay_key', masked);
+    await setBotData('fp_api_key', masked);
+    await setBotData('faucetpayApiKey', masked);
+    await setBotData('faucetpay_api_key_masked', masked);
+    await setBotData('faucetpay_api_key_status', 'saved');
+    await setBotData('faucetpay_enabled', true);
+
+    return { ok: true, masked, message: 'FaucetPay API key saved.' };
   };
 
   const helperFaucetPayBalance = async (currency = 'USDT') => {
@@ -1748,21 +1787,38 @@ function buildHelpers(payload, actions, settings) {
     };
   };
 
-  const helperFaucetPaySend = async (toEmail, amount, currency = 'USDT') => {
+  const helperFaucetPaySend = async (...args) => {
+    let explicitKey = null;
+    let toEmail;
+    let amount;
+    let currency = 'USDT';
+    if (args.length >= 4) {
+      [explicitKey, toEmail, amount, currency = 'USDT'] = args;
+    } else {
+      [toEmail, amount, currency = 'USDT'] = args;
+    }
+
+    const safeEmail = String(toEmail || '').toLowerCase().trim();
+    if (!safeEmail) return { ok: false, status: 0, message: 'FaucetPay email missing.', error: 'FaucetPay email missing.', raw: {} };
     const sym = String(currency || 'USDT').toUpperCase();
     const safeAmt = normalizeDecimalAmount(amount, false);
+    if (!Number.isFinite(Number(safeAmt)) || Number(safeAmt) <= 0) {
+      return { ok: false, status: 0, message: 'Invalid payout amount.', error: 'Invalid payout amount.', raw: {} };
+    }
     console.error('[BotHost] faucetpay_amount_debug', JSON.stringify({
       input_amount: amount,
       normalized_amount: safeAmt,
       currency: sym,
       api_amount_sent: safeAmt,
     }));
-    const savedKey = savedFaucetPayKey();
+    const savedKey = explicitKey && !isMaskedSecretValue(explicitKey)
+      ? String(explicitKey).trim()
+      : await helperGetSavedFaucetPayApiKey();
     const result = savedKey
-      ? await safeFaucetPayCall(() => faucetPaySend(savedKey, String(toEmail), safeAmt, sym))
+      ? await safeFaucetPayCall(() => faucetPaySend(savedKey, safeEmail, safeAmt, sym))
       : { ok: false, error: 'FaucetPay API key not configured', currency: sym, amount: safeAmt };
     const ok = result && result.ok === true;
-    return { ok: !!ok, status: (result && result.status) || 0, message: (result && (result.message || result.error)) || 'Unknown error', error: ok ? null : ((result && (result.error || result.message)) || 'FaucetPay send failed.'), raw: plainObject(result || {}) };
+    return { ok: !!ok, status: (result && result.status) || 0, message: (result && (result.message || result.error)) || 'Unknown error', error: ok ? null : ((result && (result.error || result.message)) || 'FaucetPay send failed.'), data: plainObject((result && (result.data || result.raw)) || result || {}), raw: plainObject(result || {}) };
   };
 
   const helperFaucetPayGetBalance = async (apiKey = null, currency = 'USDT') => {
@@ -1827,6 +1883,28 @@ function buildHelpers(payload, actions, settings) {
       : savedFaucetPayKey();
     if (!key) return { ok: false, error: 'FaucetPay API key not configured' };
     return safeFaucetPayCall(() => faucetPayCurrencies(key));
+  };
+
+  const helperSendWithdrawalChannelNotice = async (_botId, userId, amount, currency = 'USDT', botUsername = null) => {
+    const payoutChannel = await getBotData('payout_channel', null);
+    if (!payoutChannel) {
+      return { ok: false, message: 'Withdrawal channel not set.', error: 'Withdrawal channel not set.' };
+    }
+
+    const username = String(botUsername || safeBot.username || safeBot.name || '').replace(/^@+/, '').trim();
+    const botLink = username
+      ? `<a href="https://t.me/${escapeHTML(username)}">@${escapeHTML(username)}</a>`
+      : 'Bot link unavailable';
+    const coin = String(currency || 'USDT').toUpperCase();
+    const message =
+      `\u2705 <b>New withdrawal sent successfully</b>\n\n` +
+      `<b>User id:</b> <code>${escapeHTML(userId)}</code>\n` +
+      `<b>Network:</b> FaucetPay\n` +
+      `<b>Amount:</b> ${escapeHTML(amount)} ${escapeHTML(coin)}\n` +
+      `<b>Bot:</b> ${botLink}`;
+
+    const result = await sendMessage(payoutChannel, message, { parse_mode: 'HTML' });
+    return { ok: true, result: plainObject(result || {}) };
   };
 
   const oxapayRuntimeAction = async (action, options = {}, extra = {}) => {
@@ -2300,6 +2378,8 @@ function buildHelpers(payload, actions, settings) {
     calculateNetAmount,
     generatePaymentRef,
     generateWithdrawalRef,
+    getSavedFaucetPayApiKey: helperGetSavedFaucetPayApiKey,
+    saveFaucetPayApiKey: helperSaveFaucetPayApiKey,
     faucetPayBalance: helperFaucetPayBalance,
     faucetPayGetBalance: helperFaucetPayGetBalance,
     getFaucetPayBalance: helperFaucetPayGetBalance,
@@ -2326,6 +2406,7 @@ function buildHelpers(payload, actions, settings) {
     faucetPayParseBalance: (rawBalance) => extractFaucetPayBalance(rawBalance, ''),
     faucetPaySafeResponse: (response) => plainObject(response || {}),
     faucetPayErrorMessage: (response) => String((response && (response.error || response.message)) || 'FaucetPay request failed'),
+    sendWithdrawalChannelNotice: helperSendWithdrawalChannelNotice,
     findUserByData,
     findUserByDataInCurrentBot: findUserByData,
     findFirstUserByDataInCurrentBot,
