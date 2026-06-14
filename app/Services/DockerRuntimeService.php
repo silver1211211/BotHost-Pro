@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\NodeRuntimeConfig;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -65,6 +66,8 @@ class DockerRuntimeService
             '-e', 'PORT='.(string) config('runtime.docker.internal_port'),
             '-e', 'COMMAND_TIMEOUT_MS='.(string) $this->settings->integer('command_timeout_ms', (int) config('runtime.docker.timeout_ms')),
             '-e', 'COMMAND_MAX_DELAY_MS='.(string) $this->settings->integer('max_delay_ms', 10000),
+            '-e', 'NODE_RUNTIME_SECRET='.NodeRuntimeConfig::secret(),
+            '-e', 'NODE_RUNTIME_INTERNAL_URL='.NodeRuntimeConfig::internalUrl(),
             '-p', '127.0.0.1:'.$port.':'.config('runtime.docker.internal_port'),
             '--network', (string) config('runtime.docker.network'),
             (string) config('runtime.docker.image'),

@@ -3,6 +3,10 @@ const net = require('node:net');
 const crypto = require('node:crypto');
 const vm = require('node:vm');
 
+try {
+  require('dotenv').config();
+} catch (_) {}
+
 let input = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => { input += chunk; });
@@ -96,10 +100,26 @@ function buildHelpers(payload, actions, settings) {
   const commandData = Object.freeze(plainObject(commandFlow.data || {}));
   const args = Array.isArray(telegram.args) ? telegram.args.map((arg) => String(arg)) : [];
   const botToken = '';
-  const telegramBridgeUrl = typeof runtime.telegram_bridge_url === 'string' ? runtime.telegram_bridge_url : '';
-  const telegramBridgeSecret = typeof runtime.telegram_bridge_secret === 'string' ? runtime.telegram_bridge_secret : '';
-  const storageBridgeUrl = typeof runtime.storage_bridge_url === 'string' ? runtime.storage_bridge_url : '';
-  const storageBridgeSecret = typeof runtime.storage_bridge_secret === 'string' ? runtime.storage_bridge_secret : '';
+  const defaultBridgeBaseUrl = runtimeBridgeBaseUrl();
+  const telegramBridgeUrl = firstNonEmptyString(
+    runtime.telegram_bridge_url,
+    process.env.TELEGRAM_BRIDGE_URL,
+    defaultBridgeBaseUrl ? `${defaultBridgeBaseUrl}/runtime/telegram` : '',
+  );
+  const telegramBridgeSecret = firstNonEmptyString(
+    runtime.telegram_bridge_secret,
+    process.env.TELEGRAM_BRIDGE_SECRET,
+    process.env.NODE_RUNTIME_SECRET,
+  );
+  const storageBridgeUrl = firstNonEmptyString(
+    runtime.storage_bridge_url,
+    process.env.STORAGE_BRIDGE_URL,
+  );
+  const storageBridgeSecret = firstNonEmptyString(
+    runtime.storage_bridge_secret,
+    process.env.STORAGE_BRIDGE_SECRET,
+    process.env.NODE_RUNTIME_SECRET,
+  );
   const faucetPayApiKey = typeof runtime.faucetpay_api_key === 'string' ? runtime.faucetpay_api_key : '';
   const oxapayBridgeUrl = typeof runtime.oxapay_bridge_url === 'string' ? runtime.oxapay_bridge_url : '';
   const oxapayBridgeSecret = typeof runtime.oxapay_bridge_secret === 'string' ? runtime.oxapay_bridge_secret : '';
@@ -546,8 +566,9 @@ function buildHelpers(payload, actions, settings) {
   const getChatMember = async (channelUsernameOrId, userId = safeUser.id) => {
     const startedAt = Date.now();
     try {
-      const chatId = requireChatId(channelUsernameOrId, 'getChatMember(channel, userId)');
-      const targetUserId = requireChatId(userId, 'getChatMember(channel, userId)');
+      const args = normalizeChannelMemberArgs(channelUsernameOrId, userId, 'getChatMember(channel, userId)');
+      const chatId = args.chat_id;
+      const targetUserId = args.user_id;
 
       process.stderr.write('[BotHost] getChatMember_request ' + JSON.stringify({
         bot_id: (payload.bot || {}).id || null,
@@ -578,7 +599,7 @@ function buildHelpers(payload, actions, settings) {
     }
   };
 
-  const isChannelMember = async (channelUsernameOrId, userId) => {
+  const isChannelMember = async (channelUsernameOrId, userId = safeUser.id) => {
     const result = await checkChannelMember(channelUsernameOrId, userId);
     return !!result.is_member;
   };
@@ -586,8 +607,9 @@ function buildHelpers(payload, actions, settings) {
   const checkChannelMember = async (channelUsernameOrId, userId = safeUser.id) => {
     const startedAt = Date.now();
     try {
-      const chatId = requireChatId(channelUsernameOrId, 'checkChannelMember(channel, userId)');
-      const targetUserId = requireChatId(userId, 'checkChannelMember(channel, userId)');
+      const args = normalizeChannelMemberArgs(channelUsernameOrId, userId, 'checkChannelMember(channel, userId)');
+      const chatId = args.chat_id;
+      const targetUserId = args.user_id;
 
       const response = await telegramRuntimeAction('telegram.checkChannelMember', {
         chat_id: chatId,
@@ -614,11 +636,12 @@ function buildHelpers(payload, actions, settings) {
           (response.result && response.result.message) ||
           (isOk ? 'Telegram membership check completed.' : 'Telegram membership check failed.')
         );
+        const status = String(response.status ?? (response.result && response.result.status) ?? 'unknown');
         result = isOk
           ? {
               ok: true,
-              is_member: !!(response.is_member ?? (response.result && response.result.is_member)),
-              status: String(response.status ?? (response.result && response.result.status) ?? 'unknown'),
+              is_member: isTelegramMembershipStatus(status) || !!(response.is_member ?? (response.result && response.result.is_member)),
+              status,
               message: msgText,
               elapsed_ms: elapsedMs,
             }
@@ -3482,6 +3505,68 @@ function isMaskedSecretValue(value) {
 function isLikelyFaucetPayCurrency(value) {
   return ['BTC', 'ETH', 'DOGE', 'LTC', 'BCH', 'DASH', 'DGB', 'TRX', 'USDT', 'FEY', 'ZEC', 'BNB', 'SOL', 'XRP', 'MATIC', 'ADA', 'TON', 'USDC']
     .includes(String(value || '').trim().toUpperCase());
+}
+
+function normalizeChannelMemberArgs(channelUsernameOrId, userId, label) {
+  let chatId = channelUsernameOrId;
+  let targetUserId = userId;
+
+  if (looksLikeTelegramUserId(channelUsernameOrId) && looksLikeTelegramChannel(userId)) {
+    chatId = userId;
+    targetUserId = channelUsernameOrId;
+  }
+
+  return {
+    chat_id: requireChatId(normalizeTelegramChannelId(chatId), label),
+    user_id: requireChatId(targetUserId, label),
+  };
+}
+
+function normalizeTelegramChannelId(value) {
+  if (typeof value !== 'string') return value;
+
+  const text = value.trim();
+  if (/^-?\d+$/.test(text)) return text;
+
+  const linked = text.match(/(?:https?:\/\/)?t\.me\/([a-zA-Z0-9_]{3,})/);
+  if (linked) return `@${linked[1]}`;
+
+  return text.startsWith('@') ? text : `@${text}`;
+}
+
+function looksLikeTelegramUserId(value) {
+  return /^\d{5,20}$/.test(String(value || '').trim());
+}
+
+function looksLikeTelegramChannel(value) {
+  const text = String(value || '').trim();
+  return /^@?[a-zA-Z0-9_]{3,32}$/.test(text)
+    || /^-100\d{5,20}$/.test(text)
+    || /(?:https?:\/\/)?t\.me\/[a-zA-Z0-9_]{3,}/.test(text);
+}
+
+function isTelegramMembershipStatus(status) {
+  return ['member', 'administrator', 'creator'].includes(String(status || '').toLowerCase());
+}
+
+function runtimeBridgeBaseUrl() {
+  return firstNonEmptyString(
+    process.env.NODE_RUNTIME_INTERNAL_URL,
+    process.env.APP_INTERNAL_URL,
+    process.env.APP_PUBLIC_URL,
+    process.env.APP_URL,
+  ).replace(/\/+$/, '');
+}
+
+function firstNonEmptyString(...values) {
+  for (const value of values) {
+    if (typeof value !== 'string') continue;
+
+    const text = value.trim();
+    if (text !== '') return text;
+  }
+
+  return '';
 }
 
 function requireChatId(value, label) {

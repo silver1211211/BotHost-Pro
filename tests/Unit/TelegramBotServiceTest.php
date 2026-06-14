@@ -28,20 +28,52 @@ class TelegramBotServiceTest extends TestCase
             && $request['user_id'] === 12345);
     }
 
+    public function test_check_telegram_channel_member_returns_true_for_administrators_and_creators(): void
+    {
+        Http::fakeSequence('api.telegram.org/*/getChatMember')
+            ->push(['ok' => true, 'result' => ['status' => 'administrator', 'user' => ['id' => 12345]]])
+            ->push(['ok' => true, 'result' => ['status' => 'creator', 'user' => ['id' => 12345]]]);
+
+        foreach (['administrator', 'creator'] as $status) {
+            $result = app(TelegramBotService::class)->checkTelegramChannelMember('123456:ABCdefGhijKLMnop', '@example', 12345);
+
+            $this->assertTrue($result['ok']);
+            $this->assertTrue($result['is_member']);
+            $this->assertSame($status, $result['status']);
+        }
+    }
+
     public function test_check_telegram_channel_member_returns_false_for_left_users(): void
+    {
+        Http::fakeSequence('api.telegram.org/*/getChatMember')
+            ->push(['ok' => true, 'result' => ['status' => 'left', 'user' => ['id' => 12345]]])
+            ->push(['ok' => true, 'result' => ['status' => 'kicked', 'user' => ['id' => 12345]]]);
+
+        foreach (['left', 'kicked'] as $status) {
+            $result = app(TelegramBotService::class)->checkTelegramChannelMember('123456:ABCdefGhijKLMnop', '@example', 12345);
+
+            $this->assertTrue($result['ok']);
+            $this->assertFalse($result['is_member']);
+            $this->assertSame($status, $result['status']);
+        }
+    }
+
+    public function test_check_telegram_channel_member_returns_false_for_user_not_found(): void
     {
         Http::fake([
             'api.telegram.org/*/getChatMember' => Http::response([
-                'ok' => true,
-                'result' => ['status' => 'left', 'user' => ['id' => 12345]],
-            ]),
+                'ok' => false,
+                'error_code' => 400,
+                'description' => 'Bad Request: user not found',
+            ], 400),
         ]);
 
         $result = app(TelegramBotService::class)->checkTelegramChannelMember('123456:ABCdefGhijKLMnop', '@example', 12345);
 
-        $this->assertTrue($result['ok']);
+        $this->assertFalse($result['ok']);
         $this->assertFalse($result['is_member']);
-        $this->assertSame('left', $result['status']);
+        $this->assertSame('unknown', $result['status']);
+        $this->assertSame('Telegram user was not found in this chat.', $result['message']);
     }
 
     public function test_check_telegram_channel_member_returns_safe_error_for_telegram_failures(): void
