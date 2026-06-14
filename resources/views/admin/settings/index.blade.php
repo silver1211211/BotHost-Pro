@@ -1,4 +1,4 @@
-<x-admin-layout title="Platform Settings" subtitle="Global platform configuration and administration">
+﻿<x-admin-layout title="Platform Settings" subtitle="Global platform configuration and administration">
 <style>[x-cloak]{display:none!important}</style>
 
 @php
@@ -49,7 +49,7 @@
                 @click="tab = '{{ $t['id'] }}'; history.replaceState(null, '', '?tab={{ $t['id'] }}')"
                 :class="tab === '{{ $t['id'] }}'
                     ? '{{ $t['danger'] ? 'border-[#EF4444]/40 bg-[#EF4444]/10 text-[#EF4444]' : 'border-[#8B5CF6] bg-[#8B5CF6]/12 text-white' }}'
-                    : '{{ $t['danger'] ? 'border-[#27213D] text-[#EF4444]/50' : 'border-[#27213D] text-[#71717A]' }}'"
+                    : '{{ $t['danger'] ? 'border-[#27213D] text-[#EF4444]/50' : 'border-[#27213D] text-[#94A3B8]' }}'"
                 class="shrink-0 rounded-xl border px-3 py-2 text-[11px] font-semibold transition-all whitespace-nowrap"
             >{{ $t['label'] }}</button>
             @endforeach
@@ -62,14 +62,14 @@
                 @click="tab = '{{ $t['id'] }}'; history.replaceState(null, '', '?tab={{ $t['id'] }}')"
                 :class="tab === '{{ $t['id'] }}'
                     ? '{{ $t['danger'] ? 'bg-[#EF4444]/8 text-[#EF4444]' : 'bg-[#8B5CF6]/12 text-[#F8FAFC]' }}'
-                    : '{{ $t['danger'] ? 'text-[#EF4444]/60 hover:bg-[#EF4444]/5 hover:text-[#EF4444]' : 'text-[#71717A] hover:bg-[#151225] hover:text-[#F8FAFC]' }}'"
+                    : '{{ $t['danger'] ? 'text-[#EF4444]/60 hover:bg-[#EF4444]/5 hover:text-[#EF4444]' : 'text-[#94A3B8] hover:bg-[#151225] hover:text-[#F8FAFC]' }}'"
                 class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 {{ $loop->last ? 'mt-1 border-t border-[#27213D]/50 pt-2.5' : '' }}"
             >
                 <span
                     class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-all"
                     :class="tab === '{{ $t['id'] }}'
                         ? '{{ $t['danger'] ? 'bg-[#EF4444]/15 text-[#EF4444]' : 'bg-[#8B5CF6] text-white shadow-[0_0_10px_rgba(139,92,246,0.5)]' }}'
-                        : '{{ $t['danger'] ? 'text-[#EF4444]/40' : 'text-[#4D4868]' }}'"
+                        : '{{ $t['danger'] ? 'text-[#EF4444]/40' : 'text-[#7E7AA0]' }}'"
                 >
                     <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="{{ $t['icon'] }}"/>
@@ -101,21 +101,21 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">General Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Core platform identity and behavior.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Core platform identity and behavior.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
 
                 {{-- Platform Identity --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Platform Identity</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Platform Identity</h3>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Platform Name</label>
                             <input type="text" name="platform_name" value="{{ old('platform_name', $platformName) }}"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Shown in page titles and emails.</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Shown in page titles and emails.</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Support Email</label>
@@ -128,7 +128,7 @@
                                 <input type="hidden" name="default_currency" :value="val">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -147,7 +147,7 @@
                                 <input type="hidden" name="platform_mode" :value="val">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -165,18 +165,18 @@
 
                 {{-- URL Info --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">URL Configuration</h3>
-                    <p class="text-[11px] text-[#71717A]">APP_URL comes from your environment. The public callback URL can be updated in the Webhooks section.</p>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">URL Configuration</h3>
+                    <p class="text-[11px] text-[#94A3B8]">APP_URL comes from your environment. The public callback URL can be updated in the Webhooks section.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-3">
-                            <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A] mb-1">Local App URL <span class="text-[#4D4868]">(APP_URL)</span></p>
+                            <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8] mb-1">Local App URL <span class="text-[#7E7AA0]">(APP_URL)</span></p>
                             <p class="font-mono text-xs text-[#A1A1AA] break-all">{{ $appUrl ?: '(not set)' }}</p>
-                            <p class="mt-1 text-[10px] text-[#71717A]">Browser navigation, return redirects.</p>
+                            <p class="mt-1 text-[10px] text-[#94A3B8]">Browser navigation, return redirects.</p>
                         </div>
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-3">
-                            <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A] mb-1">Public Callback URL <span class="text-[#4D4868]">(APP_PUBLIC_URL)</span></p>
+                            <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8] mb-1">Public Callback URL <span class="text-[#7E7AA0]">(APP_PUBLIC_URL)</span></p>
                             <p class="font-mono text-xs text-[#A1A1AA] break-all">{{ $appPublicUrl ?: '(not set)' }}</p>
-                            <p class="mt-1 text-[10px] text-[#71717A]">External webhooks, Telegram, OxaPay callbacks.</p>
+                            <p class="mt-1 text-[10px] text-[#94A3B8]">External webhooks, Telegram, OxaPay callbacks.</p>
                         </div>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Branding Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Customize the platform's visual identity — logos, colors, and page text.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Customize the platform's visual identity — logos, colors, and page text.</p>
                     </div>
                     <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">
                         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
@@ -206,7 +206,7 @@
                 {{-- ── Platform Logo ──────────────────────────────── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] overflow-hidden">
                     <div class="px-5 pt-5 pb-4 border-b border-[#1B172B]">
-                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Platform Logo</p>
+                        <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Platform Logo</p>
                         <p class="mt-0.5 text-[11px] text-[#52525B]">Displayed on the marketing site, login page, and user dashboard sidebar.</p>
                     </div>
                     <div class="flex flex-col lg:flex-row">
@@ -215,11 +215,11 @@
                              style="background-color:#07060F;background-image:linear-gradient(45deg,#0F0C1C 25%,transparent 25%),linear-gradient(-45deg,#0F0C1C 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#0F0C1C 75%),linear-gradient(-45deg,transparent 75%,#0F0C1C 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0">
                             @if($platformLogoUrl)
                                 <img src="{{ $platformLogoUrl }}" alt="Platform Logo" class="h-12 w-auto max-w-[240px] object-contain">
-                                <span class="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[#3D3657]">Current logo</span>
+                                <span class="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[#6B6890]">Current logo</span>
                             @else
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="h-7 w-7 text-[#27213D]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
-                                    <p class="text-[11px] text-[#3D3657]">No platform logo uploaded</p>
+                                    <p class="text-[11px] text-[#6B6890]">No platform logo uploaded</p>
                                 </div>
                             @endif
                         </div>
@@ -233,7 +233,7 @@
                                 </div>
                                 <input type="file" name="platform_logo" class="sr-only" accept=".png,.jpg,.jpeg,.webp,.svg">
                             </label>
-                            <p class="text-[10px] leading-relaxed text-[#3D3657]">Use a wide transparent PNG or SVG for best results. Replaces the existing logo on save.</p>
+                            <p class="text-[10px] leading-relaxed text-[#6B6890]">Use a wide transparent PNG or SVG for best results. Replaces the existing logo on save.</p>
                         </div>
                     </div>
                 </div>
@@ -241,7 +241,7 @@
                 {{-- ── Admin Logo ──────────────────────────────────── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] overflow-hidden">
                     <div class="px-5 pt-5 pb-4 border-b border-[#1B172B]">
-                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Admin Logo</p>
+                        <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Admin Logo</p>
                         <p class="mt-0.5 text-[11px] text-[#52525B]">Shown in the admin panel sidebar. Falls back to the Platform Logo if not set.</p>
                     </div>
                     <div class="flex flex-col lg:flex-row">
@@ -250,13 +250,13 @@
                              style="background-color:#07060F;background-image:linear-gradient(45deg,#0F0C1C 25%,transparent 25%),linear-gradient(-45deg,#0F0C1C 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#0F0C1C 75%),linear-gradient(-45deg,transparent 75%,#0F0C1C 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0">
                             @if($adminLogoUrl)
                                 <img src="{{ $adminLogoUrl }}" alt="Admin Logo" class="h-12 w-auto max-w-[240px] object-contain">
-                                <span class="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[#3D3657]">
+                                <span class="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[#6B6890]">
                                     {{ ($adminLogoUrl === $platformLogoUrl && $platformLogoUrl) ? 'Inheriting Platform Logo' : 'Current admin logo' }}
                                 </span>
                             @else
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="h-7 w-7 text-[#27213D]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
-                                    <p class="text-[11px] text-[#3D3657]">No admin logo — using default icon</p>
+                                    <p class="text-[11px] text-[#6B6890]">No admin logo — using default icon</p>
                                 </div>
                             @endif
                         </div>
@@ -270,7 +270,7 @@
                                 </div>
                                 <input type="file" name="admin_logo" class="sr-only" accept=".png,.jpg,.jpeg,.webp,.svg">
                             </label>
-                            <p class="text-[10px] leading-relaxed text-[#3D3657]">Leave blank to inherit the Platform Logo. Replaces the existing admin logo on save.</p>
+                            <p class="text-[10px] leading-relaxed text-[#6B6890]">Leave blank to inherit the Platform Logo. Replaces the existing admin logo on save.</p>
                         </div>
                     </div>
                 </div>
@@ -287,7 +287,7 @@
                                 @endif
                             </div>
                             <div class="min-w-0 pt-0.5">
-                                <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Favicon</p>
+                                <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Favicon</p>
                                 <p class="mt-0.5 text-[11px] text-[#52525B] leading-relaxed">Shown in browser tabs and bookmarks. Use a square ICO, PNG, or SVG — 32×32 or 64×64 px recommended.</p>
                             </div>
                         </div>
@@ -303,7 +303,7 @@
                 {{-- ── Brand Colors ─────────────────────────────────── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Brand Colors</p>
+                        <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Brand Colors</p>
                         <p class="mt-0.5 text-[11px] text-[#52525B]">Primary and accent colors used across the platform UI.</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -333,7 +333,7 @@
                 {{-- ── Login Page & Site Text ───────────────────────── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Login Page & Site Text</p>
+                        <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Login Page & Site Text</p>
                         <p class="mt-0.5 text-[11px] text-[#52525B]">Text displayed on the login screen and across public page footers.</p>
                     </div>
                     <div>
@@ -356,7 +356,7 @@
 
                 {{-- ── Save footer bar ──────────────────────────────── --}}
                 <div class="flex items-center justify-between gap-3 rounded-2xl border border-[#1B172B] bg-[#0B0A14] px-5 py-4">
-                    <p class="text-[11px] text-[#3D3657]">Uploading a new file replaces the existing one. All changes apply after saving.</p>
+                    <p class="text-[11px] text-[#6B6890]">Uploading a new file replaces the existing one. All changes apply after saving.</p>
                     <button type="submit" class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#8B5CF6] px-5 py-2.5 text-xs font-black text-white hover:bg-[#7C3AED] transition shadow-[0_0_18px_rgba(139,92,246,0.25)]">
                         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                         Save Branding
@@ -379,14 +379,14 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Link Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Configure external URLs shown on the Dashboard, Help, and Support pages.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Configure external URLs shown on the Dashboard, Help, and Support pages.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-5">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Dashboard Help Cards</h3>
-                    <p class="text-[11px] text-[#71717A] -mt-2">These URLs power the two community cards at the bottom of the Dashboard. Leave blank to disable linking.</p>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Dashboard Help Cards</h3>
+                    <p class="text-[11px] text-[#94A3B8] -mt-2">These URLs power the two community cards at the bottom of the Dashboard. Leave blank to disable linking.</p>
 
                     <div class="space-y-4">
                         <div>
@@ -395,7 +395,7 @@
                                 value="{{ old('telegram_community_url', $telegramCommunityUrl) }}"
                                 placeholder="https://t.me/your_group"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Shown as the "Telegram Community" card on the Dashboard.</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Shown as the "Telegram Community" card on the Dashboard.</p>
                         </div>
 
                         <div>
@@ -404,14 +404,14 @@
                                 value="{{ old('tutorials_url', $tutorialsUrl) }}"
                                 placeholder="https://docs.yourdomain.com/tutorials"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Shown as the "Learn to Make Bots" card on the Dashboard.</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Shown as the "Learn to Make Bots" card on the Dashboard.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Contact Support URL</h3>
-                    <p class="text-[11px] text-[#71717A] -mt-2">Shown as a "Contact Support" button on the Help and Support pages. Accepts any URL — e.g. a Telegram group, Discord invite, or help desk link.</p>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Contact Support URL</h3>
+                    <p class="text-[11px] text-[#94A3B8] -mt-2">Shown as a "Contact Support" button on the Help and Support pages. Accepts any URL — e.g. a Telegram group, Discord invite, or help desk link.</p>
 
                     <div>
                         <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Support URL</label>
@@ -419,7 +419,7 @@
                             value="{{ old('support_url', $supportUrl) }}"
                             placeholder="https://t.me/your_support_bot"
                             class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
-                        <p class="mt-1 text-[11px] text-[#71717A]">Renders as a "Contact Support" button on the Help and Support pages.</p>
+                        <p class="mt-1 text-[11px] text-[#94A3B8]">Renders as a "Contact Support" button on the Help and Support pages.</p>
                     </div>
                 </div>
             </form>
@@ -436,7 +436,7 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Payment Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">OxaPay White Label cryptocurrency payment configuration.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">OxaPay White Label cryptocurrency payment configuration.</p>
                     </div>
                     <div class="flex items-center gap-3 shrink-0">
                         <span class="rounded-full border px-2.5 py-1 text-[10px] font-black {{ $providerConfigured ? 'border-[#22C55E]/30 text-[#22C55E]' : 'border-[#F59E0B]/30 text-[#F59E0B]' }}">
@@ -448,16 +448,16 @@
 
                 {{-- API Config --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">OxaPay Merchant</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">OxaPay Merchant</h3>
 
                     <div>
                         <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Merchant API Key</label>
                         <input type="password" name="merchant_api_key" placeholder="{{ $maskedApiKey ? 'Leave blank to keep current key' : 'Enter OxaPay merchant API key' }}"
                             class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
                         @if($maskedApiKey)
-                            <p class="mt-1 text-[11px] text-[#71717A]">Saved key: <span class="font-mono text-[#A1A1AA]">{{ $maskedApiKey }}</span></p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Saved key: <span class="font-mono text-[#A1A1AA]">{{ $maskedApiKey }}</span></p>
                         @endif
-                        <p class="mt-1 text-[11px] text-[#71717A]">Stored encrypted. Never displayed in full.</p>
+                        <p class="mt-1 text-[11px] text-[#94A3B8]">Stored encrypted. Never displayed in full.</p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -470,7 +470,7 @@
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Invoice Lifetime (min)</label>
                             <input type="number" name="invoice_lifetime" min="15" max="2880" value="{{ old('invoice_lifetime', $invoiceLifetime) }}"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60">
-                            <p class="mt-1 text-[11px] text-[#71717A]">15–2880 (default 60)</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">15–2880 (default 60)</p>
                         </div>
                     </div>
 
@@ -478,13 +478,13 @@
                         <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Underpaid Coverage (%)</label>
                         <input type="number" name="under_paid_coverage" min="0" max="100" step="0.01" value="{{ old('under_paid_coverage', $underPaidCoverage) }}" placeholder="Leave empty for OxaPay default"
                             class="w-full sm:w-72 rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
-                        <p class="mt-1 text-[11px] text-[#71717A]">Percentage underpayment OxaPay will accept.</p>
+                        <p class="mt-1 text-[11px] text-[#94A3B8]">Percentage underpayment OxaPay will accept.</p>
                     </div>
                 </div>
 
                 {{-- Toggles --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">Options</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-4">Options</h3>
 
                     @php
                         $payToggles = [
@@ -498,7 +498,7 @@
                     <div x-data="{ val: {{ $tog['val'] ? 'true' : 'false' }} }" class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3">
                         <div class="flex-1 min-w-0 mr-4">
                             <p class="text-sm font-semibold text-[#F8FAFC]">{{ $tog['label'] }}</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">{{ $tog['desc'] }}</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">{{ $tog['desc'] }}</p>
                         </div>
                         <input type="hidden" name="{{ $tog['key'] }}" :value="val ? '1' : '0'">
                         <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'"
@@ -517,8 +517,8 @@
 
                 {{-- Webhook URLs --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Webhook Callback URLs</h3>
-                    <p class="text-[11px] text-[#71717A]">Copy the URL below and enter it in your OxaPay merchant dashboard as the callback URL.</p>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Webhook Callback URLs</h3>
+                    <p class="text-[11px] text-[#94A3B8]">Copy the URL below and enter it in your OxaPay merchant dashboard as the callback URL.</p>
 
                     @foreach([
                         ['label' => 'OxaPay Webhook URL', 'url' => $oxaPayWebhookUrl, 'note' => 'Use this single URL for template purchases and plan upgrades.'],
@@ -531,7 +531,7 @@
                                 onclick="navigator.clipboard.writeText('{{ $wh['url'] }}').then(()=>{this.textContent='Copied!';this.classList.add('text-[#22C55E]');setTimeout(()=>{this.textContent='Copy';this.classList.remove('text-[#22C55E]')},2000)})"
                                 class="shrink-0 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-xs font-bold text-[#A1A1AA] hover:text-white transition">Copy</button>
                         </div>
-                        <p class="mt-1 text-[10px] text-[#71717A]">{{ $wh['note'] }}</p>
+                        <p class="mt-1 text-[10px] text-[#94A3B8]">{{ $wh['note'] }}</p>
                     </div>
                     @endforeach
                 </div>
@@ -546,7 +546,7 @@
             <div class="flex items-center justify-between gap-3">
                 <div class="min-w-0">
                     <h2 class="text-base font-black text-[#F8FAFC]">Webhook Settings</h2>
-                    <p class="text-xs text-[#71717A] mt-0.5">Platform webhook endpoints and Telegram webhook administration.</p>
+                    <p class="text-xs text-[#94A3B8] mt-0.5">Platform webhook endpoints and Telegram webhook administration.</p>
                 </div>
             </div>
 
@@ -554,8 +554,8 @@
             <form method="POST" action="{{ route('admin.settings.webhooks.public-url.save') }}" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
                 @csrf
                 <div>
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Public Callback URL</h3>
-                    <p class="mt-1 text-xs text-[#71717A]">Used for Telegram, OxaPay, and other external webhook callbacks.</p>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Public Callback URL</h3>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Used for Telegram, OxaPay, and other external webhook callbacks.</p>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Public URL</label>
@@ -564,7 +564,7 @@
                     @error('app_public_url')
                         <p class="mt-1 text-[11px] font-semibold text-[#EF4444]">{{ $message }}</p>
                     @else
-                        <p class="mt-1 text-[11px] text-[#71717A]">Must be a public HTTPS URL, for example a trycloudflare.com tunnel.</p>
+                        <p class="mt-1 text-[11px] text-[#94A3B8]">Must be a public HTTPS URL, for example a trycloudflare.com tunnel.</p>
                     @enderror
                 </div>
                 <div class="flex justify-end">
@@ -574,7 +574,7 @@
 
             {{-- URL Reference --}}
             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Endpoint Reference</h3>
+                <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Endpoint Reference</h3>
 
                 @php
                     $publicBase = rtrim((string) $appPublicUrl, '/');
@@ -597,7 +597,7 @@
                             class="shrink-0 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-xs font-bold text-[#A1A1AA] hover:text-white transition">Copy</button>
                         @endif
                     </div>
-                    <p class="mt-1 text-[10px] text-[#71717A]">{{ $whu['note'] }}</p>
+                    <p class="mt-1 text-[10px] text-[#94A3B8]">{{ $whu['note'] }}</p>
                 </div>
                 @endforeach
             </div>
@@ -610,7 +610,7 @@
                     </div>
                     <div class="flex-1">
                         <h3 class="text-sm font-black text-[#F8FAFC]">Reset Telegram Webhooks</h3>
-                        <p class="text-xs text-[#71717A] mt-1 leading-relaxed">Set the public callback URL, then refresh every verified bot webhook immediately. Successful bots are put back into running state.</p>
+                        <p class="text-xs text-[#94A3B8] mt-1 leading-relaxed">Set the public callback URL, then refresh every verified bot webhook immediately. Successful bots are put back into running state.</p>
                         @if($errors->has('webhook'))
                             <p class="mt-2 text-xs font-semibold text-[#EF4444]">{{ $errors->first('webhook') }}</p>
                         @endif
@@ -621,7 +621,7 @@
                                 <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Public Callback URL</label>
                                 <input type="url" name="app_public_url" value="{{ old('app_public_url', $appPublicUrl) }}" placeholder="https://your-tunnel.example.com"
                                     class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 font-mono text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Example: https://circus-mineral-ancient-yield.trycloudflare.com</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Example: https://circus-mineral-ancient-yield.trycloudflare.com</p>
                             </div>
                             <button
                                 type="button"
@@ -657,7 +657,7 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Trigger Webhooks</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Control platform event triggers for user-configured custom webhook endpoints.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Control platform event triggers for user-configured custom webhook endpoints.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
@@ -669,7 +669,7 @@
                     <div class="flex items-center justify-between gap-4">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-black text-[#F8FAFC]">Trigger Webhooks (Global)</p>
-                            <p class="text-xs text-[#71717A] mt-0.5">Master switch. When off, no trigger webhook events will fire for any user.</p>
+                            <p class="text-xs text-[#94A3B8] mt-0.5">Master switch. When off, no trigger webhook events will fire for any user.</p>
                         </div>
                         <input type="hidden" name="trigger_webhooks_enabled" :value="val ? '1' : '0'">
                         <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'"
@@ -682,7 +682,7 @@
 
                 {{-- Per-Event Toggles --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">Event Triggers</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-4">Event Triggers</h3>
 
                     @php
                         $triggerEvents = [
@@ -698,7 +698,7 @@
                     <div x-data="{ val: {{ $evt['val'] ? 'true' : 'false' }} }" class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3">
                         <div class="flex-1 min-w-0 mr-4">
                             <p class="text-sm font-semibold text-[#F8FAFC]">{{ $evt['label'] }}</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">{{ $evt['desc'] }}</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">{{ $evt['desc'] }}</p>
                         </div>
                         <input type="hidden" name="{{ $evt['key'] }}" :value="val ? '1' : '0'">
                         <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'"
@@ -726,13 +726,13 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Storage Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Control how files and bot storage are managed.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Control how files and bot storage are managed.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Storage Configuration</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Storage Configuration</h3>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -741,7 +741,7 @@
                                 <input type="hidden" name="storage_default_disk" :value="val">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -758,19 +758,19 @@
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Warning Threshold (%)</label>
                             <input type="number" name="storage_warning_threshold_percent" min="50" max="99" value="{{ old('storage_warning_threshold_percent', $storageWarningThreshold) }}"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Show warning at this usage %.</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Show warning at this usage %.</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Critical Threshold (%)</label>
                             <input type="number" name="storage_critical_threshold_percent" min="51" max="100" value="{{ old('storage_critical_threshold_percent', $storageCriticalThreshold) }}"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Deny uploads at this usage %.</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Deny uploads at this usage %.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">Storage Behavior</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-4">Storage Behavior</h3>
 
                     @php
                         $storeToggles = [
@@ -783,7 +783,7 @@
                     <div x-data="{ val: {{ $tog['val'] ? 'true' : 'false' }} }" class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3">
                         <div class="flex-1 min-w-0 mr-4">
                             <p class="text-sm font-semibold text-[#F8FAFC]">{{ $tog['label'] }}</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">{{ $tog['desc'] }}</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">{{ $tog['desc'] }}</p>
                         </div>
                         <input type="hidden" name="{{ $tog['key'] }}" :value="val ? '1' : '0'">
                         <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'"
@@ -809,7 +809,7 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Security Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Authentication, registration, and access controls.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Authentication, registration, and access controls.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
@@ -822,7 +822,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold text-[#F8FAFC]">Require Email Verification</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">New users must verify their email before accessing the dashboard.</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">New users must verify their email before accessing the dashboard.</p>
                         </div>
                         <div class="flex flex-col items-end gap-1.5 shrink-0">
                             <input type="hidden" name="require_email_verification" :value="val ? '1' : '0'">
@@ -832,7 +832,7 @@
                                     class="absolute left-0 top-0.5 h-5 w-5 rounded-full shadow transition-all duration-200"></span>
                             </button>
                             <span x-show="val" x-cloak class="text-[10px] font-semibold text-[#8B5CF6]">Enabled</span>
-                            <span x-show="!val" class="text-[10px] font-semibold text-[#71717A]">Disabled</span>
+                            <span x-show="!val" class="text-[10px] font-semibold text-[#94A3B8]">Disabled</span>
                         </div>
                     </div>
 
@@ -869,7 +869,7 @@
                                     <span x-text="val ? 'Registration Open' : 'Registration Closed'"></span>
                                 </span>
                             </div>
-                            <p class="text-[11px] text-[#71717A] mt-1">When disabled, visitors cannot create new accounts. Existing users can still log in.</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-1">When disabled, visitors cannot create new accounts. Existing users can still log in.</p>
                         </div>
                         <div class="shrink-0">
                             <input type="hidden" name="allow_registration" :value="val ? '1' : '0'">
@@ -890,7 +890,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold text-[#F8FAFC]">Admin Access During Maintenance</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">Allow admins to access the platform while normal users see the maintenance page.</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">Allow admins to access the platform while normal users see the maintenance page.</p>
                             <p class="text-[11px] text-[#4B4565] mt-1">Admins bypass maintenance mode after logging in.</p>
                         </div>
                         <div class="shrink-0">
@@ -906,7 +906,7 @@
                     {{-- Allowed IPs --}}
                     <div class="border-t border-[#27213D] pt-4">
                         <button type="button" @click="showIps = !showIps"
-                            class="flex items-center gap-2 text-[11px] font-semibold text-[#71717A] hover:text-[#A1A1AA] transition">
+                            class="flex items-center gap-2 text-[11px] font-semibold text-[#94A3B8] hover:text-[#A1A1AA] transition">
                             <svg class="h-3.5 w-3.5 transition-transform duration-150" :class="showIps ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             Allowed Admin IPs <span class="text-[#4B4565] font-normal">(optional)</span>
                         </button>
@@ -919,7 +919,7 @@
                             >{{ old('maintenance_allowed_ips', $maintenanceAllowedIps ?? '') }}</textarea>
                             <p class="text-[11px] text-[#4B4565]">Optional. Comma-separated IPs allowed to access the platform during maintenance. Admin account login always takes priority.</p>
                             @isset($currentAdminIp)
-                                <p class="text-[11px] text-[#71717A]">Your current IP: <span class="font-mono text-[#A1A1AA]">{{ $currentAdminIp }}</span></p>
+                                <p class="text-[11px] text-[#94A3B8]">Your current IP: <span class="font-mono text-[#A1A1AA]">{{ $currentAdminIp }}</span></p>
                             @endisset
                         </div>
                     </div>
@@ -927,7 +927,7 @@
 
                 {{-- ── Limits ── --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Rate Limiting</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Rate Limiting</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Session Timeout <span class="font-normal text-[#52525B]">(minutes)</span></label>
@@ -935,7 +935,7 @@
                                 value="{{ old('session_timeout_minutes', $sessionTimeoutMinutes) }}"
                                 placeholder="Default (Laravel config)"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Leave empty to use Laravel's default.</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Leave empty to use Laravel's default.</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#A1A1AA] mb-1.5">Max Login Attempts</label>
@@ -943,7 +943,7 @@
                                 value="{{ old('max_login_attempts', $maxLoginAttempts) }}"
                                 placeholder="5"
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60">
-                            <p class="mt-1 text-[11px] text-[#71717A]">Lockout after this many failed attempts (3–20).</p>
+                            <p class="mt-1 text-[11px] text-[#94A3B8]">Lockout after this many failed attempts (3–20).</p>
                         </div>
                     </div>
                 </div>
@@ -965,7 +965,7 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Notification Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Email sending, admin alerts, and platform event notifications.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Email sending, admin alerts, and platform event notifications.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
@@ -980,11 +980,11 @@
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <h3 class="text-sm font-black text-[#F8FAFC]">Email Sending Settings</h3>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">SMTP / Gmail configuration for platform-sent emails.</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">SMTP / Gmail configuration for platform-sent emails.</p>
                         </div>
                         <div class="flex items-center gap-2.5">
                             <span x-show="mailEnabled" x-cloak class="text-[10px] font-semibold text-[#22C55E]">Enabled</span>
-                            <span x-show="!mailEnabled" class="text-[10px] font-semibold text-[#71717A]">Disabled</span>
+                            <span x-show="!mailEnabled" class="text-[10px] font-semibold text-[#94A3B8]">Disabled</span>
                             <input type="hidden" name="mail_enabled" :value="mailEnabled ? '1' : '0'">
                             <button type="button" @click="mailEnabled = !mailEnabled" :class="mailEnabled ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'"
                                 class="relative h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none overflow-hidden shrink-0">
@@ -996,7 +996,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">From Email</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">From Email</label>
                             <input type="email" name="mail_from_address"
                                 value="{{ old('mail_from_address', $mailFromAddress ?? '') }}"
                                 placeholder="yourname@gmail.com"
@@ -1004,7 +1004,7 @@
                             <p class="mt-1 text-[11px] text-[#4B4565]">Address users see as the sender.</p>
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">From Name</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">From Name</label>
                             <input type="text" name="mail_from_name"
                                 value="{{ old('mail_from_name', $mailFromName ?? '') }}"
                                 placeholder="BotHost Pro"
@@ -1014,12 +1014,12 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Mail Driver</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Mail Driver</label>
                             <div class="relative" x-data="{ open: false, get label() { return { 'smtp': 'SMTP', 'log': 'Log only / Testing' }[driver] || 'SMTP' } }" @click.away="open = false">
                                 <input type="hidden" name="mail_mailer" :value="driver">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -1033,7 +1033,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">SMTP Host</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">SMTP Host</label>
                             <input type="text" name="mail_host"
                                 value="{{ old('mail_host', $mailHost ?? '') }}"
                                 placeholder="smtp.gmail.com"
@@ -1041,7 +1041,7 @@
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 disabled:opacity-40">
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">SMTP Port</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">SMTP Port</label>
                             <input type="number" name="mail_port"
                                 value="{{ old('mail_port', $mailPort ?? '587') }}"
                                 placeholder="587"
@@ -1052,7 +1052,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">SMTP Username</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">SMTP Username</label>
                             <input type="text" name="mail_username"
                                 value="{{ old('mail_username', $mailUsername ?? '') }}"
                                 placeholder="yourname@gmail.com"
@@ -1061,7 +1061,7 @@
                                 class="w-full rounded-xl border border-[#27213D] bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#71717A] outline-none transition focus:border-[#8B5CF6]/60 disabled:opacity-40">
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">SMTP Password / App Password</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">SMTP Password / App Password</label>
                             <input type="password" name="mail_password"
                                 placeholder="{{ $mailPasswordSaved ? '••••••••••••' : 'Enter password or app password' }}"
                                 :disabled="driver !== 'smtp'"
@@ -1074,13 +1074,13 @@
                             @endif
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Encryption</label>
+                            <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Encryption</label>
                             <div class="relative" :class="driver !== 'smtp' ? 'opacity-40 pointer-events-none' : ''"
                                 x-data="{ open: false, val: '{{ old('mail_encryption', $mailEncryption ?? 'tls') }}', get label() { return { 'tls': 'TLS', 'ssl': 'SSL', '': 'None' }[this.val] ?? 'TLS' } }" @click.away="open = false">
                                 <input type="hidden" name="mail_encryption" :value="val">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3.5 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -1103,10 +1103,10 @@
                                 <svg class="h-4 w-4 text-[#38BDF8]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 <span class="text-[11px] font-semibold text-[#A1A1AA]">Gmail setup guide</span>
                             </div>
-                            <svg class="h-4 w-4 text-[#71717A] transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="h-4 w-4 text-[#94A3B8] transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="open" x-cloak x-transition.opacity.duration.150ms class="border-t border-[#27213D] px-4 pb-4 pt-3 space-y-1.5">
-                            <p class="text-[10px] font-black uppercase tracking-wider text-[#71717A] mb-2">How to use Gmail with SMTP</p>
+                            <p class="text-[10px] font-black uppercase tracking-wider text-[#94A3B8] mb-2">How to use Gmail with SMTP</p>
                             @foreach([
                                 ['1', 'Enable 2-Step Verification in your Google Account security settings.'],
                                 ['2', 'Go to Google Account → Security → App passwords.'],
@@ -1117,7 +1117,7 @@
                             ] as [$n, $step])
                             <div class="flex items-start gap-2.5">
                                 <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#8B5CF6]/15 text-[9px] font-black text-[#8B5CF6] mt-0.5">{{ $n }}</span>
-                                <p class="text-[11px] text-[#71717A]">{{ $step }}</p>
+                                <p class="text-[11px] text-[#94A3B8]">{{ $step }}</p>
                             </div>
                             @endforeach
                             <div class="mt-2 rounded-lg border border-[#F59E0B]/20 bg-[#F59E0B]/6 px-3 py-2">
@@ -1133,10 +1133,10 @@
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
                     <div>
                         <h3 class="text-sm font-black text-[#F8FAFC]">Admin Notification Recipient</h3>
-                        <p class="text-[11px] text-[#71717A] mt-0.5">Where platform alerts and admin notifications are delivered.</p>
+                        <p class="text-[11px] text-[#94A3B8] mt-0.5">Where platform alerts and admin notifications are delivered.</p>
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Admin Notification Email</label>
+                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Admin Notification Email</label>
                         <input type="email" name="admin_notification_email"
                             value="{{ old('admin_notification_email', $adminNotificationEmail ?? $adminAlertEmail) }}"
                             placeholder="admin@example.com"
@@ -1151,7 +1151,7 @@
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3">
                     <div class="mb-1">
                         <h3 class="text-sm font-black text-[#F8FAFC]">Event Notifications</h3>
-                        <p class="text-[11px] text-[#71717A] mt-0.5">Choose which platform events trigger an admin email alert.</p>
+                        <p class="text-[11px] text-[#94A3B8] mt-0.5">Choose which platform events trigger an admin email alert.</p>
                     </div>
 
                     @php
@@ -1170,7 +1170,7 @@
                         class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3 gap-4">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-[#F8FAFC]">{{ $tog['label'] }}</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">{{ $tog['desc'] }}</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">{{ $tog['desc'] }}</p>
                         </div>
                         <div class="shrink-0">
                             <input type="hidden" name="{{ $tog['key'] }}" :value="val ? '1' : '0'">
@@ -1190,7 +1190,7 @@
                 <div x-data="{ emailErr: '' }" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-4">
                     <div>
                         <h3 class="text-sm font-black text-[#F8FAFC]">Test Email</h3>
-                        <p class="text-[11px] text-[#71717A] mt-0.5">Verify your email configuration is working correctly.</p>
+                        <p class="text-[11px] text-[#94A3B8] mt-0.5">Verify your email configuration is working correctly.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3 items-start">
                         <div class="flex-1 sm:max-w-xs">
@@ -1237,7 +1237,7 @@
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <h2 class="text-base font-black text-[#F8FAFC]">Automation Settings</h2>
-                        <p class="text-xs text-[#71717A] mt-0.5">Background tasks and scheduled automations.</p>
+                        <p class="text-xs text-[#94A3B8] mt-0.5">Background tasks and scheduled automations.</p>
                     </div>
                     <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white hover:bg-[#7C3AED] transition shrink-0">Save Changes</button>
                 </div>
@@ -1248,7 +1248,7 @@
                 </div>
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-4">Scheduled Automations</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-4">Scheduled Automations</h3>
 
                     @php
                         $autoToggles = [
@@ -1262,7 +1262,7 @@
                     <div x-data="{ val: {{ $tog['val'] ? 'true' : 'false' }} }" class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3">
                         <div class="flex-1 min-w-0 mr-4">
                             <p class="text-sm font-semibold text-[#F8FAFC]">{{ $tog['label'] }}</p>
-                            <p class="text-[11px] text-[#71717A] mt-0.5">{{ $tog['desc'] }}</p>
+                            <p class="text-[11px] text-[#94A3B8] mt-0.5">{{ $tog['desc'] }}</p>
                         </div>
                         <input type="hidden" name="{{ $tog['key'] }}" :value="val ? '1' : '0'">
                         <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'"
@@ -1284,19 +1284,19 @@
             {{-- ── Header ── --}}
             <div>
                 <h2 class="text-base font-black text-[#F8FAFC]">Maintenance Tools</h2>
-                <p class="text-xs text-[#71717A] mt-0.5">Cache management, asset links, and system diagnostics.</p>
+                <p class="text-xs text-[#94A3B8] mt-0.5">Cache management, asset links, and system diagnostics.</p>
             </div>
 
             {{-- ── Platform Maintenance Mode ── --}}
             <div class="rounded-2xl border {{ $platformMode === 'maintenance' ? 'border-[#F59E0B]/30 bg-[#F59E0B]/4' : 'border-[#27213D] bg-[#0F0D1A]' }} p-4">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-start gap-3 min-w-0">
-                        <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl {{ $platformMode === 'maintenance' ? 'border border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#F59E0B]' : 'border border-[#27213D] bg-[#151225] text-[#71717A]' }}">
+                        <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl {{ $platformMode === 'maintenance' ? 'border border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#F59E0B]' : 'border border-[#27213D] bg-[#151225] text-[#94A3B8]' }}">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l5.654-4.654m5.664-9.499 3.86 3.86M6.26 6.26 3.102 3.102m0 0L2.25 2.25m.852.852c-.208.224-.408.454-.595.694M10.05 10.05l3.9-3.9m.748 9.9 3.182-3.182M6.26 6.26l-.694.595"/></svg>
                         </div>
                         <div class="min-w-0">
                             <p class="text-sm font-black text-[#F8FAFC]">Platform Maintenance Mode</p>
-                            <p class="mt-0.5 text-xs text-[#71717A]">Temporarily disable user access while admins continue managing the platform.</p>
+                            <p class="mt-0.5 text-xs text-[#94A3B8]">Temporarily disable user access while admins continue managing the platform.</p>
                             <div class="mt-1.5 flex items-center gap-1.5">
                                 @if($platformMode === 'maintenance')
                                     <span class="h-2 w-2 animate-pulse rounded-full bg-[#F59E0B]"></span>
@@ -1349,7 +1349,7 @@
                 {{-- Section header + quick-action buttons --}}
                 <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div class="min-w-0">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A]">Runtime Performance</h3>
+                        <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Runtime Performance</h3>
                         <p class="mt-0.5 text-[11px] text-[#52525B]">Redis, queue, JavaScript runtime, and command logging controls.</p>
                     </div>
                     <div class="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-1.5">
@@ -1404,8 +1404,8 @@
                     <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
                         <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
-                                <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Runtime Connection</p>
-                                <p class="mt-1 text-xs text-[#71717A]">How Laravel reaches the local Node.js runtime.</p>
+                                <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Runtime Connection</p>
+                                <p class="mt-1 text-xs text-[#94A3B8]">How Laravel reaches the local Node.js runtime.</p>
                             </div>
                             <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                                 <button type="submit" formmethod="POST" formaction="{{ route('admin.settings.test-runtime') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-white sm:w-auto">Test Local Runtime</button>
@@ -1416,20 +1416,20 @@
 
                         <div class="mb-3 grid grid-cols-2 gap-2 text-[11px] lg:grid-cols-4">
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
-                                <p class="font-black uppercase tracking-wide text-[#71717A]">Runtime Status</p>
+                                <p class="font-black uppercase tracking-wide text-[#94A3B8]">Runtime Status</p>
                                 <p class="mt-1 font-black {{ $runtimeStatusClass }}">{{ $runtimeStatusLabel }}</p>
                                 @if($lastCheckedAt)<p class="mt-0.5 text-[10px] text-[#52525B]">Checked {{ $lastCheckedAt }}</p>@endif
                             </div>
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
-                                <p class="font-black uppercase tracking-wide text-[#71717A]">Runtime Mode</p>
+                                <p class="font-black uppercase tracking-wide text-[#94A3B8]">Runtime Mode</p>
                                 <p class="mt-1 font-black text-[#A1A1AA]">{{ ucfirst($runtimeSettings['runtime_mode'] ?? 'local') }}</p>
                             </div>
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
-                                <p class="font-black uppercase tracking-wide text-[#71717A]">Docker</p>
+                                <p class="font-black uppercase tracking-wide text-[#94A3B8]">Docker</p>
                                 <p class="mt-1 font-black {{ ($runtimeSettings['runtime_docker_enabled'] ?? false) ? 'text-[#22C55E]' : 'text-[#A1A1AA]' }}">{{ ($runtimeSettings['runtime_docker_enabled'] ?? false) ? 'Enabled' : 'Disabled' }}</p>
                             </div>
                             <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
-                                <p class="font-black uppercase tracking-wide text-[#71717A]">Last Error</p>
+                                <p class="font-black uppercase tracking-wide text-[#94A3B8]">Last Error</p>
                                 <p class="mt-1 break-words font-semibold {{ $lastRuntimeError === 'None reported' ? 'text-[#A1A1AA]' : 'text-[#FCA5A5]' }}">{{ $lastRuntimeError }}</p>
                             </div>
                         </div>
@@ -1453,46 +1453,46 @@
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                             <label>
-                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime Host</span>
+                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime Host</span>
                                 <input name="runtime_host" value="{{ old('runtime_host', $runtimeSettings['runtime_host'] ?? '127.0.0.1') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Local Node runtime host. Use 127.0.0.1 for local server.</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Local Node runtime host. Use 127.0.0.1 for local server.</p>
                             </label>
                             <label>
-                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime Port</span>
+                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime Port</span>
                                 <input name="runtime_port" type="number" min="1" max="65535" value="{{ old('runtime_port', $runtimeSettings['runtime_port'] ?? 8787) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Port where the local Node.js runtime server listens.</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Port where the local Node.js runtime server listens.</p>
                             </label>
                             <label>
-                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime HTTP Port Start</span>
+                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime HTTP Port Start</span>
                                 <input name="runtime_http_port_start" type="number" min="1024" max="65500" value="{{ old('runtime_http_port_start', $runtimeSettings['runtime_http_port_start'] ?? 8800) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Starting port for Docker/per-bot runtime containers.</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Starting port for Docker/per-bot runtime containers.</p>
                             </label>
                             <label>
-                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime Base URL</span>
+                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime Base URL</span>
                                 <input name="runtime_base_url" type="url" value="{{ old('runtime_base_url', $runtimeSettings['runtime_base_url'] ?? 'http://127.0.0.1:8787') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 font-mono text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Full URL Laravel uses to call the Node.js runtime.</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Full URL Laravel uses to call the Node.js runtime.</p>
                             </label>
                             <label>
-                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime Health URL</span>
+                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime Health URL</span>
                                 <input name="runtime_health_url" type="url" value="{{ old('runtime_health_url', $runtimeSettings['runtime_health_url'] ?? 'http://127.0.0.1:8787/health') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 font-mono text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Used to check if runtime is online.</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Used to check if runtime is online.</p>
                             </label>
                             <label>
-                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime Execute URL</span>
+                                <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime Execute URL</span>
                                 <input name="runtime_execute_url" type="url" value="{{ old('runtime_execute_url', $runtimeSettings['runtime_execute_url'] ?? 'http://127.0.0.1:8787/execute') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 font-mono text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                <p class="mt-1 text-[11px] text-[#71717A]">Used to send command code to runtime.</p>
+                                <p class="mt-1 text-[11px] text-[#94A3B8]">Used to send command code to runtime.</p>
                             </label>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
-                            <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#71717A]">Redis / Cache</p>
+                            <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#94A3B8]">Redis / Cache</p>
                             <div class="space-y-3">
                                 <div x-data="{ val: {{ old('redis_enabled', $runtimeSettings['redis_enabled'] ?? false) ? 'true' : 'false' }} }" class="flex items-center justify-between gap-4 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
                                     <div>
                                         <p class="text-xs font-black text-[#F8FAFC]">Redis Enabled</p>
-                                        <p class="text-[11px] text-[#71717A]">Allow cache and queue settings to use Redis.</p>
+                                        <p class="text-[11px] text-[#94A3B8]">Allow cache and queue settings to use Redis.</p>
                                     </div>
                                     <input type="hidden" name="redis_enabled" :value="val ? '1' : '0'">
                                     <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'" class="relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 focus:outline-none overflow-hidden">
@@ -1502,30 +1502,30 @@
 
                                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                     <label class="sm:col-span-2">
-                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Redis Host</span>
+                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Redis Host</span>
                                         <input name="redis_host" value="{{ old('redis_host', $runtimeSettings['redis_host'] ?? '127.0.0.1') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                     </label>
                                     <label>
-                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Port</span>
+                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Port</span>
                                         <input name="redis_port" type="number" min="1" max="65535" value="{{ old('redis_port', $runtimeSettings['redis_port'] ?? 6379) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                     </label>
                                 </div>
 
                                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                     <label class="sm:col-span-2">
-                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Redis Password</span>
+                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Redis Password</span>
                                         <input name="redis_password" type="password" placeholder="{{ filled($redisPasswordMasked ?? null) ? '&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;' : 'Optional' }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
-                                        <p class="mt-1 text-[11px] text-[#71717A]">Leave blank to keep current password.</p>
+                                        <p class="mt-1 text-[11px] text-[#94A3B8]">Leave blank to keep current password.</p>
                                     </label>
                                     <label>
-                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Database</span>
+                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Database</span>
                                         <input name="redis_db" type="number" min="0" max="255" value="{{ old('redis_db', $runtimeSettings['redis_db'] ?? 0) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                     </label>
                                 </div>
 
                                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <label>
-                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Cache Store</span>
+                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Cache Store</span>
                                         <select name="cache_store" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                             @foreach(['file' => 'File', 'database' => 'Database', 'redis' => 'Redis'] as $value => $label)
                                                 <option value="{{ $value }}" @selected(old('cache_store', $runtimeSettings['cache_store'] ?? 'database') === $value)>{{ $label }}</option>
@@ -1533,7 +1533,7 @@
                                         </select>
                                     </label>
                                     <label>
-                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Queue Connection</span>
+                                        <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Queue Connection</span>
                                         <select name="queue_connection" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                             @foreach(['sync' => 'Sync', 'database' => 'Database', 'redis' => 'Redis'] as $value => $label)
                                                 <option value="{{ $value }}" @selected(old('queue_connection', $runtimeSettings['queue_connection'] ?? 'database') === $value)>{{ $label }}</option>
@@ -1545,7 +1545,7 @@
                         </div>
 
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
-                            <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#71717A]">Command Runtime</p>
+                            <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#94A3B8]">Command Runtime</p>
                             @if(! ($runtimeDockerStatus['docker_available'] ?? false))
                                 <div class="mb-4 rounded-xl border border-[#F59E0B]/25 bg-[#F59E0B]/8 px-4 py-3 text-xs font-semibold text-[#FCD34D]">
                                     Docker is not available on this machine. Local runtime mode will be used.
@@ -1568,26 +1568,26 @@
                                     ['label' => 'CPU', 'value' => (string) ($runtimeSettings['runtime_cpu_limit'] ?? '0.25'), 'ok' => true],
                                 ] as $item)
                                     <div class="rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-2">
-                                        <p class="font-black uppercase tracking-wide text-[#71717A]">{{ $item['label'] }}</p>
+                                        <p class="font-black uppercase tracking-wide text-[#94A3B8]">{{ $item['label'] }}</p>
                                         <p class="mt-1 font-black {{ $item['ok'] ? 'text-[#22C55E]' : 'text-[#F59E0B]' }}">{{ $item['value'] }}</p>
                                     </div>
                                 @endforeach
                             </div>
                             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Command Timeout (ms)</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Command Timeout (ms)</span>
                                     <input name="command_timeout_ms" type="number" min="1000" max="30000" value="{{ old('command_timeout_ms', $runtimeSettings['command_timeout_ms'] ?? 15000) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Max Delay (ms)</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Max Delay (ms)</span>
                                     <input name="max_delay_ms" type="number" min="0" max="30000" value="{{ old('max_delay_ms', $runtimeSettings['max_delay_ms'] ?? 10000) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Slow Threshold (ms)</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Slow Threshold (ms)</span>
                                     <input name="slow_command_threshold_ms" type="number" min="100" max="30000" value="{{ old('slow_command_threshold_ms', $runtimeSettings['slow_command_threshold_ms'] ?? 1000) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Runtime Mode</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Runtime Mode</span>
                                     <select name="runtime_mode" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                         @foreach(['local' => 'Local', 'docker' => 'Docker (Phase 2)'] as $value => $label)
                                             <option value="{{ $value }}" @selected(old('runtime_mode', $runtimeSettings['runtime_mode'] ?? 'local') === $value)>{{ $label }}</option>
@@ -1597,7 +1597,7 @@
                                 <div x-data="{ val: {{ old('runtime_docker_enabled', $runtimeSettings['runtime_docker_enabled'] ?? false) ? 'true' : 'false' }} }" class="sm:col-span-2 lg:col-span-1 flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
                                     <div>
                                         <p class="text-xs font-black text-[#F8FAFC]">Docker Enabled</p>
-                                        <p class="text-[11px] text-[#71717A]">Allow isolated Docker runtime containers.</p>
+                                        <p class="text-[11px] text-[#94A3B8]">Allow isolated Docker runtime containers.</p>
                                     </div>
                                     <input type="hidden" name="runtime_docker_enabled" :value="val ? '1' : '0'">
                                     <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'" class="relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 focus:outline-none overflow-hidden">
@@ -1605,19 +1605,19 @@
                                     </button>
                                 </div>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Docker Image</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Docker Image</span>
                                     <input name="runtime_docker_image" value="{{ old('runtime_docker_image', $runtimeSettings['runtime_docker_image'] ?? 'bothost-node-runtime') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Container Prefix</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Container Prefix</span>
                                     <input name="runtime_container_prefix" value="{{ old('runtime_container_prefix', $runtimeSettings['runtime_container_prefix'] ?? 'bothost-bot') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">Memory Limit</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">Memory Limit</span>
                                     <input name="runtime_memory_limit" value="{{ old('runtime_memory_limit', $runtimeSettings['runtime_memory_limit'] ?? '128m') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                                 <label>
-                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#71717A]">CPU Limit</span>
+                                    <span class="mb-1 block text-[11px] font-black uppercase tracking-wide text-[#94A3B8]">CPU Limit</span>
                                     <input name="runtime_cpu_limit" type="number" step="0.05" min="0.05" max="4" value="{{ old('runtime_cpu_limit', $runtimeSettings['runtime_cpu_limit'] ?? '0.25') }}" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2 text-sm text-[#F8FAFC] outline-none focus:border-[#8B5CF6]">
                                 </label>
                             </div>
@@ -1626,7 +1626,7 @@
                     </div>
 
                     <div class="rounded-xl border border-[#27213D] bg-[#11101C] p-4">
-                        <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#71717A]">Runtime Behavior</p>
+                        <p class="mb-3 text-xs font-black uppercase tracking-widest text-[#94A3B8]">Runtime Behavior</p>
                         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach([
                                 ['key' => 'runtime_warm_enabled', 'label' => 'Warm Runtime', 'desc' => 'Prefer the already running local Node bridge.', 'default' => true],
@@ -1645,7 +1645,7 @@
                                 <div x-data="{ val: {{ old($toggle['key'], $runtimeSettings[$toggle['key']] ?? $toggle['default']) ? 'true' : 'false' }} }" class="flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-2.5">
                                     <div>
                                         <p class="text-xs font-black text-[#F8FAFC]">{{ $toggle['label'] }}</p>
-                                        <p class="text-[11px] text-[#71717A]">{{ $toggle['desc'] }}</p>
+                                        <p class="text-[11px] text-[#94A3B8]">{{ $toggle['desc'] }}</p>
                                     </div>
                                     <input type="hidden" name="{{ $toggle['key'] }}" :value="val ? '1' : '0'">
                                     <button type="button" @click="val = !val" :class="val ? 'bg-[#8B5CF6]' : 'bg-[#3A3553]'" class="relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 focus:outline-none overflow-hidden">
@@ -1664,7 +1664,7 @@
 
             {{-- Cache Actions --}}
             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
-                <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-2.5">Cache Management</h3>
+                <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-2.5">Cache Management</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-2">
                     @foreach([
                         ['action' => 'clear-cache',  'label' => 'Clear Cache',       'desc' => 'Application + config cache', 'route' => 'admin.settings.maintenance.clear-cache',  'color' => 'blue'],
@@ -1676,7 +1676,7 @@
                         @csrf
                         <button type="submit" class="w-full rounded-xl border border-[#27213D] bg-[#11101C] p-3 text-left transition hover:border-[#8B5CF6]/40 hover:bg-[#151225] group">
                             <div class="flex items-center gap-1.5 mb-1">
-                                <svg class="h-3.5 w-3.5 shrink-0 text-[#4D4868] group-hover:text-[#8B5CF6] transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"/></svg>
+                                <svg class="h-3.5 w-3.5 shrink-0 text-[#7E7AA0] group-hover:text-[#8B5CF6] transition" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"/></svg>
                                 <span class="text-xs font-black text-[#F8FAFC]">{{ $tool['label'] }}</span>
                             </div>
                             <p class="text-[11px] text-[#52525B]">{{ $tool['desc'] }}</p>
@@ -1690,7 +1690,7 @@
             <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-2.5">System Status</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-2.5">System Status</h3>
                     @php $storageLinkExists = is_link(public_path('storage')); @endphp
                     <div class="space-y-2">
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 flex items-start gap-2">
@@ -1718,7 +1718,7 @@
                 </div>
 
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-[#71717A] mb-2.5">Environment Info</h3>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[#94A3B8] mb-2.5">Environment Info</h3>
                     <div class="grid grid-cols-2 gap-2 text-[11px]">
                         @foreach([
                             ['label' => 'Laravel',     'value' => app()->version()],
@@ -1727,7 +1727,7 @@
                             ['label' => 'Debug Mode',  'value' => config('app.debug') ? 'ON' : 'off'],
                         ] as $info)
                         <div class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5">
-                            <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">{{ $info['label'] }}</p>
+                            <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">{{ $info['label'] }}</p>
                             <p class="font-mono text-[#A1A1AA] mt-0.5">{{ $info['value'] }}</p>
                         </div>
                         @endforeach
@@ -1745,7 +1745,7 @@
 
             <div>
                 <h2 class="text-base font-black text-[#F8FAFC]">Danger Zone</h2>
-                <p class="text-xs text-[#71717A] mt-0.5">These actions affect all users and platform state. Proceed with extreme caution.</p>
+                <p class="text-xs text-[#94A3B8] mt-0.5">These actions affect all users and platform state. Proceed with extreme caution.</p>
             </div>
 
             <div class="rounded-xl border border-[#EF4444]/20 bg-[#EF4444]/5 px-4 py-3 flex items-start gap-3">
@@ -1756,9 +1756,9 @@
             {{-- No irreversible platform actions are currently exposed here. --}}
             {{-- Maintenance Mode → Maintenance tab | Registrations → Security tab | Webhooks → Webhooks tab --}}
             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-6 text-center">
-                <svg class="mx-auto h-8 w-8 text-[#4D4868] mb-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
+                <svg class="mx-auto h-8 w-8 text-[#7E7AA0] mb-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
                 <p class="text-sm font-black text-[#A1A1AA]">No irreversible platform actions configured</p>
-                <p class="mt-1 text-xs text-[#71717A]">Platform controls (maintenance, registrations, webhooks) are managed in their respective tabs.</p>
+                <p class="mt-1 text-xs text-[#94A3B8]">Platform controls (maintenance, registrations, webhooks) are managed in their respective tabs.</p>
             </div>
 
         </div>

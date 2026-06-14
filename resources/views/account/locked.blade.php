@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
@@ -45,7 +45,7 @@
                         </svg>
                     </div>
                     <h1 class="text-2xl font-black text-white">Account Banned</h1>
-                    <p class="mt-2 text-sm leading-relaxed text-[#71717A]">
+                    <p class="mt-2 text-sm leading-relaxed text-[#94A3B8]">
                         Your account has been permanently banned from this platform.
                         If you believe this is a mistake, please reach out to our support team.
                     </p>
@@ -70,7 +70,7 @@
                     @if($user->suspension_message)
                         <p class="mt-3 text-sm leading-relaxed text-[#A1A1AA]">{{ $user->suspension_message }}</p>
                     @else
-                        <p class="mt-3 text-sm leading-relaxed text-[#71717A]">
+                        <p class="mt-3 text-sm leading-relaxed text-[#94A3B8]">
                             Your account has been temporarily suspended. Please contact support for assistance.
                         </p>
                     @endif
@@ -92,7 +92,7 @@
                 <form method="POST" action="{{ route('logout') }}" class="mt-4">
                     @csrf
                     <button type="submit"
-                            class="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#27213D] px-5 py-2.5 text-sm font-bold text-[#71717A] transition hover:border-[#3D3657] hover:text-[#A1A1AA]">
+                            class="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#27213D] px-5 py-2.5 text-sm font-bold text-[#94A3B8] transition hover:border-[#3D3657] hover:text-[#A1A1AA]">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
                         </svg>

@@ -1,11 +1,11 @@
-<x-admin-layout title="Security" subtitle="Platform security overview and access controls">
+﻿<x-admin-layout title="Security" subtitle="Platform security overview and access controls">
 <div class="space-y-5">
 
     {{-- Header --}}
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
             <h1 class="text-xl font-black text-[#F8FAFC]">Security Overview</h1>
-            <p class="mt-0.5 text-xs text-[#71717A]">Platform-wide security status and access controls.</p>
+            <p class="mt-0.5 text-xs text-[#94A3B8]">Platform-wide security status and access controls.</p>
         </div>
         <a href="{{ route('admin.settings.index', ['tab' => 'security']) }}" class="inline-flex items-center gap-2 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm font-black text-[#A1A1AA] transition hover:text-white">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.43l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
@@ -37,7 +37,7 @@
 
     {{-- Platform State --}}
     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-        <h3 class="mb-4 text-xs font-black uppercase tracking-widest text-[#71717A]">Platform State</h3>
+        <h3 class="mb-4 text-xs font-black uppercase tracking-widest text-[#94A3B8]">Platform State</h3>
         <div class="grid gap-3 sm:grid-cols-3">
 
             {{-- Maintenance Mode --}}
@@ -67,7 +67,7 @@
                 <div class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#38BDF8] shadow-[0_0_6px_rgba(56,189,248,0.4)]"></div>
                 <div class="min-w-0">
                     <p class="text-xs font-black text-[#A1A1AA]">Last Webhook Reset</p>
-                    <p class="mt-0.5 text-[11px] font-semibold text-[#71717A]">
+                    <p class="mt-0.5 text-[11px] font-semibold text-[#94A3B8]">
                         {{ $summary['last_webhook_reset']?->created_at?->format('M j, Y H:i') ?? 'Never' }}
                     </p>
                 </div>
@@ -78,7 +78,7 @@
 
     {{-- Quick Links --}}
     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-        <h3 class="mb-4 text-xs font-black uppercase tracking-widest text-[#71717A]">Security Controls</h3>
+        <h3 class="mb-4 text-xs font-black uppercase tracking-widest text-[#94A3B8]">Security Controls</h3>
         <div class="grid gap-3 sm:grid-cols-2">
             <a href="{{ route('admin.settings.index', ['tab' => 'security']) }}"
                class="flex items-center gap-3 rounded-xl border border-[#27213D] bg-[#11101C] p-4 transition hover:border-[#8B5CF6]/30 hover:bg-[#151225]">
@@ -87,7 +87,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-black text-[#F8FAFC]">Auth & Access</p>
-                    <p class="text-[11px] text-[#71717A]">Email verification, login attempts, registration toggle</p>
+                    <p class="text-[11px] text-[#94A3B8]">Email verification, login attempts, registration toggle</p>
                 </div>
             </a>
             <a href="{{ route('admin.settings.index', ['tab' => 'maintenance']) }}"
@@ -97,7 +97,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-black text-[#F8FAFC]">Maintenance Mode</p>
-                    <p class="text-[11px] text-[#71717A]">Toggle platform access, IP allowlist, webhook reset</p>
+                    <p class="text-[11px] text-[#94A3B8]">Toggle platform access, IP allowlist, webhook reset</p>
                 </div>
             </a>
             <a href="{{ route('admin.users.index') }}"
@@ -107,7 +107,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-black text-[#F8FAFC]">User Management</p>
-                    <p class="text-[11px] text-[#71717A]">Suspend, ban, and manage user accounts</p>
+                    <p class="text-[11px] text-[#94A3B8]">Suspend, ban, and manage user accounts</p>
                 </div>
             </a>
             <a href="{{ route('admin.logs.index') }}"
@@ -117,7 +117,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-black text-[#F8FAFC]">Audit Logs</p>
-                    <p class="text-[11px] text-[#71717A]">View all bot errors, runtime events, and admin actions</p>
+                    <p class="text-[11px] text-[#94A3B8]">View all bot errors, runtime events, and admin actions</p>
                 </div>
             </a>
         </div>

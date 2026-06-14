@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Transfers">
+﻿<x-dashboard-layout title="Transfers">
 
 <div
     x-data="{ tab: '{{ request()->query('tab', 'all') }}' }"
@@ -9,7 +9,7 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-xl font-black text-[#F8FAFC]">Transfers</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Send and receive bot workspaces securely between accounts.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Send and receive bot workspaces securely between accounts.</p>
         </div>
     </div>
 
@@ -43,7 +43,7 @@
                 <svg style="height:14px;width:14px;color:{{ $color }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
             </div>
             <p class="text-2xl font-black text-[#F8FAFC]">{{ $count }}</p>
-            <p class="mt-0.5 text-[11px] text-[#71717A]">{{ $label }}</p>
+            <p class="mt-0.5 text-[11px] text-[#94A3B8]">{{ $label }}</p>
         </div>
         @endforeach
     </div>
@@ -62,7 +62,7 @@
             @click="tab = '{{ $id }}'"
             :class="tab === '{{ $id }}'
                 ? 'border-[#8B5CF6] bg-[#8B5CF6]/12 text-white'
-                : 'border-[#27213D] bg-[#0F0D1A] text-[#71717A] hover:border-[#8B5CF6]/30 hover:text-[#A1A1AA]'"
+                : 'border-[#27213D] bg-[#0F0D1A] text-[#94A3B8] hover:border-[#8B5CF6]/30 hover:text-[#A1A1AA]'"
             class="shrink-0 rounded-xl border px-4 py-2 text-xs font-black transition"
         >{{ $label }}</button>
         @endforeach
@@ -72,7 +72,7 @@
     <div x-show="tab === 'all'" x-transition.opacity.duration.150ms>
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <div class="mb-4">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">All Transfers</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">All Transfers</p>
                 <p class="mt-0.5 text-[11px] text-[#52525B]">Every transfer you sent or received.</p>
             </div>
             @if($all->isEmpty())
@@ -81,7 +81,7 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-black text-[#71717A]">No transfers yet</p>
+                        <p class="text-sm font-black text-[#94A3B8]">No transfers yet</p>
                         <p class="mt-0.5 text-xs text-[#52525B]">Sent and received transfers will appear here.</p>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Received Transfers</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Received Transfers</p>
                     <p class="mt-0.5 text-[11px] text-[#52525B]">Bots that other users have sent to your account.</p>
                 </div>
             </div>
@@ -110,7 +110,7 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-black text-[#71717A]">No received transfers</p>
+                        <p class="text-sm font-black text-[#94A3B8]">No received transfers</p>
                         <p class="mt-0.5 text-xs text-[#52525B]">When someone transfers a bot to your account, it will appear here.</p>
                     </div>
                 </div>
@@ -128,7 +128,7 @@
     <div x-show="tab === 'sent'" x-transition.opacity.duration.150ms x-cloak>
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <div class="mb-4">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Sent Transfers</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Sent Transfers</p>
                 <p class="mt-0.5 text-[11px] text-[#52525B]">Bot workspaces you have sent to other accounts.</p>
             </div>
             @if($sent->isEmpty())
@@ -137,7 +137,7 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-black text-[#71717A]">No sent transfers</p>
+                        <p class="text-sm font-black text-[#94A3B8]">No sent transfers</p>
                         <p class="mt-0.5 text-xs text-[#52525B]">Transfers you initiate from your bot settings will appear here.</p>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
     <div x-show="tab === 'pending'" x-transition.opacity.duration.150ms x-cloak>
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <div class="mb-4">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Pending</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Pending</p>
                 <p class="mt-0.5 text-[11px] text-[#52525B]">Transfers awaiting your acceptance.</p>
             </div>
             @if($pending->isEmpty())
@@ -164,7 +164,7 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-black text-[#71717A]">No pending transfers</p>
+                        <p class="text-sm font-black text-[#94A3B8]">No pending transfers</p>
                         <p class="mt-0.5 text-xs text-[#52525B]">Transfers waiting for your action will appear here.</p>
                     </div>
                 </div>
@@ -180,9 +180,9 @@
                             <div class="flex flex-wrap items-start justify-between gap-3">
                                 <div>
                                     <p class="text-sm font-black text-[#F8FAFC]">{{ $transfer->bot_name }}</p>
-                                    <p class="mt-0.5 text-xs text-[#71717A]">From <span class="text-[#A1A1AA]">{{ $transfer->sender?->email ?? 'unknown sender' }}</span></p>
+                                    <p class="mt-0.5 text-xs text-[#94A3B8]">From <span class="text-[#A1A1AA]">{{ $transfer->sender?->email ?? 'unknown sender' }}</span></p>
                                     @if($transfer->note)
-                                        <p class="mt-1 text-xs text-[#71717A]">"{{ $transfer->note }}"</p>
+                                        <p class="mt-1 text-xs text-[#94A3B8]">"{{ $transfer->note }}"</p>
                                     @endif
                                     <p class="mt-1 text-[10px] text-[#52525B]">Expires {{ $transfer->expires_at?->diffForHumans() ?? 'never' }}</p>
                                 </div>
@@ -197,12 +197,12 @@
                                 <form method="POST" action="{{ route('transfers.import', $transfer) }}" class="space-y-3">
                                     @csrf
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Workspace Name</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Workspace Name</label>
                                         <input name="import_name" type="text" required value="{{ $transfer->bot_name }}" class="w-full rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#22C55E]/60 focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 transition">
                                         @error('import_name') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
                                     </div>
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Bot Token (optional)</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Bot Token (optional)</label>
                                     <input name="import_token" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" class="w-full rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#22C55E]/60 focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 transition" placeholder="Add a token now, or leave blank and connect it later">
                                         <p class="mt-1 text-[10px] text-[#52525B]">Without a token, the imported bot stays stopped until you add and verify one.</p>
                                         @error('import_token') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
@@ -221,7 +221,7 @@
     <div x-show="tab === 'completed'" x-transition.opacity.duration.150ms x-cloak>
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <div class="mb-4">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Completed</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Completed</p>
                 <p class="mt-0.5 text-[11px] text-[#52525B]">Successfully imported bot transfers.</p>
             </div>
             @if($completed->isEmpty())
@@ -230,7 +230,7 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-black text-[#71717A]">No completed transfers</p>
+                        <p class="text-sm font-black text-[#94A3B8]">No completed transfers</p>
                         <p class="mt-0.5 text-xs text-[#52525B]">Transfers that have been accepted will appear here.</p>
                     </div>
                 </div>
@@ -248,7 +248,7 @@
     <div x-show="tab === 'cancelled'" x-transition.opacity.duration.150ms x-cloak>
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <div class="mb-4">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Cancelled</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Cancelled</p>
                 <p class="mt-0.5 text-[11px] text-[#52525B]">Transfers that can no longer be imported.</p>
             </div>
             @if($cancelled->isEmpty())
@@ -257,7 +257,7 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-black text-[#71717A]">No cancelled transfers</p>
+                        <p class="text-sm font-black text-[#94A3B8]">No cancelled transfers</p>
                         <p class="mt-0.5 text-xs text-[#52525B]">Cancelled transfers will appear here.</p>
                     </div>
                 </div>
@@ -273,7 +273,7 @@
 
     {{-- ── How it works ── --}}
     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-        <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#71717A]">How Bot Transfers Work</p>
+        <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">How Bot Transfers Work</p>
         <div class="grid gap-3 sm:grid-cols-3">
             @foreach([
                 ['1', 'Initiate Transfer', 'Go to your bot settings and enter the email address of the account you want to transfer to.', '#8B5CF6'],

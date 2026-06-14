@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Help Center">
+﻿<x-dashboard-layout title="Help Center">
 
 <div
     x-data="{
@@ -17,11 +17,11 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-xl font-black text-[#F8FAFC]">Help Center</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Quick guides and answers for building Telegram bot workspaces.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Quick guides and answers for building Telegram bot workspaces.</p>
         </div>
         <a
             href="{{ route('support.index') }}"
-            class="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]"
+            class="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]"
         >
             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"/></svg>
             Contact Support
@@ -67,7 +67,7 @@
             ] as [$label, $anchor, $color, $icon])
             <a
                 href="#{{ $anchor }}"
-                class="group flex items-center gap-2.5 rounded-xl border border-[#1B172B] bg-[#0B0918] px-3 py-2.5 text-xs font-black text-[#71717A] transition hover:border-[#27213D] hover:text-[#A1A1AA]"
+                class="group flex items-center gap-2.5 rounded-xl border border-[#1B172B] bg-[#0B0918] px-3 py-2.5 text-xs font-black text-[#94A3B8] transition hover:border-[#27213D] hover:text-[#A1A1AA]"
             >
                 <span class="shrink-0 grid h-6 w-6 place-items-center rounded-lg transition" style="background-color:{{ $color }}18">
                     <svg style="height:11px;width:11px;color:{{ $color }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
@@ -304,7 +304,7 @@
                     x-cloak
                     class="border-t border-[#1B172B] px-4 pb-4 pt-3"
                 >
-                    <p class="text-xs leading-relaxed text-[#71717A]">{{ $item[1] }}</p>
+                    <p class="text-xs leading-relaxed text-[#94A3B8]">{{ $item[1] }}</p>
                 </div>
             </div>
             @endforeach
@@ -323,7 +323,7 @@
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
             </div>
             <div>
-                <p class="text-sm font-black text-[#71717A]">No results found</p>
+                <p class="text-sm font-black text-[#94A3B8]">No results found</p>
                 <p class="mt-1 text-xs text-[#52525B]">Try a different search term or <a href="{{ route('support.index') }}" class="text-[#8B5CF6] hover:underline">contact support</a> for help.</p>
             </div>
         </div>
@@ -337,7 +337,7 @@
             </div>
             <div class="flex-1">
                 <p class="text-sm font-black text-[#F8FAFC]">Still need help?</p>
-                <p class="mt-1 text-xs text-[#71717A]">Check the Support page for FAQs or reach out to the support team directly.</p>
+                <p class="mt-1 text-xs text-[#94A3B8]">Check the Support page for FAQs or reach out to the support team directly.</p>
             </div>
             <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <a

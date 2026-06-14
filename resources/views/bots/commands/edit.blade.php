@@ -1,10 +1,10 @@
-<x-dashboard-layout title="Edit Command">
+﻿<x-dashboard-layout title="Edit Command">
     <div class="mx-auto max-w-3xl">
 
         {{-- Back link --}}
         <a
             href="{{ route('bots.show', ['bot' => $bot, 'tab' => 'commands']) }}"
-            class="inline-flex items-center gap-2 text-sm font-semibold text-[#71717A] transition hover:text-[#F8FAFC]"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-[#94A3B8] transition hover:text-[#F8FAFC]"
         >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
             Back to {{ $bot->name }}
@@ -29,7 +29,7 @@
                 {{-- Command name preview --}}
                 <div class="relative mt-5">
                     <span class="inline-flex items-center gap-2 rounded-xl border border-[#27213D] bg-[#151225] px-3 py-1.5">
-                        <span class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Editing:</span>
+                        <span class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Editing:</span>
                         <code class="font-mono text-sm font-black text-[#38BDF8]">{{ $command->displayName() }}</code>
                     </span>
                 </div>

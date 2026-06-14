@@ -56,12 +56,13 @@ async function executeCommandHandler(req, res) {
     const code = payload.command && typeof payload.command.code === 'string'
       ? payload.command.code
       : '';
+    const executableCode = normalizeCommandCode(code);
 
-    if (!code.trim()) {
+    if (!executableCode.trim()) {
       return sendRuntimeError(res, startedAt, executionId, 'Command code is required.', 'ValidationError');
     }
 
-    const restrictedCode = findRestrictedCode(code);
+    const restrictedCode = findRestrictedCode(executableCode);
 
     if (restrictedCode) {
       return sendRuntimeError(
@@ -86,7 +87,7 @@ async function executeCommandHandler(req, res) {
       codeGeneration: { strings: false, wasm: false },
     });
 
-    const script = new vm.Script(`"use strict";\n(async () => {\n${code}\n})()`, {
+    const script = new vm.Script(`"use strict";\n(async () => {\n${executableCode}\n})()`, {
       timeout: requestSettings.command_timeout_ms,
       displayErrors: true,
     });
@@ -199,6 +200,7 @@ function buildRuntimeHelpers(payload, actions) {
   const faucetPayApiKey = typeof runtime.faucetpay_api_key === 'string' ? runtime.faucetpay_api_key : '';
   const oxapayBridgeUrl = typeof runtime.oxapay_bridge_url === 'string' ? runtime.oxapay_bridge_url : '';
   const oxapayBridgeSecret = typeof runtime.oxapay_bridge_secret === 'string' ? runtime.oxapay_bridge_secret : '';
+  const runtimeSecrets = new Map(Object.entries(plainObject(runtime.secrets || {})));
   const botData = new Map(Object.entries(plainObject((payload.storage || {}).bot || {})));
   const userData = new Map(Object.entries(plainObject((payload.storage || {}).user || {})));
   const botMutations = [];
@@ -662,35 +664,39 @@ function buildRuntimeHelpers(payload, actions) {
     } catch (err) { return { ok: false, error: String((err && err.message) || err) }; }
   };
 
-  const getChatMember = async (channelUsernameOrId, userId) => {
-    const chatId = requireChatId(channelUsernameOrId, 'getChatMember(channel, userId)');
-    const targetUserId = requireChatId(userId, 'getChatMember(channel, userId)');
+  const getChatMember = async (channelUsernameOrId, userId = safeUser.id) => {
+    const startedAt = Date.now();
+    try {
+      const chatId = requireChatId(channelUsernameOrId, 'getChatMember(channel, userId)');
+      const targetUserId = requireChatId(userId, 'getChatMember(channel, userId)');
 
-    console.log('[BotHost] getChatMember_request', JSON.stringify({
-      bot_id: safeBot.id,
-      channel: String(channelUsernameOrId),
-      target_user_id: targetUserId,
-    }));
+      console.log('[BotHost] getChatMember_request', JSON.stringify({
+        bot_id: safeBot.id,
+        channel: String(channelUsernameOrId),
+        target_user_id: targetUserId,
+      }));
 
-    const response = await telegramRuntimeAction('telegram.getChatMember', {
-      chat_id: chatId,
-      user_id: targetUserId,
-    });
+      const response = await telegramRuntimeAction('telegram.getChatMember', {
+        chat_id: chatId,
+        user_id: targetUserId,
+      });
 
-    console.log('[BotHost] getChatMember_result', JSON.stringify({
-      bot_id: safeBot.id,
-      channel: String(channelUsernameOrId),
-      target_user_id: targetUserId,
-      ok: !!response.ok,
-      status: (response.result && response.result.status) ? response.result.status : null,
-      error: !response.ok ? (response.error || response.description || 'unknown') : null,
-    }));
+      console.log('[BotHost] getChatMember_result', JSON.stringify({
+        bot_id: safeBot.id,
+        channel: String(channelUsernameOrId),
+        target_user_id: targetUserId,
+        ok: !!response.ok,
+        status: (response.result && response.result.status) ? response.result.status : null,
+        error: !response.ok ? (response.error || response.description || 'unknown') : null,
+        elapsed_ms: Date.now() - startedAt,
+      }));
 
-    if (!response.ok) {
-      throw new Error(response.error || response.description || 'Telegram getChatMember failed.');
+      return response && response.ok
+        ? plainObject(response.result || {})
+        : { ok: false, status: 'unknown', error: String((response && (response.error || response.description)) || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
+    } catch (error) {
+      return { ok: false, status: 'unknown', error: String((error && error.message) || error || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
     }
-
-    return plainObject(response.result || {});
   };
 
   const isChannelMember = async (channelUsernameOrId, userId) => {
@@ -840,6 +846,11 @@ function buildRuntimeHelpers(payload, actions) {
   const setBotData = async (key, value) => {
     const normalizedKey = requireStorageKey(key);
     const normalizedValue = jsonSafeValue(value);
+    if (isSecretStorageKey(normalizedKey)) {
+      const secretValue = String(normalizedValue || '').trim();
+      if (secretValue) runtimeSecrets.set(normalizedKey, secretValue);
+      else runtimeSecrets.delete(normalizedKey);
+    }
     botData.set(normalizedKey, isSecretStorageKey(normalizedKey) ? maskSecretValue(String(normalizedValue || '')) : normalizedValue);
     botMutations.push({ op: 'set', key: normalizedKey, value: normalizedValue });
     console.log('[BotHost] bot_data_mutation_created', JSON.stringify({
@@ -1658,11 +1669,11 @@ function buildRuntimeHelpers(payload, actions) {
     try {
       const result = await storageRuntimeFindUser(key, value);
       if (result && result.ok && result.found && result.user_id !== undefined && result.user_id !== null) {
-        return { user_id: String(result.user_id), value: jsonSafeValue(result.value) };
+        return { ok: true, found: true, user_id: String(result.user_id), value: jsonSafeValue(result.value) };
       }
-      return null;
-    } catch (_) {
-      return null;
+      return { ok: true, found: false, user_id: null, value: null };
+    } catch (err) {
+      return { ok: false, found: false, user_id: null, value: null, error: String((err && err.message) || err || 'User lookup failed.') };
     }
   };
 
@@ -1713,10 +1724,13 @@ function buildRuntimeHelpers(payload, actions) {
     }
   };
 
-  const helperFaucetPayBalance = async (currency = 'PEPE') => {
-    const sym = String(currency || 'PEPE').toUpperCase();
+  const helperFaucetPayBalance = async (currency = 'USDT') => {
+    const sym = String(currency || 'USDT').toUpperCase();
     console.log('[BotHost] faucetpay_balance_request', JSON.stringify({ bot_id: safeBot.id, currency: sym }));
-    const raw = await paymentRuntimeAction('faucetpay.balance', { currency: sym });
+    const savedKey = savedFaucetPayKey();
+    const raw = savedKey
+      ? await safeFaucetPayCall(() => faucetPayBalance(savedKey, sym))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym };
     const ok = raw && raw.ok === true;
     const balance = normalizeDecimalAmount(raw && raw.balance !== undefined ? raw.balance : 0, true);
     const displayedBalance = formatCryptoAmount(balance, sym, 8);
@@ -1730,7 +1744,8 @@ function buildRuntimeHelpers(payload, actions) {
     return {
       ok: !!ok,
       status: (raw && raw.status) || 0,
-      message: (raw && raw.message) || '',
+      message: (raw && (raw.message || raw.error)) || '',
+      error: ok ? null : ((raw && (raw.error || raw.message)) || 'FaucetPay balance failed.'),
       currency: sym,
       balance,
       balance_number: Number(balance) || 0,
@@ -1764,11 +1779,26 @@ function buildRuntimeHelpers(payload, actions) {
   const maskSecret = (value) => maskSecretValue(value);
   const saveSecret = async (key, value) => setBotData(requireStorageKey(key), requireString(value, 'saveSecret value'));
   const getMaskedSecret = async (key) => {
-    const result = await paymentRuntimeAction('secret.status', { key: requireStorageKey(key) });
+    const normalizedKey = requireStorageKey(key);
+    if (runtimeSecrets.has(normalizedKey)) {
+      return maskSecretValue(String(runtimeSecrets.get(normalizedKey) || ''));
+    }
+    const result = await paymentRuntimeAction('secret.status', { key: normalizedKey });
     return result && result.ok ? (result.masked || null) : null;
   };
+  const getBotSecret = async (key) => {
+    const normalizedKey = requireStorageKey(key);
+    if (runtimeSecrets.has(normalizedKey)) {
+      return runtimeSecrets.get(normalizedKey) || null;
+    }
+    return null;
+  };
   const hasSecret = async (key) => {
-    const result = await paymentRuntimeAction('secret.status', { key: requireStorageKey(key) });
+    const normalizedKey = requireStorageKey(key);
+    if (runtimeSecrets.has(normalizedKey)) {
+      return !!runtimeSecrets.get(normalizedKey);
+    }
+    const result = await paymentRuntimeAction('secret.status', { key: normalizedKey });
     return !!(result && result.ok && result.configured);
   };
   const removeSecret = async (key) => clearBotData(requireStorageKey(key));
@@ -1814,10 +1844,18 @@ function buildRuntimeHelpers(payload, actions) {
   const httpRequest = async (method, url, options = {}) => httpsRequest(url, { ...normalizeObject(options, 'httpRequest options'), method });
   const httpGet = async (url, options = {}) => httpRequest('GET', url, options);
   const httpPost = async (url, body = {}, options = {}) => httpRequest('POST', url, { ...normalizeObject(options, 'httpPost options'), json: body });
+  const savedFaucetPayKey = () => runtimeSecrets.get('faucetpay_api_key') || faucetPayApiKey || '';
+  const safeFaucetPayCall = async (fn) => {
+    try {
+      return await fn();
+    } catch (err) {
+      return { ok: false, error: String((err && err.message) || err || 'FaucetPay request failed.') };
+    }
+  };
 
-  const helperFaucetPaySend = async (toEmail, amount, currency = 'PEPE') => {
+  const helperFaucetPaySend = async (toEmail, amount, currency = 'USDT') => {
     const safeEmail = requireString(toEmail, 'faucetPaySend(email, amount, currency)');
-    const safeCurrency = requireString(String(currency || 'PEPE'), 'faucetPaySend currency').toUpperCase();
+    const safeCurrency = requireString(String(currency || 'USDT'), 'faucetPaySend currency').toUpperCase();
     const safeAmount = normalizeDecimalAmount(amount, false);
     console.log('[BotHost] faucetpay_amount_debug', JSON.stringify({
       bot_id: safeBot.id,
@@ -1827,20 +1865,35 @@ function buildRuntimeHelpers(payload, actions) {
       api_amount_sent: safeAmount,
     }));
     console.log('[BotHost] faucetpay_send_attempt', JSON.stringify({ bot_id: safeBot.id, currency: safeCurrency, amount: safeAmount }));
-    const raw = await paymentRuntimeAction('faucetpay.send', { to: safeEmail, amount: safeAmount, currency: safeCurrency });
+    const savedKey = savedFaucetPayKey();
+    const raw = savedKey
+      ? await safeFaucetPayCall(() => faucetPaySend(savedKey, safeEmail, safeAmount, safeCurrency))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: safeCurrency, amount: safeAmount };
     const ok = raw && raw.ok === true;
     if (ok) {
       console.log('[BotHost] faucetpay_send_success', JSON.stringify({ bot_id: safeBot.id, currency: safeCurrency, amount: safeAmount }));
     } else {
       console.log('[BotHost] faucetpay_send_failed', JSON.stringify({ bot_id: safeBot.id, currency: safeCurrency, amount: safeAmount, message: raw && raw.message }));
     }
-    return { ok: !!ok, status: (raw && raw.status) || 0, message: (raw && (raw.message || raw.error)) || 'Unknown error', raw: plainObject(raw || {}) };
+    return { ok: !!ok, status: (raw && raw.status) || 0, message: (raw && (raw.message || raw.error)) || 'Unknown error', error: ok ? null : ((raw && (raw.error || raw.message)) || 'FaucetPay send failed.'), raw: plainObject(raw || {}) };
   };
 
-  const helperFaucetPayGetBalance = async (apiKey, currency = 'USDT') => {
-    const key = requireString(apiKey, 'faucetPayGetBalance(apiKey, currency)');
-    const sym = String(currency || 'USDT').toUpperCase();
-    const result = await paymentRuntimeAction('faucetpay.getBalance', { api_key: key, currency: sym });
+  const helperFaucetPayGetBalance = async (apiKey = null, currency = 'USDT') => {
+    let explicitKey = apiKey;
+    let requestedCurrency = currency;
+    if (currency === 'USDT' && isLikelyFaucetPayCurrency(apiKey)) {
+      explicitKey = null;
+      requestedCurrency = apiKey;
+    }
+    const sym = String(requestedCurrency || 'USDT').toUpperCase();
+    const options = { currency: sym };
+    if (explicitKey !== null && explicitKey !== undefined && String(explicitKey).trim() !== '' && !isMaskedSecretValue(explicitKey)) {
+      options.api_key = String(explicitKey);
+    }
+    const savedKey = savedFaucetPayKey();
+    const result = (options.api_key || savedKey)
+      ? await safeFaucetPayCall(() => faucetPayBalance(options.api_key || savedKey, sym))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym };
     const ok = result && result.ok === true;
     return ok
       ? {
@@ -1855,9 +1908,39 @@ function buildRuntimeHelpers(payload, actions) {
 
   const helperFaucetPayCheckAddress = async (currency, address) => {
     console.log('[BotHost] faucetpay_checkaddress', JSON.stringify({ bot_id: safeBot.id, currency: String(currency).toUpperCase() }));
-    const result = await paymentRuntimeAction('faucetpay.checkAddress', { currency: String(currency || 'PEPE').toUpperCase(), address: String(address || '') });
+    const sym = String(currency || 'USDT').toUpperCase();
+    const savedKey = savedFaucetPayKey();
+    const result = savedKey
+      ? await safeFaucetPayCall(() => faucetPayCheckAddress(savedKey, sym, String(address || '')))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym };
     const ok = result && result.ok === true;
     return { ok: !!ok, status: (result && result.status) || 0, message: (result && result.message) || 'Unknown', raw: plainObject(result || {}) };
+  };
+
+  const helperFaucetPayValidateKey = async (apiKey = null) => {
+    const key = apiKey && !isMaskedSecretValue(apiKey)
+      ? String(apiKey)
+      : savedFaucetPayKey();
+    if (!key) return { ok: false, valid: false, error: 'FaucetPay API key not configured' };
+    const result = await safeFaucetPayCall(() => faucetPayBalance(key, 'USDT'));
+    return result && result.ok
+      ? { ok: true, valid: true, status: result.status || 200, message: 'FaucetPay API key is valid.', data: plainObject(result.data || result.raw || result || {}) }
+      : { ok: false, valid: false, error: String((result && (result.error || result.message)) || 'FaucetPay API key is invalid.') };
+  };
+
+  const helperFaucetPayCheckEmail = async (email, currency = 'USDT') => {
+    const savedKey = savedFaucetPayKey();
+    const sym = String(currency || 'USDT').toUpperCase();
+    if (!savedKey) return { ok: false, error: 'FaucetPay API key not configured', currency: sym };
+    return safeFaucetPayCall(() => faucetPayCheckAddress(savedKey, sym, String(email || '')));
+  };
+
+  const helperFaucetPayGetCurrencies = async (apiKey = null) => {
+    const key = apiKey && !isMaskedSecretValue(apiKey)
+      ? String(apiKey)
+      : savedFaucetPayKey();
+    if (!key) return { ok: false, error: 'FaucetPay API key not configured' };
+    return safeFaucetPayCall(() => faucetPayCurrencies(key));
   };
 
   const oxapayRuntimeAction = async (action, options = {}, extra = {}) => {
@@ -2220,6 +2303,15 @@ function buildRuntimeHelpers(payload, actions) {
   const safeTelegramResult = (result) => result && result.ok ? { ok: true, result: result.result ?? result.data ?? null } : { ok: false, error: safeTelegramError(result && (result.error || result.message)) };
   const getLargestPhotoFileId = getPhotoFileId;
   const getIncomingMediaType = getMediaType;
+  const requestContext = freezePlainObject({
+    message: plainObject(safeMessage),
+    chat: plainObject(safeChat),
+    user: plainObject(safeUser),
+    update: plainObject(safeUpdate),
+    args: [...args],
+    callback_data: telegram.callback_data ?? null,
+    callback_query: callbackQueryObj,
+  });
 
   return {
     helpers: {
@@ -2229,6 +2321,9 @@ function buildRuntimeHelpers(payload, actions) {
       message: freezePlainObject(safeMessage),
       messageText: safeMessage.text ?? telegram.message_text ?? null,
       update: freezePlainObject(safeUpdate),
+      request: requestContext,
+      setTimeout,
+      clearTimeout,
       bot: freezePlainObject(safeBot),
       command: freezePlainObject(safeCommand),
       commandFlow: freezePlainObject(commandFlow),
@@ -2291,9 +2386,17 @@ function buildRuntimeHelpers(payload, actions) {
       safeCaption,
       safeTelegramError,
       getChatMember,
+      getTelegramChatMember: getChatMember,
+      getChannelMember: getChatMember,
       checkChannelMember,
+      checkTelegramChannelMember: checkChannelMember,
+      checkTelegramChannel: checkChannelMember,
+      checkChannel: checkChannelMember,
       verifyTelegramChannel,
+      verifyChannel: verifyTelegramChannel,
+      verifyChannelMember: verifyTelegramChannel,
       isChannelMember,
+      isTelegramChannelMember: isChannelMember,
       getUserData,
       setUserData,
       incrementUserData,
@@ -2319,6 +2422,7 @@ function buildRuntimeHelpers(payload, actions) {
       maskSecret,
       saveSecret,
       getMaskedSecret,
+      getBotSecret,
       hasSecret,
       removeSecret,
       validateApiKeyFormat,
@@ -2345,12 +2449,24 @@ function buildRuntimeHelpers(payload, actions) {
       generateWithdrawalRef,
       faucetPayBalance: helperFaucetPayBalance,
       faucetPayGetBalance: helperFaucetPayGetBalance,
+      getFaucetPayBalance: helperFaucetPayGetBalance,
       faucetPaySend: helperFaucetPaySend,
+      sendFaucetPay: helperFaucetPaySend,
       faucetPayWithdraw: helperFaucetPaySend,
+      faucetPayWithdrawal: helperFaucetPaySend,
+      faucetPayPayout: helperFaucetPaySend,
       faucetPayCheckAddress: helperFaucetPayCheckAddress,
-      faucetPayValidateKey: async (apiKey = null) => paymentRuntimeAction('faucetpay.validateKey', apiKey ? { api_key: String(apiKey) } : {}),
-      faucetPayCheckEmail: async (email, currency = 'USDT') => paymentRuntimeAction('faucetpay.checkEmail', { email: String(email || ''), currency: String(currency || 'USDT').toUpperCase() }),
-      faucetPayGetCurrencies: async (apiKey = null) => paymentRuntimeAction('faucetpay.getCurrencies', apiKey ? { api_key: String(apiKey) } : {}),
+      checkFaucetPayAddress: helperFaucetPayCheckAddress,
+      faucetPayValidateKey: helperFaucetPayValidateKey,
+      validateFaucetPayKey: helperFaucetPayValidateKey,
+      faucetPayValidateApiKey: helperFaucetPayValidateKey,
+      faucetPayValidateAPIKey: helperFaucetPayValidateKey,
+      faucetPayCheckEmail: helperFaucetPayCheckEmail,
+      checkFaucetPayEmail: helperFaucetPayCheckEmail,
+      faucetPayGetCurrencies: helperFaucetPayGetCurrencies,
+      getFaucetPayCurrencies: helperFaucetPayGetCurrencies,
+      faucetPayCurrencies: helperFaucetPayGetCurrencies,
+      faucetPayGetSupportedCurrencies: helperFaucetPayGetCurrencies,
       isFaucetPayCurrencySupported: (currency) => faucetPayCurrencyList.includes(String(currency || '').toUpperCase()),
       faucetPaySupportedCurrencies: () => [...faucetPayCurrencyList],
       faucetPayFormatAmount: (amount) => normalizePaymentAmount(amount, 8),
@@ -2708,6 +2824,14 @@ function normalizeRuntimeSettings(settings) {
   };
 }
 
+function normalizeCommandCode(code) {
+  return String(code || '')
+    .replace(/^\uFEFF/, '')
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*```[A-Za-z0-9_-]*\s*$/.test(line))
+    .join('\n');
+}
+
 function clampNumber(value, fallback, min = null, max = null) {
   if (max === null) {
     return clamp(value, fallback, min);
@@ -2938,7 +3062,7 @@ function buildPayoutMessage(data) {
   const d = isPlainObject(data) ? plainObject(data) : {};
   const userId = d.user_id ?? '';
   const amount = d.amount ?? 0;
-  const currency = String(d.currency || 'PEPE');
+  const currency = String(d.currency || 'USDT');
   const wallet = String(d.wallet || '');
   const botName = String(d.bot || '');
   const maskedId = maskUserId(userId);
@@ -2993,20 +3117,77 @@ async function telegramApiRequest(token, method, payload = {}) {
 }
 
 async function faucetPayBalance(apiKey, currency) {
-  return faucetPayPost('https://faucetpay.io/api/v1/getbalance', {
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/getbalance', {
     api_key: requireString(apiKey, 'faucetPayBalance apiKey'),
     currency: requireString(currency, 'faucetPayBalance currency').toUpperCase(),
   });
+  const sym = requireString(currency, 'faucetPayBalance currency').toUpperCase();
+  return faucetPayResult(data, sym, { balance: extractFaucetPayBalance(data, sym) });
 }
 
 async function faucetPaySend(apiKey, toEmailOrAddress, amount, currency) {
   const safeAmount = normalizeDecimalAmount(amount, false);
-  return faucetPayPost('https://faucetpay.io/api/v1/send', {
+  const sym = requireString(currency, 'faucetPaySend currency').toUpperCase();
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/send', {
     api_key: requireString(apiKey, 'faucetPaySend apiKey'),
     to: requireString(toEmailOrAddress, 'faucetPaySend recipient'),
     amount: safeAmount,
-    currency: requireString(currency, 'faucetPaySend currency').toUpperCase(),
+    currency: sym,
   });
+  return faucetPayResult(data, sym, { amount: safeAmount, amount_smallest_unit: safeAmount });
+}
+
+async function faucetPayCheckAddress(apiKey, currency, address) {
+  const sym = requireString(currency, 'faucetPayCheckAddress currency').toUpperCase();
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/checkaddress', {
+    api_key: requireString(apiKey, 'faucetPayCheckAddress apiKey'),
+    currency: sym,
+    address: requireString(address, 'faucetPayCheckAddress address'),
+  });
+  return faucetPayResult(data, sym);
+}
+
+async function faucetPayCurrencies(apiKey) {
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/currencies', {
+    api_key: requireString(apiKey, 'faucetPayCurrencies apiKey'),
+  });
+  return faucetPayResult(data, null, { currencies: extractFaucetPayCurrencies(data) });
+}
+
+function faucetPayResult(data, currency = null, extra = {}) {
+  const raw = plainObject(data || {});
+  const ok = Number(raw.status || 0) === 200;
+  const message = String(raw.message || (ok ? 'OK' : 'FaucetPay request failed.'));
+  return {
+    ok,
+    status: Number(raw.status || 0),
+    message,
+    error: ok ? null : friendlyFaucetPayError(message),
+    ...(currency ? { currency } : {}),
+    ...extra,
+    data: raw,
+    raw,
+  };
+}
+
+function extractFaucetPayCurrencies(raw) {
+  const candidates = [raw && raw.currencies, raw && raw.data && raw.data.currencies, raw && raw.data];
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === 'object') {
+      const values = Array.isArray(candidate) ? candidate : Object.keys(candidate);
+      const symbols = [...new Set(values.map((value) => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')).filter(Boolean))];
+      if (symbols.length > 0) return symbols;
+    }
+  }
+  return [];
+}
+
+function friendlyFaucetPayError(message) {
+  const text = String(message || '').trim();
+  const lower = text.toLowerCase();
+  if (lower.includes('invalid') && lower.includes('api')) return 'FaucetPay API key is invalid.';
+  if (lower.includes('address') || lower.includes('linked') || lower.includes('payout')) return 'FaucetPay email/address is not linked.';
+  return text || 'FaucetPay request failed.';
 }
 
 function normalizeDecimalAmount(value, allowZero = false) {
@@ -3750,6 +3931,15 @@ function maskSecretValue(value) {
   if (!s) return '';
   if (s.length <= 8) return `${s.slice(0, 2)}***`;
   return `${s.slice(0, 5)}***${s.slice(-3)}`;
+}
+
+function isMaskedSecretValue(value) {
+  return /^\S{1,8}\*{3}\S{0,8}$/.test(String(value || '').trim());
+}
+
+function isLikelyFaucetPayCurrency(value) {
+  return ['BTC', 'ETH', 'DOGE', 'LTC', 'BCH', 'DASH', 'DGB', 'TRX', 'USDT', 'FEY', 'ZEC', 'BNB', 'SOL', 'XRP', 'MATIC', 'ADA', 'TON', 'USDC']
+    .includes(String(value || '').trim().toUpperCase());
 }
 
 function requireChatId(value, label) {

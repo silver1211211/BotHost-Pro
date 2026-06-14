@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Webhook Documentation">
+﻿<x-dashboard-layout title="Webhook Documentation">
 
     @php
         $tocSections = [
@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-black text-[#F8FAFC] sm:text-xl">Custom Webhook Documentation</h1>
-                    <p class="text-xs text-[#71717A] sm:text-sm">Learn how to receive external POST callbacks into your bot workspace. All endpoints use HTTPS only.</p>
+                    <p class="text-xs text-[#94A3B8] sm:text-sm">Learn how to receive external POST callbacks into your bot workspace. All endpoints use HTTPS only.</p>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@
                         href="#{{ $id }}"
                         :class="active === '{{ $id }}'
                             ? 'border-[#8B5CF6] bg-[#8B5CF6]/12 text-white'
-                            : 'border-[#27213D] bg-[#0F0D1A] text-[#71717A] hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]'"
+                            : 'border-[#27213D] bg-[#0F0D1A] text-[#94A3B8] hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]'"
                         class="shrink-0 rounded-lg border px-3 py-1.5 text-[11px] font-black transition"
                         @click="active = '{{ $id }}'"
                     >{{ $label }}</a>
@@ -64,7 +64,7 @@
                     class="sticky top-[68px] rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-3 overflow-y-auto"
                     style="max-height:calc(100vh - 84px)"
                 >
-                    <p class="mb-2.5 px-2 text-[9px] font-black uppercase tracking-[0.18em] text-[#3D3657]">Contents</p>
+                    <p class="mb-2.5 px-2 text-[9px] font-black uppercase tracking-[0.18em] text-[#6B6890]">Contents</p>
                     <nav class="space-y-0.5">
                         @foreach ($tocSections as $id => $label)
                             <a
@@ -72,7 +72,7 @@
                                 @click="active = '{{ $id }}'"
                                 :class="active === '{{ $id }}'
                                     ? 'bg-[#8B5CF6]/12 text-white border-l-2 border-[#8B5CF6] pl-[9px]'
-                                    : 'text-[#71717A] pl-2.5 hover:bg-[#151225] hover:text-[#C4C0D8]'"
+                                    : 'text-[#94A3B8] pl-2.5 hover:bg-[#151225] hover:text-[#C4C0D8]'"
                                 class="flex items-center gap-2 rounded-lg pr-2.5 py-2 text-xs font-semibold transition-all duration-150"
                             >
                                 <span
@@ -159,7 +159,7 @@
                                     <span class="mt-0.5 shrink-0 rounded-lg border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-black text-[#52525B]">{{ $step }}</span>
                                     <div class="min-w-0">
                                         <p class="text-xs font-black text-[#A1A1AA]">{{ $title }}</p>
-                                        <p class="mt-0.5 text-xs text-[#71717A]">{{ $desc }}</p>
+                                        <p class="mt-0.5 text-xs text-[#94A3B8]">{{ $desc }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -185,15 +185,15 @@
                                 </thead>
                                 <tbody class="divide-y divide-[#1B172B]">
                                     <tr class="bg-[#0F0D1A]">
-                                        <td class="px-4 py-2.5 font-mono font-black text-[#71717A]">Method</td>
+                                        <td class="px-4 py-2.5 font-mono font-black text-[#94A3B8]">Method</td>
                                         <td class="px-4 py-2.5"><span class="rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2 py-0.5 font-mono text-[10px] font-black text-[#22C55E]">POST</span></td>
                                     </tr>
                                     <tr class="bg-[#0F0D1A]">
-                                        <td class="px-4 py-2.5 font-mono font-black text-[#71717A]">Content-Type</td>
+                                        <td class="px-4 py-2.5 font-mono font-black text-[#94A3B8]">Content-Type</td>
                                         <td class="px-4 py-2.5 font-mono text-[#A1A1AA]">application/json</td>
                                     </tr>
                                     <tr class="bg-[#0F0D1A]">
-                                        <td class="px-4 py-2.5 font-mono font-black text-[#71717A]">Body</td>
+                                        <td class="px-4 py-2.5 font-mono font-black text-[#94A3B8]">Body</td>
                                         <td class="px-4 py-2.5 font-mono text-[#A1A1AA]">JSON object</td>
                                     </tr>
                                 </tbody>
@@ -212,13 +212,13 @@
                         <p class="text-sm leading-relaxed text-[#A1A1AA]">When sending a request to your webhook endpoint, include the following headers:</p>
                         <div x-data="{ copied: false }" class="mt-4 overflow-hidden rounded-xl border border-[#1B172B] bg-[#0B0918]">
                             <div class="flex items-center justify-between border-b border-[#1B172B] px-4 py-2.5">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-[#3D3657]">HTTPS Headers</span>
-                                <button @click="navigator.clipboard.writeText($refs.headersCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#71717A] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-[#6B6890]">HTTPS Headers</span>
+                                <button @click="navigator.clipboard.writeText($refs.headersCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#94A3B8] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
                             </div>
                             <pre class="overflow-x-auto p-4 text-xs leading-relaxed"><code x-ref="headersCode" class="font-mono text-[#A1A1AA]">Content-Type: application/json
 User-Agent: YourService/1.0</code></pre>
                         </div>
-                        <p class="mt-3 text-xs leading-relaxed text-[#71717A]">Some external platforms may include additional signature headers (e.g. <code class="rounded bg-[#151225] px-1 py-0.5 font-mono text-[#A1A1AA]">X-Signature</code>, <code class="rounded bg-[#151225] px-1 py-0.5 font-mono text-[#A1A1AA]">X-Webhook-Token</code>). These are passed through and will be available in future BotHost Pro automation features.</p>
+                        <p class="mt-3 text-xs leading-relaxed text-[#94A3B8]">Some external platforms may include additional signature headers (e.g. <code class="rounded bg-[#151225] px-1 py-0.5 font-mono text-[#A1A1AA]">X-Signature</code>, <code class="rounded bg-[#151225] px-1 py-0.5 font-mono text-[#A1A1AA]">X-Webhook-Token</code>). These are passed through and will be available in future BotHost Pro automation features.</p>
                     </div>
                 </section>
 
@@ -232,8 +232,8 @@ User-Agent: YourService/1.0</code></pre>
                         <p class="text-sm leading-relaxed text-[#A1A1AA]">Your external platform can send any JSON payload to the endpoint. Below is an example of what a payment provider might send:</p>
                         <div x-data="{ copied: false }" class="mt-4 overflow-hidden rounded-xl border border-[#1B172B] bg-[#0B0918]">
                             <div class="flex items-center justify-between border-b border-[#1B172B] px-4 py-2.5">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-[#3D3657]">JSON</span>
-                                <button @click="navigator.clipboard.writeText($refs.payloadCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#71717A] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-[#6B6890]">JSON</span>
+                                <button @click="navigator.clipboard.writeText($refs.payloadCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#94A3B8] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
                             </div>
                             <pre class="overflow-x-auto p-4 text-xs leading-relaxed"><code x-ref="payloadCode" class="font-mono text-[#A1A1AA]">{
   "event": "payment_success",
@@ -246,7 +246,7 @@ User-Agent: YourService/1.0</code></pre>
   }
 }</code></pre>
                         </div>
-                        <p class="mt-3 text-xs leading-relaxed text-[#71717A]">This is an example external callback payload. The structure depends entirely on the external platform you are integrating with.</p>
+                        <p class="mt-3 text-xs leading-relaxed text-[#94A3B8]">This is an example external callback payload. The structure depends entirely on the external platform you are integrating with.</p>
                     </div>
                 </section>
 
@@ -263,8 +263,8 @@ User-Agent: YourService/1.0</code></pre>
                         <p class="mt-4 mb-2 text-xs font-black uppercase tracking-widest text-[#52525B]">Using fetch (built-in Node.js 18+)</p>
                         <div x-data="{ copied: false }" class="overflow-hidden rounded-xl border border-[#1B172B] bg-[#0B0918]">
                             <div class="flex items-center justify-between border-b border-[#1B172B] px-4 py-2.5">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-[#3D3657]">JavaScript</span>
-                                <button @click="navigator.clipboard.writeText($refs.fetchCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#71717A] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-[#6B6890]">JavaScript</span>
+                                <button @click="navigator.clipboard.writeText($refs.fetchCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#94A3B8] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
                             </div>
                             <pre class="overflow-x-auto p-4 text-xs leading-relaxed"><code x-ref="fetchCode" class="font-mono text-[#A1A1AA]">const WEBHOOK_URL = "https://your-domain.com/webhooks/bot/{bot_id}/{secret}";
 
@@ -288,8 +288,8 @@ console.log("Webhook delivered.");</code></pre>
                         <p class="mt-5 mb-2 text-xs font-black uppercase tracking-widest text-[#52525B]">Using axios (popular alternative)</p>
                         <div x-data="{ copied: false }" class="overflow-hidden rounded-xl border border-[#1B172B] bg-[#0B0918]">
                             <div class="flex items-center justify-between border-b border-[#1B172B] px-4 py-2.5">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-[#3D3657]">JavaScript</span>
-                                <button @click="navigator.clipboard.writeText($refs.axiosCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#71717A] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-[#6B6890]">JavaScript</span>
+                                <button @click="navigator.clipboard.writeText($refs.axiosCode.textContent.trim()).then(()=>{copied=true;setTimeout(()=>copied=false,2000)})" class="text-[10px] font-black text-[#94A3B8] transition hover:text-[#A1A1AA]" x-text="copied ? '✓ Copied' : 'Copy'"></button>
                             </div>
                             <pre class="overflow-x-auto p-4 text-xs leading-relaxed"><code x-ref="axiosCode" class="font-mono text-[#A1A1AA]">const axios = require("axios");
 
@@ -307,7 +307,7 @@ await axios.post(WEBHOOK_URL, {
 console.log("Webhook delivered.");</code></pre>
                         </div>
 
-                        <p class="mt-3 text-xs leading-relaxed text-[#71717A]">Replace <code class="rounded bg-[#151225] px-1 py-0.5 font-mono text-[#A1A1AA]">YOUR_WEBHOOK_ENDPOINT</code> with the URL copied from your bot settings. The payload structure can be any valid JSON object.</p>
+                        <p class="mt-3 text-xs leading-relaxed text-[#94A3B8]">Replace <code class="rounded bg-[#151225] px-1 py-0.5 font-mono text-[#A1A1AA]">YOUR_WEBHOOK_ENDPOINT</code> with the URL copied from your bot settings. The payload structure can be any valid JSON object.</p>
                     </div>
                 </section>
 
@@ -324,18 +324,18 @@ console.log("Webhook delivered.");</code></pre>
                                 <svg class="mt-0.5 h-4 w-4 shrink-0 text-[#8B5CF6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/></svg>
                                 <div>
                                     <p class="text-xs font-black text-[#A1A1AA]">What the test does</p>
-                                    <p class="mt-0.5 text-xs text-[#71717A]">The test sends a sample POST request to your bot's incoming webhook endpoint and confirms that BotHost Pro receives and processes it. It does not test a third-party external platform.</p>
+                                    <p class="mt-0.5 text-xs text-[#94A3B8]">The test sends a sample POST request to your bot's incoming webhook endpoint and confirms that BotHost Pro receives and processes it. It does not test a third-party external platform.</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-3 rounded-xl border border-[#1B172B] bg-[#0B0918] px-4 py-3">
                                 <svg class="mt-0.5 h-4 w-4 shrink-0 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                                 <div>
                                     <p class="text-xs font-black text-[#A1A1AA]">Expected result</p>
-                                    <p class="mt-0.5 text-xs text-[#71717A]">You should see a <strong class="text-[#22C55E]">Received</strong> response with an HTTP 200 status code. The test delivery also appears in the Delivery Logs section.</p>
+                                    <p class="mt-0.5 text-xs text-[#94A3B8]">You should see a <strong class="text-[#22C55E]">Received</strong> response with an HTTP 200 status code. The test delivery also appears in the Delivery Logs section.</p>
                                 </div>
                             </div>
                         </div>
-                        <p class="mt-4 text-xs leading-relaxed text-[#71717A]">To test a full external integration, trigger a real event from your external platform (e.g. a payment in test mode) and watch for it in Delivery Logs.</p>
+                        <p class="mt-4 text-xs leading-relaxed text-[#94A3B8]">To test a full external integration, trigger a real event from your external platform (e.g. a payment in test mode) and watch for it in Delivery Logs.</p>
                     </div>
                 </section>
 
@@ -364,7 +364,7 @@ console.log("Webhook delivered.");</code></pre>
                                         ['Received', 'When the request was received (relative time).'],
                                     ] as [$col, $desc])
                                         <tr class="bg-[#0F0D1A]">
-                                            <td class="px-4 py-2.5 font-mono font-black text-[#71717A]">{{ $col }}</td>
+                                            <td class="px-4 py-2.5 font-mono font-black text-[#94A3B8]">{{ $col }}</td>
                                             <td class="px-4 py-2.5 text-[#A1A1AA]">{{ $desc }}</td>
                                         </tr>
                                     @endforeach
@@ -393,7 +393,7 @@ console.log("Webhook delivered.");</code></pre>
                                     <svg class="mt-0.5 h-4 w-4 shrink-0 text-[#8B5CF6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
                                     <div>
                                         <p class="text-xs font-black text-[#A1A1AA]">{{ $title }}</p>
-                                        <p class="mt-0.5 text-xs text-[#71717A]">{{ $desc }}</p>
+                                        <p class="mt-0.5 text-xs text-[#94A3B8]">{{ $desc }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -426,7 +426,7 @@ console.log("Webhook delivered.");</code></pre>
                                         <svg class="h-4 w-4 shrink-0 text-[#52525B] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/></svg>
                                     </summary>
                                     <div class="border-t border-[#1B172B] px-4 py-3">
-                                        <p class="text-xs leading-relaxed text-[#71717A]">{{ $solution }}</p>
+                                        <p class="text-xs leading-relaxed text-[#94A3B8]">{{ $solution }}</p>
                                     </div>
                                 </details>
                             @endforeach
@@ -436,7 +436,7 @@ console.log("Webhook delivered.");</code></pre>
 
                 {{-- Back to settings link --}}
                 <div class="pb-4">
-                    <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-xs font-black text-[#71717A] transition hover:text-[#A1A1AA]">
+                    <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-xs font-black text-[#94A3B8] transition hover:text-[#A1A1AA]">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
                         Back to previous page
                     </a>

@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Support">
+﻿<x-dashboard-layout title="Support">
 
 <div
     x-data="{
@@ -17,11 +17,11 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-xl font-black text-[#F8FAFC]">Support</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Frequently asked questions and direct support for BotHost Pro.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Frequently asked questions and direct support for BotHost Pro.</p>
         </div>
         <a
             href="{{ route('help.index') }}"
-            class="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]"
+            class="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]"
         >
             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.966 8.966 0 0 0-6 2.292m0-14.25v14.25"/></svg>
             Help Center
@@ -56,7 +56,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-black text-[#F8FAFC]">Contact Support</p>
-                    <p class="mt-0.5 text-xs text-[#71717A]">Can't find what you need in the FAQ? Reach out to the support team directly.</p>
+                    <p class="mt-0.5 text-xs text-[#94A3B8]">Can't find what you need in the FAQ? Reach out to the support team directly.</p>
                 </div>
             </div>
             <a
@@ -91,7 +91,7 @@
             ] as [$label, $anchor, $color, $icon])
             <a
                 href="#{{ $anchor }}"
-                class="flex items-center gap-2.5 rounded-xl border border-[#1B172B] bg-[#0B0918] px-3 py-2.5 text-xs font-black text-[#71717A] transition hover:border-[#27213D] hover:text-[#A1A1AA]"
+                class="flex items-center gap-2.5 rounded-xl border border-[#1B172B] bg-[#0B0918] px-3 py-2.5 text-xs font-black text-[#94A3B8] transition hover:border-[#27213D] hover:text-[#A1A1AA]"
             >
                 <span class="shrink-0 grid h-6 w-6 place-items-center rounded-lg" style="background-color:{{ $color }}18">
                     <svg style="height:11px;width:11px;color:{{ $color }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
@@ -306,7 +306,7 @@
                     x-cloak
                     class="border-t border-[#1B172B] px-4 pb-4 pt-3"
                 >
-                    <p class="text-xs leading-relaxed text-[#71717A]">{{ $item[1] }}</p>
+                    <p class="text-xs leading-relaxed text-[#94A3B8]">{{ $item[1] }}</p>
                 </div>
             </div>
             @endforeach
@@ -325,7 +325,7 @@
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
             </div>
             <div>
-                <p class="text-sm font-black text-[#71717A]">No results found</p>
+                <p class="text-sm font-black text-[#94A3B8]">No results found</p>
                 <p class="mt-1 text-xs text-[#52525B]">Try a different search term or browse the <a href="{{ route('help.index') }}" class="text-[#8B5CF6] hover:underline">Help Center</a> for guides.</p>
             </div>
         </div>
@@ -340,13 +340,13 @@
                 </div>
                 <div>
                     <p class="text-sm font-black text-[#F8FAFC]">Browse the Help Center</p>
-                    <p class="mt-0.5 text-xs text-[#71717A]">Detailed guides for every platform feature — from creating bots to setting up webhooks.</p>
+                    <p class="mt-0.5 text-xs text-[#94A3B8]">Detailed guides for every platform feature — from creating bots to setting up webhooks.</p>
                 </div>
             </div>
             <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <a
                     href="{{ route('help.index') }}"
-                    class="rounded-xl border border-[#27213D] bg-[#151225] px-5 py-2.5 text-xs font-black text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]"
+                    class="rounded-xl border border-[#27213D] bg-[#151225] px-5 py-2.5 text-xs font-black text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]"
                 >
                     Go to Help Center
                 </a>

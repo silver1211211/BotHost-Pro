@@ -1,11 +1,11 @@
-<x-admin-layout title="Templates" subtitle="Manage command templates">
+﻿<x-admin-layout title="Templates" subtitle="Manage command templates">
     <div class="space-y-4">
 
         {{-- Header --}}
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h1 class="text-xl font-black text-[#F8FAFC]">Templates</h1>
-                <p class="mt-0.5 text-xs text-[#71717A]">Manage command templates available to users.</p>
+                <p class="mt-0.5 text-xs text-[#94A3B8]">Manage command templates available to users.</p>
             </div>
             <a href="{{ route('admin.templates.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] px-4 py-2.5 text-sm font-black text-white shadow-[0_0_20px_rgba(139,92,246,0.3)] transition hover:shadow-[0_0_28px_rgba(139,92,246,0.45)]">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
@@ -44,23 +44,23 @@
                             @php
                                 $statusStyle = match($template->status) {
                                     'published' => 'bg-[#22C55E]/10 text-[#22C55E]',
-                                    'archived'  => 'bg-[#71717A]/10 text-[#71717A]',
+                                    'archived'  => 'bg-[#71717A]/10 text-[#94A3B8]',
                                     default     => 'bg-[#F59E0B]/10 text-[#F59E0B]',
                                 };
                                 $accessStyle = match($template->access_type ?? 'free') {
                                     'paid'    => 'bg-[#A855F7]/10 text-[#A855F7]',
                                     'plan'    => 'bg-[#38BDF8]/10 text-[#38BDF8]',
-                                    default   => 'bg-[#71717A]/10 text-[#71717A]',
+                                    default   => 'bg-[#71717A]/10 text-[#94A3B8]',
                                 };
                                 $marketStyle = match($template->marketplace_status ?? 'listed') {
                                     'listed'   => 'bg-[#22C55E]/10 text-[#22C55E]',
-                                    'unlisted' => 'bg-[#71717A]/10 text-[#71717A]',
-                                    default    => 'bg-[#71717A]/10 text-[#71717A]',
+                                    'unlisted' => 'bg-[#71717A]/10 text-[#94A3B8]',
+                                    default    => 'bg-[#71717A]/10 text-[#94A3B8]',
                                 };
                             @endphp
                             <tr class="group transition-colors hover:bg-[#151225]">
                                 <td class="px-4 py-3.5 font-semibold text-[#F8FAFC] max-w-[180px] truncate">{{ $template->name }}</td>
-                                <td class="px-4 py-3.5 text-[#71717A]">{{ $template->category ?: '—' }}</td>
+                                <td class="px-4 py-3.5 text-[#94A3B8]">{{ $template->category ?: '—' }}</td>
                                 <td class="px-4 py-3.5 text-[#A1A1AA]">{{ ucfirst($template->level) }}</td>
                                 <td class="px-4 py-3.5">
                                     <span class="inline-block rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-wide {{ $statusStyle }}">{{ ucfirst($template->status) }}</span>
@@ -83,7 +83,7 @@
                                         <span class="text-[#3D3658] text-xs">No</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3.5 text-xs text-[#71717A] whitespace-nowrap">{{ $template->created_at->format('M j, Y') }}</td>
+                                <td class="px-4 py-3.5 text-xs text-[#94A3B8] whitespace-nowrap">{{ $template->created_at->format('M j, Y') }}</td>
                                 <td class="px-4 py-3.5">
                                     <div class="flex items-center justify-end gap-1.5">
                                         <a href="{{ route('admin.templates.edit', $template) }}" class="rounded-lg border border-[#27213D] bg-[#151225] px-2.5 py-1 text-[11px] font-semibold text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-white">Edit</a>

@@ -230,6 +230,7 @@ class NodeRuntimeService
             $runtime['oxapay_bridge_secret'] = (string) config('services.node_runtime.secret', '');
             $runtime['telegram_bridge_secret'] = (string) config('services.node_runtime.secret', '');
             $runtime['storage_bridge_secret'] = (string) config('services.node_runtime.secret', '');
+            $runtime['secrets'] = $this->runtimeSecrets($bot);
         }
 
         return [
@@ -758,6 +759,29 @@ class NodeRuntimeService
             'oxapay_payout_api_key',
             'faucetpay_api_key',
         ], true);
+    }
+
+    private function runtimeSecrets(Bot $bot): array
+    {
+        if (! $this->hasTable('bot_runtime_data')) {
+            return [];
+        }
+
+        try {
+            return BotRuntimeData::query()
+                ->where('bot_id', $bot->id)
+                ->whereIn('key', [
+                    'oxapay_merchant_api_key',
+                    'oxapay_payout_api_key',
+                    'faucetpay_api_key',
+                ])
+                ->get(['key', 'value'])
+                ->mapWithKeys(fn (BotRuntimeData $row) => [$row->key => $row->value])
+                ->filter(fn (mixed $value) => filled($value))
+                ->all();
+        } catch (Throwable) {
+            return [];
+        }
     }
 
     private function maskSecretValue(string $value): string

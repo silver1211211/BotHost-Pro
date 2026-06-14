@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
 
     {{-- Alpine component logic --}}
     <script>
@@ -61,7 +61,7 @@
             Create Account
         </span>
         <h1 class="text-[26px] font-black tracking-tight text-[#F8FAFC]">Join BotHost Pro</h1>
-        <p class="mt-1.5 text-sm leading-relaxed text-[#71717A]">Set up your free workspace and start building Telegram bots.</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-[#94A3B8]">Set up your free workspace and start building Telegram bots.</p>
     </div>
 
     <form
@@ -76,7 +76,7 @@
 
         {{-- Username --}}
         <div>
-            <label for="username" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Username</label>
+            <label for="username" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Username</label>
             <div class="relative">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#3D3759]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
@@ -112,7 +112,7 @@
 
         {{-- Email --}}
         <div>
-            <label for="email" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Email Address</label>
+            <label for="email" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Email Address</label>
             <div class="relative">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#3D3759]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
@@ -147,7 +147,7 @@
 
         {{-- Password --}}
         <div>
-            <label for="password" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Password</label>
+            <label for="password" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Password</label>
             <div class="relative">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#3D3759]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
@@ -166,7 +166,7 @@
                     class="block w-full rounded-xl border bg-[#0D0C18] py-3 pl-10 pr-11 text-sm text-[#F8FAFC] outline-none transition placeholder:text-[#3D3759] focus:ring-2 {{ $errors->has('password') ? 'border-[#EF4444]/50 focus:border-[#EF4444]/70 focus:ring-[#EF4444]/12' : 'border-[#27213D] focus:border-[#8B5CF6]/70 focus:bg-[#100F1C] focus:ring-[#8B5CF6]/12' }}"
                     :style="e.password ? 'border-color:rgba(239,68,68,.5);box-shadow:0 0 0 2px rgba(239,68,68,.1)' : ''"
                 >
-                <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#3D3759] transition hover:text-[#71717A]" :title="showPassword ? 'Hide password' : 'Show password'">
+                <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#3D3759] transition hover:text-[#94A3B8]" :title="showPassword ? 'Hide password' : 'Show password'">
                     <svg x-show="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -190,7 +190,7 @@
 
         {{-- Confirm Password --}}
         <div>
-            <label for="password_confirmation" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Confirm Password</label>
+            <label for="password_confirmation" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Confirm Password</label>
             <div class="relative">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#3D3759]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
@@ -208,7 +208,7 @@
                     class="block w-full rounded-xl border bg-[#0D0C18] py-3 pl-10 pr-11 text-sm text-[#F8FAFC] outline-none transition placeholder:text-[#3D3759] focus:ring-2 border-[#27213D] focus:border-[#8B5CF6]/70 focus:bg-[#100F1C] focus:ring-[#8B5CF6]/12"
                     :style="e.password_confirmation ? 'border-color:rgba(239,68,68,.5);box-shadow:0 0 0 2px rgba(239,68,68,.1)' : ''"
                 >
-                <button type="button" @click="showConfirm = !showConfirm" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#3D3759] transition hover:text-[#71717A]" :title="showConfirm ? 'Hide password' : 'Show password'">
+                <button type="button" @click="showConfirm = !showConfirm" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#3D3759] transition hover:text-[#94A3B8]" :title="showConfirm ? 'Hide password' : 'Show password'">
                     <svg x-show="!showConfirm" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -241,7 +241,7 @@
                     class="h-4 w-4 rounded border-[#3A3553] bg-[#0D0C18] text-[#8B5CF6] outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 focus:ring-offset-0"
                 >
             </div>
-            <span class="select-none text-sm leading-relaxed text-[#71717A]">
+            <span class="select-none text-sm leading-relaxed text-[#94A3B8]">
                 I agree to the
                 <a href="{{ route('legal.terms') }}" class="font-semibold text-[#38BDF8] transition hover:text-[#7DD3FC]" target="_blank" rel="noopener noreferrer">Terms of Service</a>
                 and
@@ -301,7 +301,7 @@
         {{-- Login link --}}
         <a
             href="{{ route('login') }}"
-            class="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#27213D] bg-[#0D0C18] py-3 text-sm font-bold text-[#71717A] transition hover:border-[#8B5CF6]/35 hover:bg-[#13111E] hover:text-[#F8FAFC]"
+            class="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#27213D] bg-[#0D0C18] py-3 text-sm font-bold text-[#94A3B8] transition hover:border-[#8B5CF6]/35 hover:bg-[#13111E] hover:text-[#F8FAFC]"
         >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>

@@ -34,6 +34,7 @@ class RuntimeOxaPayController extends Controller
             $result = match ($action) {
                 'secret.mask' => ['ok' => true, 'masked' => $this->maskSecret((string) ($options['value'] ?? ''))],
                 'secret.status' => $this->secretStatus($bot, (string) ($options['key'] ?? '')),
+                'secret.get' => $this->secretValue($bot, (string) ($options['key'] ?? '')),
                 'faucetpay.keyStatus' => $faucetPay->keyStatus($bot),
                 'faucetpay.balance' => $faucetPay->balance($bot, isset($options['currency']) ? (string) $options['currency'] : null),
                 'faucetpay.getBalance' => $faucetPay->getBalanceWithKey(
@@ -45,7 +46,7 @@ class RuntimeOxaPayController extends Controller
                 'faucetpay.checkEmail' => $faucetPay->checkEmail($bot, (string) ($options['email'] ?? ''), isset($options['currency']) ? (string) $options['currency'] : null),
                 'faucetpay.checkAddress' => $faucetPay->checkAddress($bot, (string) ($options['currency'] ?? 'USDT'), (string) ($options['address'] ?? '')),
                 'faucetpay.supportedCurrencies' => ['ok' => true, 'currencies' => $faucetPay->supportedCurrencies()],
-                'faucetpay.getCurrencies' => ['ok' => true, 'currencies' => $faucetPay->supportedCurrencies()],
+                'faucetpay.getCurrencies' => $faucetPay->currencies($bot, isset($options['api_key']) ? (string) $options['api_key'] : null),
                 'faucetpay.isCurrencySupported' => [
                     'ok' => true,
                     'currency' => strtoupper((string) ($options['currency'] ?? '')),
@@ -95,6 +96,22 @@ class RuntimeOxaPayController extends Controller
             'key' => $key,
             'configured' => filled($value),
             'masked' => filled($masked) ? (string) $masked : (filled($value) ? $this->maskSecret((string) $value) : null),
+        ];
+    }
+
+    private function secretValue(Bot $bot, string $key): array
+    {
+        if (! in_array($key, ['faucetpay_api_key', 'oxapay_merchant_api_key', 'oxapay_payout_api_key'], true)) {
+            return ['ok' => false, 'error' => 'Unsupported secret key'];
+        }
+
+        $value = $this->botRuntimeValue($bot, $key);
+
+        return [
+            'ok' => true,
+            'key' => $key,
+            'configured' => filled($value),
+            'value' => filled($value) ? (string) $value : null,
         ];
     }
 

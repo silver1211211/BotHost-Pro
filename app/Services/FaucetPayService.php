@@ -197,6 +197,36 @@ class FaucetPayService
             ];
     }
 
+    public function currencies(Bot $bot, ?string $apiKey = null): array
+    {
+        $key = filled($apiKey) ? (string) $apiKey : $this->apiKey($bot);
+
+        if (! filled($key)) {
+            return ['ok' => false, 'error' => 'FaucetPay API key not configured'];
+        }
+
+        $raw = $this->post('/currencies', [
+            'api_key' => $key,
+        ]);
+
+        if (! ($raw['ok'] ?? false)) {
+            return $raw;
+        }
+
+        $response = $raw['raw'] ?? [];
+        $ok = (int) ($response['status'] ?? 0) === 200;
+
+        return [
+            'ok' => $ok,
+            'status' => $response['status'] ?? 0,
+            'message' => $response['message'] ?? ($ok ? 'FaucetPay currencies loaded.' : 'FaucetPay currencies request failed.'),
+            'error' => $ok ? null : $this->friendlyError((string) ($response['message'] ?? 'FaucetPay currencies request failed.')),
+            'currencies' => $this->parseCurrencies($response),
+            'data' => $this->safeRaw($response),
+            'raw' => $this->safeRaw($response),
+        ];
+    }
+
     public function keyStatus(Bot $bot): array
     {
         $masked = $this->runtimeValue($bot, 'faucetpay_api_key_masked');
@@ -264,7 +294,7 @@ class FaucetPayService
             $response = Http::asForm()
                 ->acceptJson()
                 ->connectTimeout(5)
-                ->timeout(20)
+                ->timeout(15)
                 ->post(self::BASE_URL.$path, $form);
 
             $raw = $response->json() ?: [];
@@ -310,6 +340,31 @@ class FaucetPayService
         }
 
         return 0.0;
+    }
+
+    private function parseCurrencies(array $raw): array
+    {
+        $candidates = [
+            $raw['currencies'] ?? null,
+            $raw['data']['currencies'] ?? null,
+            $raw['data'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_array($candidate)) {
+                $values = array_is_list($candidate) ? $candidate : array_keys($candidate);
+                $symbols = array_values(array_unique(array_filter(array_map(
+                    fn (mixed $value): string => $this->normalizeCurrency($value),
+                    $values,
+                ))));
+
+                if ($symbols !== []) {
+                    return $symbols;
+                }
+            }
+        }
+
+        return self::SUPPORTED_CURRENCIES;
     }
 
     private function normalizeCurrency(mixed $currency): string

@@ -157,10 +157,12 @@ class RuntimeTelegramController extends Controller
             'status' => (string) ($result['status'] ?? 'unknown'),
             'message' => (string) ($result['message'] ?? 'Telegram membership check failed.'),
             'error' => ($result['ok'] ?? false) ? null : (string) ($result['message'] ?? 'Telegram membership check failed.'),
+            'elapsed_ms' => isset($result['elapsed_ms']) ? (int) $result['elapsed_ms'] : null,
             'result' => [
                 'is_member' => (bool) ($result['is_member'] ?? false),
                 'status' => (string) ($result['status'] ?? 'unknown'),
                 'message' => (string) ($result['message'] ?? 'Telegram membership check failed.'),
+                'elapsed_ms' => isset($result['elapsed_ms']) ? (int) $result['elapsed_ms'] : null,
             ],
         ];
     }

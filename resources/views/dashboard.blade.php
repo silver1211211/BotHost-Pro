@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Dashboard">
+﻿<x-dashboard-layout title="Dashboard">
     @php
         $dateLabel = now()->format('l, F j, Y');
         $greeting  = now()->hour < 12 ? 'Morning' : (now()->hour < 18 ? 'Afternoon' : 'Evening');
@@ -74,7 +74,7 @@
     <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black text-white">Dashboard</h1>
-            <p class="mt-0.5 text-sm text-[#71717A]">Live stats across all your bot workspaces</p>
+            <p class="mt-0.5 text-sm text-[#94A3B8]">Live stats across all your bot workspaces</p>
         </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-sm font-semibold text-[#A1A1AA] transition hover:text-white">
@@ -166,11 +166,11 @@
         <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
                 <h3 class="font-black text-white">User Activity (24h)</h3>
-                <p class="mt-0.5 text-xs text-[#71717A]">Hourly user engagement overview</p>
+                <p class="mt-0.5 text-xs text-[#94A3B8]">Hourly user engagement overview</p>
             </div>
             <div class="flex items-center gap-1.5">
                 <span class="block h-2 w-2 rounded-full bg-[#8B5CF6]"></span>
-                <span class="text-xs text-[#71717A]">Active Users</span>
+                <span class="text-xs text-[#94A3B8]">Active Users</span>
             </div>
         </div>
 
@@ -178,11 +178,11 @@
             <div class="overflow-x-auto rounded-xl bg-[#090713]" style="border: 1px solid #1B172B;">
                 <div class="relative flex min-w-[520px] p-4">
                     <div class="mr-3 flex h-48 w-8 shrink-0 flex-col justify-between text-right">
-                        <span class="text-[10px] leading-none text-[#71717A]">{{ $yAxisMax }}</span>
-                        <span class="text-[10px] leading-none text-[#71717A]">{{ round($yAxisMax * 0.75) }}</span>
-                        <span class="text-[10px] leading-none text-[#71717A]">{{ round($yAxisMax * 0.5) }}</span>
-                        <span class="text-[10px] leading-none text-[#71717A]">{{ round($yAxisMax * 0.25) }}</span>
-                        <span class="text-[10px] leading-none text-[#71717A]">0</span>
+                        <span class="text-[10px] leading-none text-[#94A3B8]">{{ $yAxisMax }}</span>
+                        <span class="text-[10px] leading-none text-[#94A3B8]">{{ round($yAxisMax * 0.75) }}</span>
+                        <span class="text-[10px] leading-none text-[#94A3B8]">{{ round($yAxisMax * 0.5) }}</span>
+                        <span class="text-[10px] leading-none text-[#94A3B8]">{{ round($yAxisMax * 0.25) }}</span>
+                        <span class="text-[10px] leading-none text-[#94A3B8]">0</span>
                     </div>
                     <div class="flex-1">
                         <svg class="h-48 w-full" viewBox="0 0 720 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -209,7 +209,7 @@
             </div>
             <div class="mt-2 flex justify-between pl-11 pr-1">
                 @foreach ($xLabels as $hr)
-                    <span class="text-[9px] text-[#71717A]">{{ $hr }}</span>
+                    <span class="text-[9px] text-[#94A3B8]">{{ $hr }}</span>
                 @endforeach
             </div>
         @else
@@ -219,7 +219,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
                     </svg>
                     <p class="mt-3 text-sm font-semibold text-[#A1A1AA]">No activity yet</p>
-                    <p class="mt-1 text-xs text-[#71717A]">Command interactions will appear here once your bots receive messages.</p>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Command interactions will appear here once your bots receive messages.</p>
                 </div>
             </div>
         @endif
@@ -235,7 +235,7 @@
             ] as [$val, $lbl])
                 <div class="px-4 text-center first:pl-0 last:pr-0">
                     <p class="text-xl font-black text-white">{{ $val }}</p>
-                    <p class="mt-0.5 text-xs text-[#71717A]">{{ $lbl }}</p>
+                    <p class="mt-0.5 text-xs text-[#94A3B8]">{{ $lbl }}</p>
                 </div>
             @endforeach
         </div>
@@ -247,10 +247,10 @@
         <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #27213D;">
             <div>
                 <h3 class="font-black text-white">Top Active Bots</h3>
-                <p class="mt-0.5 text-xs text-[#71717A]">Recent workspace activity</p>
+                <p class="mt-0.5 text-xs text-[#94A3B8]">Recent workspace activity</p>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-xs text-[#71717A]">{{ $recentBots->count() }} bots</span>
+                <span class="text-xs text-[#94A3B8]">{{ $recentBots->count() }} bots</span>
                 @if ($recentBots->isNotEmpty())
                     <a href="{{ route('bots.index') }}" class="text-xs font-bold text-[#8B5CF6] transition hover:text-[#A855F7]">View all →</a>
                 @endif
@@ -261,10 +261,10 @@
             <table class="w-full text-left text-sm">
                 <thead>
                     <tr style="border-bottom: 1px solid #27213D;">
-                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#4B5268]">Bot</th>
-                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#4B5268]">Commands</th>
-                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#4B5268]">Status</th>
-                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#4B5268]">Actions</th>
+                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#6B6E88]">Bot</th>
+                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#6B6E88]">Commands</th>
+                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#6B6E88]">Status</th>
+                        <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#6B6E88]">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -288,11 +288,11 @@
                         <tr>
                             <td colspan="4" class="px-5 py-12 text-center">
                                 <div class="flex flex-col items-center gap-3">
-                                    <div class="grid h-12 w-12 place-items-center rounded-2xl bg-[#151225] text-[#71717A]" style="border: 1px solid #27213D;">
+                                    <div class="grid h-12 w-12 place-items-center rounded-2xl bg-[#151225] text-[#94A3B8]" style="border: 1px solid #27213D;">
                                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9.75h8m-7 4h6m-9.25 5.5h12.5a2 2 0 0 0 2-2V7.75a2 2 0 0 0-2-2H5.75a2 2 0 0 0-2 2v9.5a2 2 0 0 0 2 2Z"/></svg>
                                     </div>
                                     <p class="font-semibold text-[#A1A1AA]">No bots yet</p>
-                                    <p class="text-xs text-[#71717A]">Create your first bot workspace to get started</p>
+                                    <p class="text-xs text-[#94A3B8]">Create your first bot workspace to get started</p>
                                     <a href="{{ route('bots.create') }}" class="mt-1 flex items-center gap-1.5 rounded-xl bg-[#8B5CF6] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#7C3AED]">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                         Create Bot
@@ -348,7 +348,7 @@
                     </svg>
                 </div>
                 <h4 class="mt-3 text-sm font-bold text-white">{{ $card['title'] }}</h4>
-                <p class="mt-1 text-xs text-[#71717A]">{{ $card['desc'] }}</p>
+                <p class="mt-1 text-xs text-[#94A3B8]">{{ $card['desc'] }}</p>
             </a>
         @endforeach
     </section>

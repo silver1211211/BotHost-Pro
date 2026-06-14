@@ -146,7 +146,7 @@
             </div>
             <p class="text-2xl font-black text-white sm:text-3xl">{{ $m['value'] }}</p>
             <p class="mt-0.5 text-xs font-bold" style="color: {{ $c['text'] }};">{{ $m['label'] }}</p>
-            <p class="mt-1 text-[11px] leading-tight text-[#71717A]">{{ $m['desc'] }}</p>
+            <p class="mt-1 text-[11px] leading-tight text-[#94A3B8]">{{ $m['desc'] }}</p>
         </div>
     @endforeach
 </div>
@@ -166,7 +166,7 @@
             </div>
             <div>
                 <h2 class="text-sm font-black text-white">Platform Health</h2>
-                <p class="text-xs text-[#71717A]">System status overview</p>
+                <p class="text-xs text-[#94A3B8]">System status overview</p>
             </div>
         </div>
         <div class="divide-y divide-[#1B172B] px-5">
@@ -210,7 +210,7 @@
             </div>
             <div>
                 <h2 class="text-sm font-black text-white">Bot Status Overview</h2>
-                <p class="text-xs text-[#71717A]">{{ $stats['total_bots'] }} bots across the platform</p>
+                <p class="text-xs text-[#94A3B8]">{{ $stats['total_bots'] }} bots across the platform</p>
             </div>
         </div>
         <div class="grid grid-cols-2 gap-3 p-5 sm:grid-cols-5">
@@ -235,7 +235,7 @@
                     <div class="mt-3 h-1.5 overflow-hidden rounded-full" style="background: rgba(255,255,255,0.06);">
                         <div class="h-full rounded-full transition-all duration-500" style="width: {{ $pct }}%; background: {{ $bs['color'] }};"></div>
                     </div>
-                    <p class="mt-1.5 text-[10px] text-[#71717A]">{{ $pct }}%</p>
+                    <p class="mt-1.5 text-[10px] text-[#94A3B8]">{{ $pct }}%</p>
                 </div>
             @endforeach
         </div>
@@ -281,7 +281,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-black text-white">Recent Users</h2>
-                    <p class="text-xs text-[#71717A]">Latest registrations</p>
+                    <p class="text-xs text-[#94A3B8]">Latest registrations</p>
                 </div>
             </div>
             <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-[#8B5CF6] transition hover:text-[#A855F7]">View all →</a>
@@ -300,7 +300,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="truncate text-sm font-semibold text-white">{{ $user->name }}</p>
-                        <p class="truncate text-xs text-[#71717A]">{{ $user->email }}</p>
+                        <p class="truncate text-xs text-[#94A3B8]">{{ $user->email }}</p>
                     </div>
                     <div class="flex shrink-0 items-center gap-1.5">
                         <span class="rounded px-2 py-0.5 text-[10px] font-black uppercase tracking-wider" style="background: {{ $rc['bg'] }}; color: {{ $rc['text'] }};">{{ $user->role }}</span>
@@ -331,7 +331,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-black text-white">Recent Bots</h2>
-                    <p class="text-xs text-[#71717A]">Latest bot creations</p>
+                    <p class="text-xs text-[#94A3B8]">Latest bot creations</p>
                 </div>
             </div>
             <a href="{{ route('admin.bots.index') }}" class="text-xs font-bold text-[#38BDF8] transition hover:text-white">View all →</a>
@@ -354,7 +354,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="truncate text-sm font-semibold text-white">{{ $bot->name }}</p>
-                        <p class="truncate text-xs text-[#71717A]">{{ $bot->telegram_username ? '@'.$bot->telegram_username : 'Not verified' }} · {{ $bot->user?->name ?? 'Deleted user' }}</p>
+                        <p class="truncate text-xs text-[#94A3B8]">{{ $bot->telegram_username ? '@'.$bot->telegram_username : 'Not verified' }} · {{ $bot->user?->name ?? 'Deleted user' }}</p>
                     </div>
                     <span class="shrink-0 rounded px-2 py-0.5 text-[10px] font-black uppercase tracking-wider" style="background: {{ $bsc['bg'] }}; color: {{ $bsc['text'] }};">{{ $bot->status }}</span>
                 </div>
@@ -388,7 +388,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-black text-white">Recent Errors</h2>
-                    <p class="text-xs text-[#71717A]">Runtime & error logs</p>
+                    <p class="text-xs text-[#94A3B8]">Runtime & error logs</p>
                 </div>
             </div>
             <a href="{{ route('admin.logs.index') }}" class="text-xs font-bold text-[#EF4444] transition hover:text-white">View logs →</a>
@@ -405,7 +405,7 @@
                                 <p class="truncate text-sm font-semibold text-white">{{ $err->title ?? 'Error' }}</p>
                                 <span class="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider" style="background: rgba(239,68,68,0.12); color: #EF4444;">{{ $err->type }}</span>
                             </div>
-                            <p class="mt-0.5 truncate text-xs text-[#71717A]">{{ Str::limit($err->message, 80) }}</p>
+                            <p class="mt-0.5 truncate text-xs text-[#94A3B8]">{{ Str::limit($err->message, 80) }}</p>
                             <p class="mt-1 text-[10px] text-[#3D3658]">{{ $err->bot?->name ?? 'Unknown bot' }} · {{ optional($err->created_at)->diffForHumans() }}</p>
                         </div>
                     </div>
@@ -418,7 +418,7 @@
                         </svg>
                     </div>
                     <p class="mt-3 text-sm font-semibold text-[#22C55E]">No errors</p>
-                    <p class="mt-1 text-xs text-[#71717A]">Platform is running clean</p>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Platform is running clean</p>
                 </div>
             @endforelse
         </div>
@@ -435,7 +435,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-black text-white">Recent Activity</h2>
-                    <p class="text-xs text-[#71717A]">Admin actions & events</p>
+                    <p class="text-xs text-[#94A3B8]">Admin actions & events</p>
                 </div>
             </div>
         </div>
@@ -445,7 +445,7 @@
                     <div class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#8B5CF6]" style="box-shadow: 0 0 6px rgba(139,92,246,0.5);"></div>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm text-[#A1A1AA]">{{ $activity->description ?: str_replace('_', ' ', $activity->action) }}</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">
                             {{ $activity->user?->username ?? 'System' }}
                             <span class="mx-1 text-[#3D3658]">·</span>
                             {{ optional($activity->created_at)->diffForHumans() }}
@@ -454,7 +454,7 @@
                 </div>
             @empty
                 <div class="flex flex-col items-center justify-center py-12 text-center">
-                    <p class="text-sm text-[#71717A]">No recent activity</p>
+                    <p class="text-sm text-[#94A3B8]">No recent activity</p>
                 </div>
             @endforelse
         </div>

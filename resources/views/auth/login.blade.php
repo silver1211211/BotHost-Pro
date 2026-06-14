@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
 
     <script>
         function loginForm() {
@@ -42,7 +42,7 @@
             Secure Login
         </span>
         <h1 class="text-[26px] font-black tracking-tight text-[#F8FAFC]">Welcome Back</h1>
-        <p class="mt-1.5 text-sm leading-relaxed text-[#71717A]">Sign in to manage your bots, commands, and workspace.</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-[#94A3B8]">Sign in to manage your bots, commands, and workspace.</p>
     </div>
 
     {{-- Session status --}}
@@ -67,7 +67,7 @@
 
         {{-- Email --}}
         <div>
-            <label for="email" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">
+            <label for="email" class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">
                 Email Address
             </label>
             <div class="relative">
@@ -108,7 +108,7 @@
         {{-- Password --}}
         <div>
             <div class="mb-1.5 flex items-center justify-between">
-                <label for="password" class="text-[10px] font-black uppercase tracking-wider text-[#71717A]">Password</label>
+                <label for="password" class="text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Password</label>
                 <a href="{{ route('password.request') }}" class="text-[11px] font-semibold text-[#38BDF8] transition hover:text-[#7DD3FC]">
                     Forgot password?
                 </a>
@@ -132,7 +132,7 @@
                 <button
                     type="button"
                     @click="showPassword = !showPassword"
-                    class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#3D3759] transition hover:text-[#71717A]"
+                    class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#3D3759] transition hover:text-[#94A3B8]"
                     :title="showPassword ? 'Hide password' : 'Show password'"
                 >
                     <svg x-show="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
@@ -168,7 +168,7 @@
                 name="remember"
                 class="h-4 w-4 rounded border-[#3A3553] bg-[#0D0C18] text-[#8B5CF6] outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 focus:ring-offset-0"
             >
-            <span class="select-none text-sm text-[#71717A]">Remember me</span>
+            <span class="select-none text-sm text-[#94A3B8]">Remember me</span>
         </label>
 
         {{-- Submit --}}
@@ -203,7 +203,7 @@
         {{-- Register link --}}
         <a
             href="{{ route('register') }}"
-            class="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#27213D] bg-[#0D0C18] py-3 text-sm font-bold text-[#71717A] transition hover:border-[#8B5CF6]/35 hover:bg-[#13111E] hover:text-[#F8FAFC]"
+            class="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#27213D] bg-[#0D0C18] py-3 text-sm font-bold text-[#94A3B8] transition hover:border-[#8B5CF6]/35 hover:bg-[#13111E] hover:text-[#F8FAFC]"
         >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>

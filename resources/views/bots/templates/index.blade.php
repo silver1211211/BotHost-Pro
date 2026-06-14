@@ -1,10 +1,10 @@
-<x-dashboard-layout title="Use Template">
+﻿<x-dashboard-layout title="Use Template">
     <div class="mx-auto max-w-5xl space-y-5">
         <a href="{{ route('bots.show', ['bot' => $bot, 'tab' => 'commands']) }}" class="text-sm font-semibold text-[#A1A1AA]">Back to {{ $bot->name }}</a>
 
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             <h1 class="text-2xl font-black text-[#F8FAFC]">Use Template</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Import ready-made commands into this bot.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Import ready-made commands into this bot.</p>
         </div>
 
         <form method="GET" class="grid gap-3 rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4 md:grid-cols-4">
@@ -55,11 +55,11 @@
         <div class="grid gap-4 md:grid-cols-2">
             @forelse ($templates as $template)
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                    @if($template->thumbnail_url)<img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="mb-4 h-32 w-full rounded-xl object-cover">@else<div class="mb-4 flex h-32 w-full items-center justify-center rounded-xl border border-[#27213D] bg-[#11101C] text-sm text-[#71717A]">No image</div>@endif
+                    @if($template->thumbnail_url)<img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="mb-4 h-32 w-full rounded-xl object-cover">@else<div class="mb-4 flex h-32 w-full items-center justify-center rounded-xl border border-[#27213D] bg-[#11101C] text-sm text-[#94A3B8]">No image</div>@endif
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-black text-[#F8FAFC]">{{ $template->name }}</h2>
-                            <p class="mt-1 text-sm text-[#71717A]">{{ Str::limit($template->short_description ?: $template->description, 140) }}</p>
+                            <p class="mt-1 text-sm text-[#94A3B8]">{{ Str::limit($template->short_description ?: $template->description, 140) }}</p>
                         </div>
                         @if ($template->is_featured)
                             <span class="rounded-full border border-[#F59E0B]/30 px-2 py-1 text-[10px] font-black text-[#F59E0B]">Featured</span>
@@ -76,7 +76,7 @@
                     @if ($template->tags)
                         <div class="mt-3 flex flex-wrap gap-1">
                             @foreach ($template->tags as $tag)
-                                <span class="rounded border border-[#27213D] px-2 py-0.5 text-[10px] text-[#71717A]">{{ $tag }}</span>
+                                <span class="rounded border border-[#27213D] px-2 py-0.5 text-[10px] text-[#94A3B8]">{{ $tag }}</span>
                             @endforeach
                         </div>
                     @endif
@@ -89,7 +89,7 @@
                     </div>
                 </div>
             @empty
-                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-8 text-center text-[#71717A] md:col-span-2">No published templates found.</div>
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-8 text-center text-[#94A3B8] md:col-span-2">No published templates found.</div>
             @endforelse
         </div>
 

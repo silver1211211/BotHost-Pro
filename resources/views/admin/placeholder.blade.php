@@ -1,4 +1,4 @@
-<x-admin-layout :title="$title">
+﻿<x-admin-layout :title="$title">
 
 @php
     $configs = [
@@ -114,7 +114,7 @@
         <span class="text-xs font-bold text-[#F59E0B]">Foundation Ready</span>
     </div>
     <span class="text-[#27213D]">·</span>
-    <p class="text-xs text-[#71717A]">Backend scaffolding is in place. UI and logic will be connected in a dedicated release phase.</p>
+    <p class="text-xs text-[#94A3B8]">Backend scaffolding is in place. UI and logic will be connected in a dedicated release phase.</p>
 </div>
 
 </x-admin-layout>

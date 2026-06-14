@@ -1,4 +1,4 @@
-@props(['title', 'updated' => 'May 27, 2026', 'sections' => []])
+﻿@props(['title', 'updated' => 'May 27, 2026', 'sections' => []])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
@@ -59,7 +59,7 @@
             </div>
 
             <h1 class="mt-4 text-3xl font-black tracking-tight text-[#F8FAFC] sm:text-[42px] sm:leading-tight">{{ $title }}</h1>
-            <p class="mt-3 max-w-xl text-sm leading-relaxed text-[#71717A]">
+            <p class="mt-3 max-w-xl text-sm leading-relaxed text-[#94A3B8]">
                 Please read this document carefully. It governs your use of BotHost Pro services.
             </p>
 
@@ -67,7 +67,7 @@
                 <svg class="h-3.5 w-3.5 text-[#8B5CF6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
                 </svg>
-                <span class="text-xs text-[#71717A]">Last updated: <span class="font-semibold text-[#A1A1AA]">{{ $updated }}</span></span>
+                <span class="text-xs text-[#94A3B8]">Last updated: <span class="font-semibold text-[#A1A1AA]">{{ $updated }}</span></span>
             </div>
 
         </div>
@@ -105,7 +105,7 @@
                     <a
                         href="#{{ str($heading)->slug() }}"
                         @click="active = '{{ str($heading)->slug() }}'; mobileOpen = false"
-                        :class="active === '{{ str($heading)->slug() }}' ? 'bg-[#8B5CF6]/10 text-[#A855F7] font-semibold' : 'text-[#71717A] hover:text-[#A1A1AA] hover:bg-[#151225]'"
+                        :class="active === '{{ str($heading)->slug() }}' ? 'bg-[#8B5CF6]/10 text-[#A855F7] font-semibold' : 'text-[#94A3B8] hover:text-[#A1A1AA] hover:bg-[#151225]'"
                         class="block rounded-lg px-3 py-2.5 text-sm transition"
                     >{{ $heading }}</a>
                 @endforeach
@@ -130,7 +130,7 @@
                                 @click="active = '{{ str($heading)->slug() }}'"
                                 :class="active === '{{ str($heading)->slug() }}'
                                     ? 'border-[#8B5CF6] bg-[#8B5CF6]/10 text-[#A855F7] font-semibold'
-                                    : 'border-transparent text-[#71717A] hover:text-[#A1A1AA] hover:bg-[#0F0D1A]'"
+                                    : 'border-transparent text-[#94A3B8] hover:text-[#A1A1AA] hover:bg-[#0F0D1A]'"
                                 class="block rounded-r-xl border-l-[3px] px-3 py-2 text-[13px] leading-snug transition-all"
                             >{{ $heading }}</a>
                         @endforeach
@@ -192,15 +192,15 @@
 
                 {{-- Legal nav --}}
                 <nav class="flex flex-wrap items-center justify-center gap-y-2 text-[11px] text-[#3D3759]">
-                    <a href="{{ route('legal.privacy') }}" class="px-2 transition hover:text-[#71717A]">Privacy Policy</a>
+                    <a href="{{ route('legal.privacy') }}" class="px-2 transition hover:text-[#94A3B8]">Privacy Policy</a>
                     <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.terms') }}" class="px-2 transition hover:text-[#71717A]">Terms of Service</a>
+                    <a href="{{ route('legal.terms') }}" class="px-2 transition hover:text-[#94A3B8]">Terms of Service</a>
                     <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.cookies') }}" class="px-2 transition hover:text-[#71717A]">Cookie Policy</a>
+                    <a href="{{ route('legal.cookies') }}" class="px-2 transition hover:text-[#94A3B8]">Cookie Policy</a>
                     <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.refunds') }}" class="px-2 transition hover:text-[#71717A]">Refund Policy</a>
+                    <a href="{{ route('legal.refunds') }}" class="px-2 transition hover:text-[#94A3B8]">Refund Policy</a>
                     <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.acceptable-use') }}" class="px-2 transition hover:text-[#71717A]">Acceptable Use</a>
+                    <a href="{{ route('legal.acceptable-use') }}" class="px-2 transition hover:text-[#94A3B8]">Acceptable Use</a>
                 </nav>
 
                 {{-- Copyright --}}

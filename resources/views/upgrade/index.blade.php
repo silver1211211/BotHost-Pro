@@ -1,15 +1,15 @@
-<x-dashboard-layout title="Upgrade Plan">
+﻿<x-dashboard-layout title="Upgrade Plan">
 <div class="mx-auto max-w-6xl px-2 py-6 space-y-10">
 
     {{-- ── Page header ── --}}
     <div class="text-center space-y-3">
         <p class="text-[11px] font-black uppercase tracking-[0.22em] text-[#8B5CF6]">Pricing</p>
         <h1 class="text-4xl font-black tracking-tight text-white">Simple, transparent pricing</h1>
-        <p class="text-sm text-[#71717A] max-w-md mx-auto leading-relaxed">
+        <p class="text-sm text-[#94A3B8] max-w-md mx-auto leading-relaxed">
             Build and scale your Telegram bots with the right plan for your needs.
             Upgrade or downgrade at any time.
         </p>
-        <p class="text-xs text-[#4D4868]">
+        <p class="text-xs text-[#7E7AA0]">
             Current plan:
             <span class="font-bold text-[#A1A1AA]">{{ ucfirst($currentPlan) }}</span>
         </p>
@@ -66,7 +66,7 @@
             <div class="space-y-1">
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-[13px] font-black uppercase tracking-[0.14em]
-                        {{ $isFeatured ? 'text-[#C4B5FD]' : 'text-[#71717A]' }}">
+                        {{ $isFeatured ? 'text-[#C4B5FD]' : 'text-[#94A3B8]' }}">
                         {{ $plan->name }}
                     </h2>
                     @if ($isCurrent)
@@ -76,7 +76,7 @@
                     @endif
                 </div>
                 @if ($plan->description)
-                    <p class="text-xs text-[#71717A] leading-relaxed">{{ $plan->description }}</p>
+                    <p class="text-xs text-[#94A3B8] leading-relaxed">{{ $plan->description }}</p>
                 @endif
             </div>
 
@@ -86,7 +86,7 @@
                     <div class="flex items-baseline gap-1">
                         <span class="text-5xl font-black text-white tracking-tight">Free</span>
                     </div>
-                    <p class="mt-1.5 text-xs text-[#4D4868]">No credit card required · Forever free</p>
+                    <p class="mt-1.5 text-xs text-[#7E7AA0]">No credit card required · Forever free</p>
                 @else
                     <div class="flex items-start gap-0.5">
                         <span class="mt-2 text-base font-bold text-[#A1A1AA]">$</span>
@@ -95,18 +95,18 @@
                             <span class="text-sm font-semibold text-[#A1A1AA]">.{{ substr(number_format((float) $plan->price, 2), -2) }}</span>
                         </div>
                     </div>
-                    <p class="mt-1.5 text-xs text-[#71717A]">per {{ $plan->billing_period }} · billed in crypto</p>
+                    <p class="mt-1.5 text-xs text-[#94A3B8]">per {{ $plan->billing_period }} · billed in crypto</p>
                 @endif
             </div>
 
             {{-- Limits table --}}
             @if (count($displayLimits) > 0)
             <div class="space-y-3">
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#3D3657]">Plan limits</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B6890]">Plan limits</p>
                 <div class="space-y-2">
                     @foreach ($displayLimits as $limit)
                     <div class="flex items-center justify-between gap-4 py-0.5">
-                        <span class="text-[13px] text-[#71717A] leading-snug">{{ $limit['name'] }}</span>
+                        <span class="text-[13px] text-[#94A3B8] leading-snug">{{ $limit['name'] }}</span>
                         <span class="shrink-0 text-[13px] font-bold text-right
                             {{ $limit['unlimited'] ? 'text-[#A855F7]' : 'text-white' }}">
                             {{ $limit['display'] }}
@@ -125,7 +125,7 @@
             {{-- Features checklist --}}
             @if (count($displayFeatures) > 0)
             <div class="space-y-3 flex-1">
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#3D3657]">What's included</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B6890]">What's included</p>
                 <ul class="space-y-2.5">
                     @foreach ($displayFeatures as $feature)
                     <li class="flex items-start gap-2.5">
@@ -144,13 +144,13 @@
 
             {{-- Empty state --}}
             @if (count($displayLimits) === 0 && count($displayFeatures) === 0)
-                <p class="text-xs italic text-[#3D3657] flex-1">No features configured yet.</p>
+                <p class="text-xs italic text-[#6B6890] flex-1">No features configured yet.</p>
             @endif
 
             {{-- CTA --}}
             <div class="pt-2">
                 @if ($alreadyHas || $plan->slug === 'free')
-                    <div class="flex items-center justify-center gap-2 rounded-xl border border-[#27213D] bg-[#090713] px-4 py-3.5 text-sm text-[#71717A]">
+                    <div class="flex items-center justify-center gap-2 rounded-xl border border-[#27213D] bg-[#090713] px-4 py-3.5 text-sm text-[#94A3B8]">
                         <svg class="h-4 w-4 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
                         </svg>
@@ -171,7 +171,7 @@
                                 </svg>
                             </span>
                         </button>
-                        <p class="mt-2 text-center text-[11px] text-[#3D3657]">
+                        <p class="mt-2 text-center text-[11px] text-[#6B6890]">
                             Pay with cryptocurrency &mdash; choose your network on the next step
                         </p>
                     </form>
@@ -185,7 +185,7 @@
 
     {{-- ── Bottom trust note ── --}}
     <div class="flex flex-col items-center gap-3 pt-2">
-        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-[#4D4868]">
+        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-[#7E7AA0]">
             <span class="flex items-center gap-1.5">
                 <svg class="h-3.5 w-3.5 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>
@@ -205,7 +205,7 @@
                 No hidden fees
             </span>
         </div>
-        <p class="text-[11px] text-[#3D3657]">All plans include core bot building features &bull; Upgrade anytime</p>
+        <p class="text-[11px] text-[#6B6890]">All plans include core bot building features &bull; Upgrade anytime</p>
     </div>
 
 </div>

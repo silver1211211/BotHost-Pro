@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
@@ -44,7 +44,7 @@
         <h1 class="mt-4 text-2xl font-black text-white">{{ $title ?? 'Something went wrong' }}</h1>
 
         {{-- Message --}}
-        <p class="mt-3 text-sm leading-relaxed text-[#71717A]">{{ $message ?? 'An unexpected error occurred. Please try again or return to the homepage.' }}</p>
+        <p class="mt-3 text-sm leading-relaxed text-[#94A3B8]">{{ $message ?? 'An unexpected error occurred. Please try again or return to the homepage.' }}</p>
 
         {{-- Actions --}}
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">

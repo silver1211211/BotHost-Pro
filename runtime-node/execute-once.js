@@ -15,12 +15,13 @@ process.stdin.on('end', async () => {
   try {
     const payload = JSON.parse((input || '{}').replace(/^\uFEFF/, ''));
     const code = payload.command && typeof payload.command.code === 'string' ? payload.command.code : '';
+    const executableCode = normalizeCommandCode(code);
 
-    if (!code.trim()) {
+    if (!executableCode.trim()) {
       return writeError(startedAt, executionId, 'Command code is required.', 'ValidationError');
     }
 
-    const restricted = findRestrictedCode(code);
+    const restricted = findRestrictedCode(executableCode);
     if (restricted) {
       return writeError(startedAt, executionId, `${restricted} is not available in command code.`, 'RestrictedCodeError');
     }
@@ -32,7 +33,7 @@ process.stdin.on('end', async () => {
       name: 'bothost-command-runtime',
       codeGeneration: { strings: false, wasm: false },
     });
-    const script = new vm.Script(`"use strict";\n(async () => {\n${code}\n})()`, {
+    const script = new vm.Script(`"use strict";\n(async () => {\n${executableCode}\n})()`, {
       timeout: settings.command_timeout_ms,
       displayErrors: true,
     });
@@ -66,6 +67,7 @@ function buildHelpers(payload, actions, settings) {
   const telegram = payload.telegram || {};
   const safeMessage = plainObject(telegram.message || { text: telegram.message_text || '' });
   const safeUpdate = plainObject(telegram.update || {});
+  const runtime = payload.runtime || {};
 
   // For callback_query updates the clicker is in callback_query.from.
   // message.from is the BOT (who sent the keyboard), so we must not use it.
@@ -94,13 +96,14 @@ function buildHelpers(payload, actions, settings) {
   const commandData = Object.freeze(plainObject(commandFlow.data || {}));
   const args = Array.isArray(telegram.args) ? telegram.args.map((arg) => String(arg)) : [];
   const botToken = '';
-  const telegramBridgeUrl = typeof (payload.runtime || {}).telegram_bridge_url === 'string' ? payload.runtime.telegram_bridge_url : '';
-  const telegramBridgeSecret = typeof (payload.runtime || {}).telegram_bridge_secret === 'string' ? payload.runtime.telegram_bridge_secret : '';
-  const storageBridgeUrl = typeof (payload.runtime || {}).storage_bridge_url === 'string' ? payload.runtime.storage_bridge_url : '';
-  const storageBridgeSecret = typeof (payload.runtime || {}).storage_bridge_secret === 'string' ? payload.runtime.storage_bridge_secret : '';
-  const faucetPayApiKey = typeof (payload.runtime || {}).faucetpay_api_key === 'string' ? payload.runtime.faucetpay_api_key : '';
-  const oxapayBridgeUrl = typeof (payload.runtime || {}).oxapay_bridge_url === 'string' ? payload.runtime.oxapay_bridge_url : '';
-  const oxapayBridgeSecret = typeof (payload.runtime || {}).oxapay_bridge_secret === 'string' ? payload.runtime.oxapay_bridge_secret : '';
+  const telegramBridgeUrl = typeof runtime.telegram_bridge_url === 'string' ? runtime.telegram_bridge_url : '';
+  const telegramBridgeSecret = typeof runtime.telegram_bridge_secret === 'string' ? runtime.telegram_bridge_secret : '';
+  const storageBridgeUrl = typeof runtime.storage_bridge_url === 'string' ? runtime.storage_bridge_url : '';
+  const storageBridgeSecret = typeof runtime.storage_bridge_secret === 'string' ? runtime.storage_bridge_secret : '';
+  const faucetPayApiKey = typeof runtime.faucetpay_api_key === 'string' ? runtime.faucetpay_api_key : '';
+  const oxapayBridgeUrl = typeof runtime.oxapay_bridge_url === 'string' ? runtime.oxapay_bridge_url : '';
+  const oxapayBridgeSecret = typeof runtime.oxapay_bridge_secret === 'string' ? runtime.oxapay_bridge_secret : '';
+  const runtimeSecrets = new Map(Object.entries(plainObject(runtime.secrets || {})));
   const botData = new Map(Object.entries(plainObject((payload.storage || {}).bot || {})));
   const userData = new Map(Object.entries(plainObject((payload.storage || {}).user || {})));
   const botMutations = [];
@@ -230,28 +233,14 @@ function buildHelpers(payload, actions, settings) {
       const normalizedText = requireString(text, 'sendMessage text');
       const normalizedOptions = normalizeMessageOptions(options);
 
-      if (!telegramBridgeUrl || !telegramBridgeSecret) {
-        actions.push({
-          type: 'text',
-          chat_id: targetChatId,
-          text: normalizedText,
-          ...normalizedOptions,
-        });
-
-        return { ok: true, result: null, queued: true };
-      }
-
-      const bridgeResult = await telegramRuntimeAction('telegram.sendMessage', {
+      actions.push({
+        type: 'text',
         chat_id: targetChatId,
         text: normalizedText,
         ...normalizedOptions,
       });
-      // Bridge timed out: Apache already buffered the request; PHP will deliver it.
       // Do not queue — would cause a duplicate send.
-      if (bridgeResult && bridgeResult.ok === false && bridgeResult.error === 'Telegram bridge timed out.') {
-        return { ok: true, result: null };
-      }
-      return bridgeResult;
+      return { ok: true, result: null, queued: true };
     } catch (err) {
       return { ok: false, error: String((err && err.message) || err) };
     }
@@ -554,35 +543,39 @@ function buildHelpers(payload, actions, settings) {
     } catch (err) { return { ok: false, error: String((err && err.message) || err) }; }
   };
 
-  const getChatMember = async (channelUsernameOrId, userId) => {
-    const chatId = requireChatId(channelUsernameOrId, 'getChatMember(channel, userId)');
-    const targetUserId = requireChatId(userId, 'getChatMember(channel, userId)');
+  const getChatMember = async (channelUsernameOrId, userId = safeUser.id) => {
+    const startedAt = Date.now();
+    try {
+      const chatId = requireChatId(channelUsernameOrId, 'getChatMember(channel, userId)');
+      const targetUserId = requireChatId(userId, 'getChatMember(channel, userId)');
 
-    process.stderr.write('[BotHost] getChatMember_request ' + JSON.stringify({
-      bot_id: (payload.bot || {}).id || null,
-      channel: String(channelUsernameOrId),
-      target_user_id: targetUserId,
-    }) + '\n');
+      process.stderr.write('[BotHost] getChatMember_request ' + JSON.stringify({
+        bot_id: (payload.bot || {}).id || null,
+        channel: String(channelUsernameOrId),
+        target_user_id: targetUserId,
+      }) + '\n');
 
-    const response = await telegramRuntimeAction('telegram.getChatMember', {
-      chat_id: chatId,
-      user_id: targetUserId,
-    });
+      const response = await telegramRuntimeAction('telegram.getChatMember', {
+        chat_id: chatId,
+        user_id: targetUserId,
+      });
 
-    process.stderr.write('[BotHost] getChatMember_result ' + JSON.stringify({
-      bot_id: (payload.bot || {}).id || null,
-      channel: String(channelUsernameOrId),
-      target_user_id: targetUserId,
-      ok: !!response.ok,
-      status: (response.result && response.result.status) ? response.result.status : null,
-      error: !response.ok ? (response.error || response.description || 'unknown') : null,
-    }) + '\n');
+      process.stderr.write('[BotHost] getChatMember_result ' + JSON.stringify({
+        bot_id: (payload.bot || {}).id || null,
+        channel: String(channelUsernameOrId),
+        target_user_id: targetUserId,
+        ok: !!response.ok,
+        status: (response.result && response.result.status) ? response.result.status : null,
+        error: !response.ok ? (response.error || response.description || 'unknown') : null,
+        elapsed_ms: Date.now() - startedAt,
+      }) + '\n');
 
-    if (!response.ok) {
-      throw new Error(response.error || response.description || 'Telegram getChatMember failed.');
+      return response && response.ok
+        ? plainObject(response.result || {})
+        : { ok: false, status: 'unknown', error: String((response && (response.error || response.description)) || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
+    } catch (error) {
+      return { ok: false, status: 'unknown', error: String((error && error.message) || error || 'Telegram getChatMember failed.'), elapsed_ms: Date.now() - startedAt };
     }
-
-    return plainObject(response.result || {});
   };
 
   const isChannelMember = async (channelUsernameOrId, userId) => {
@@ -739,6 +732,11 @@ function buildHelpers(payload, actions, settings) {
   const setBotData = async (key, value) => {
     const normalizedKey = requireStorageKey(key);
     const normalizedValue = jsonSafeValue(value);
+    if (isSecretStorageKey(normalizedKey)) {
+      const secretValue = String(normalizedValue || '').trim();
+      if (secretValue) runtimeSecrets.set(normalizedKey, secretValue);
+      else runtimeSecrets.delete(normalizedKey);
+    }
     botData.set(normalizedKey, isSecretStorageKey(normalizedKey) ? maskSecretValue(String(normalizedValue || '')) : normalizedValue);
     botMutations.push({ op: 'set', key: normalizedKey, value: normalizedValue });
     process.stderr.write('[BotHost] bot_data_mutation_created ' + JSON.stringify({
@@ -1502,11 +1500,11 @@ function buildHelpers(payload, actions, settings) {
     try {
       const result = await storageRuntimeFindUser(key, value);
       if (result && result.ok && result.found && result.user_id !== undefined && result.user_id !== null) {
-        return { user_id: String(result.user_id), value: jsonSafeValue(result.value) };
+        return { ok: true, found: true, user_id: String(result.user_id), value: jsonSafeValue(result.value) };
       }
-      return null;
-    } catch (_) {
-      return null;
+      return { ok: true, found: false, user_id: null, value: null };
+    } catch (err) {
+      return { ok: false, found: false, user_id: null, value: null, error: String((err && err.message) || err || 'User lookup failed.') };
     }
   };
 
@@ -1571,11 +1569,26 @@ function buildHelpers(payload, actions, settings) {
   const maskSecret = (value) => maskSecretValue(value);
   const saveSecret = async (key, value) => setBotData(requireStorageKey(key), requireString(value, 'saveSecret value'));
   const getMaskedSecret = async (key) => {
-    const result = await paymentRuntimeAction('secret.status', { key: requireStorageKey(key) });
+    const normalizedKey = requireStorageKey(key);
+    if (runtimeSecrets.has(normalizedKey)) {
+      return maskSecretValue(String(runtimeSecrets.get(normalizedKey) || ''));
+    }
+    const result = await paymentRuntimeAction('secret.status', { key: normalizedKey });
     return result && result.ok ? (result.masked || null) : null;
   };
+  const getBotSecret = async (key) => {
+    const normalizedKey = requireStorageKey(key);
+    if (runtimeSecrets.has(normalizedKey)) {
+      return runtimeSecrets.get(normalizedKey) || null;
+    }
+    return null;
+  };
   const hasSecret = async (key) => {
-    const result = await paymentRuntimeAction('secret.status', { key: requireStorageKey(key) });
+    const normalizedKey = requireStorageKey(key);
+    if (runtimeSecrets.has(normalizedKey)) {
+      return !!runtimeSecrets.get(normalizedKey);
+    }
+    const result = await paymentRuntimeAction('secret.status', { key: normalizedKey });
     return !!(result && result.ok && result.configured);
   };
   const removeSecret = async (key) => clearBotData(requireStorageKey(key));
@@ -1621,10 +1634,21 @@ function buildHelpers(payload, actions, settings) {
   const httpRequest = async (method, url, options = {}) => httpsRequest(url, { ...normalizeObject(options, 'httpRequest options'), method });
   const httpGet = async (url, options = {}) => httpRequest('GET', url, options);
   const httpPost = async (url, body = {}, options = {}) => httpRequest('POST', url, { ...normalizeObject(options, 'httpPost options'), json: body });
+  const savedFaucetPayKey = () => runtimeSecrets.get('faucetpay_api_key') || faucetPayApiKey || '';
+  const safeFaucetPayCall = async (fn) => {
+    try {
+      return await fn();
+    } catch (err) {
+      return { ok: false, error: String((err && err.message) || err || 'FaucetPay request failed.') };
+    }
+  };
 
-  const helperFaucetPayBalance = async (currency = 'PEPE') => {
-    const sym = String(currency || 'PEPE').toUpperCase();
-    const result = await paymentRuntimeAction('faucetpay.balance', { currency: sym });
+  const helperFaucetPayBalance = async (currency = 'USDT') => {
+    const sym = String(currency || 'USDT').toUpperCase();
+    const savedKey = savedFaucetPayKey();
+    const result = savedKey
+      ? await safeFaucetPayCall(() => faucetPayBalance(savedKey, sym))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym };
     const ok = result && result.ok === true;
     const balance = normalizeDecimalAmount(result && result.balance !== undefined ? result.balance : 0, true);
     const displayedBalance = formatCryptoAmount(balance, sym, 8);
@@ -1636,7 +1660,8 @@ function buildHelpers(payload, actions, settings) {
     return {
       ok: !!ok,
       status: (result && result.status) || 0,
-      message: (result && result.message) || '',
+      message: (result && (result.message || result.error)) || '',
+      error: ok ? null : ((result && (result.error || result.message)) || 'FaucetPay balance failed.'),
       currency: sym,
       balance,
       balance_number: Number(balance) || 0,
@@ -1645,8 +1670,8 @@ function buildHelpers(payload, actions, settings) {
     };
   };
 
-  const helperFaucetPaySend = async (toEmail, amount, currency = 'PEPE') => {
-    const sym = String(currency || 'PEPE').toUpperCase();
+  const helperFaucetPaySend = async (toEmail, amount, currency = 'USDT') => {
+    const sym = String(currency || 'USDT').toUpperCase();
     const safeAmt = normalizeDecimalAmount(amount, false);
     console.error('[BotHost] faucetpay_amount_debug', JSON.stringify({
       input_amount: amount,
@@ -1654,15 +1679,30 @@ function buildHelpers(payload, actions, settings) {
       currency: sym,
       api_amount_sent: safeAmt,
     }));
-    const result = await paymentRuntimeAction('faucetpay.send', { to: String(toEmail), amount: safeAmt, currency: sym });
+    const savedKey = savedFaucetPayKey();
+    const result = savedKey
+      ? await safeFaucetPayCall(() => faucetPaySend(savedKey, String(toEmail), safeAmt, sym))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym, amount: safeAmt };
     const ok = result && result.ok === true;
-    return { ok: !!ok, status: (result && result.status) || 0, message: (result && result.message) || 'Unknown error', raw: plainObject(result || {}) };
+    return { ok: !!ok, status: (result && result.status) || 0, message: (result && (result.message || result.error)) || 'Unknown error', error: ok ? null : ((result && (result.error || result.message)) || 'FaucetPay send failed.'), raw: plainObject(result || {}) };
   };
 
-  const helperFaucetPayGetBalance = async (apiKey, currency = 'USDT') => {
-    const key = requireString(apiKey, 'faucetPayGetBalance(apiKey, currency)');
-    const sym = String(currency || 'USDT').toUpperCase();
-    const result = await paymentRuntimeAction('faucetpay.getBalance', { api_key: key, currency: sym });
+  const helperFaucetPayGetBalance = async (apiKey = null, currency = 'USDT') => {
+    let explicitKey = apiKey;
+    let requestedCurrency = currency;
+    if (currency === 'USDT' && isLikelyFaucetPayCurrency(apiKey)) {
+      explicitKey = null;
+      requestedCurrency = apiKey;
+    }
+    const sym = String(requestedCurrency || 'USDT').toUpperCase();
+    const options = { currency: sym };
+    if (explicitKey !== null && explicitKey !== undefined && String(explicitKey).trim() !== '' && !isMaskedSecretValue(explicitKey)) {
+      options.api_key = String(explicitKey);
+    }
+    const savedKey = savedFaucetPayKey();
+    const result = (options.api_key || savedKey)
+      ? await safeFaucetPayCall(() => faucetPayBalance(options.api_key || savedKey, sym))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym };
     const ok = result && result.ok === true;
     return ok
       ? {
@@ -1676,9 +1716,39 @@ function buildHelpers(payload, actions, settings) {
   };
 
   const helperFaucetPayCheckAddress = async (currency, address) => {
-    const result = await paymentRuntimeAction('faucetpay.checkAddress', { currency: String(currency || 'PEPE').toUpperCase(), address: String(address || '') });
+    const sym = String(currency || 'USDT').toUpperCase();
+    const savedKey = savedFaucetPayKey();
+    const result = savedKey
+      ? await safeFaucetPayCall(() => faucetPayCheckAddress(savedKey, sym, String(address || '')))
+      : { ok: false, error: 'FaucetPay API key not configured', currency: sym };
     const ok = result && result.ok === true;
     return { ok: !!ok, status: (result && result.status) || 0, message: (result && result.message) || 'Unknown', raw: plainObject(result || {}) };
+  };
+
+  const helperFaucetPayValidateKey = async (apiKey = null) => {
+    const key = apiKey && !isMaskedSecretValue(apiKey)
+      ? String(apiKey)
+      : savedFaucetPayKey();
+    if (!key) return { ok: false, valid: false, error: 'FaucetPay API key not configured' };
+    const result = await safeFaucetPayCall(() => faucetPayBalance(key, 'USDT'));
+    return result && result.ok
+      ? { ok: true, valid: true, status: result.status || 200, message: 'FaucetPay API key is valid.', data: plainObject(result.data || result.raw || result || {}) }
+      : { ok: false, valid: false, error: String((result && (result.error || result.message)) || 'FaucetPay API key is invalid.') };
+  };
+
+  const helperFaucetPayCheckEmail = async (email, currency = 'USDT') => {
+    const savedKey = savedFaucetPayKey();
+    const sym = String(currency || 'USDT').toUpperCase();
+    if (!savedKey) return { ok: false, error: 'FaucetPay API key not configured', currency: sym };
+    return safeFaucetPayCall(() => faucetPayCheckAddress(savedKey, sym, String(email || '')));
+  };
+
+  const helperFaucetPayGetCurrencies = async (apiKey = null) => {
+    const key = apiKey && !isMaskedSecretValue(apiKey)
+      ? String(apiKey)
+      : savedFaucetPayKey();
+    if (!key) return { ok: false, error: 'FaucetPay API key not configured' };
+    return safeFaucetPayCall(() => faucetPayCurrencies(key));
   };
 
   const oxapayRuntimeAction = async (action, options = {}, extra = {}) => {
@@ -2011,6 +2081,15 @@ function buildHelpers(payload, actions, settings) {
   const safeTelegramResult = (result) => result && result.ok ? { ok: true, result: result.result ?? result.data ?? null } : { ok: false, error: safeTelegramError(result && (result.error || result.message)) };
   const getLargestPhotoFileId = getPhotoFileId;
   const getIncomingMediaType = getMediaType;
+  const requestContext = Object.freeze({
+    message: plainObject(safeMessage),
+    chat: plainObject(safeChat),
+    user: plainObject(safeUser),
+    update: plainObject(safeUpdate),
+    args: [...args],
+    callback_data: telegram.callback_data ?? null,
+    callback_query: callbackQueryObj,
+  });
 
   return {
     user: Object.freeze(safeUser),
@@ -2019,6 +2098,9 @@ function buildHelpers(payload, actions, settings) {
     message: Object.freeze(safeMessage),
     messageText: safeMessage.text ?? telegram.message_text ?? null,
     update: Object.freeze(safeUpdate),
+    request: requestContext,
+    setTimeout,
+    clearTimeout,
     bot: Object.freeze(safeBotMetadata(payload.bot || {})),
     command: Object.freeze(safeCommand),
     commandFlow: Object.freeze(commandFlow),
@@ -2081,9 +2163,17 @@ function buildHelpers(payload, actions, settings) {
     safeCaption,
     safeTelegramError,
     getChatMember,
+    getTelegramChatMember: getChatMember,
+    getChannelMember: getChatMember,
     checkChannelMember,
+    checkTelegramChannelMember: checkChannelMember,
+    checkTelegramChannel: checkChannelMember,
+    checkChannel: checkChannelMember,
     verifyTelegramChannel,
+    verifyChannel: verifyTelegramChannel,
+    verifyChannelMember: verifyTelegramChannel,
     isChannelMember,
+    isTelegramChannelMember: isChannelMember,
     getUserData,
     setUserData,
     incrementUserData,
@@ -2107,6 +2197,7 @@ function buildHelpers(payload, actions, settings) {
     maskSecret,
     saveSecret,
     getMaskedSecret,
+    getBotSecret,
     hasSecret,
     removeSecret,
     validateApiKeyFormat,
@@ -2133,12 +2224,24 @@ function buildHelpers(payload, actions, settings) {
     generateWithdrawalRef,
     faucetPayBalance: helperFaucetPayBalance,
     faucetPayGetBalance: helperFaucetPayGetBalance,
+    getFaucetPayBalance: helperFaucetPayGetBalance,
     faucetPaySend: helperFaucetPaySend,
+    sendFaucetPay: helperFaucetPaySend,
     faucetPayWithdraw: helperFaucetPaySend,
+    faucetPayWithdrawal: helperFaucetPaySend,
+    faucetPayPayout: helperFaucetPaySend,
     faucetPayCheckAddress: helperFaucetPayCheckAddress,
-    faucetPayValidateKey: async (apiKey = null) => paymentRuntimeAction('faucetpay.validateKey', apiKey ? { api_key: String(apiKey) } : {}),
-    faucetPayCheckEmail: async (email, currency = 'USDT') => paymentRuntimeAction('faucetpay.checkEmail', { email: String(email || ''), currency: String(currency || 'USDT').toUpperCase() }),
-    faucetPayGetCurrencies: async (apiKey = null) => paymentRuntimeAction('faucetpay.getCurrencies', apiKey ? { api_key: String(apiKey) } : {}),
+    checkFaucetPayAddress: helperFaucetPayCheckAddress,
+    faucetPayValidateKey: helperFaucetPayValidateKey,
+    validateFaucetPayKey: helperFaucetPayValidateKey,
+    faucetPayValidateApiKey: helperFaucetPayValidateKey,
+    faucetPayValidateAPIKey: helperFaucetPayValidateKey,
+    faucetPayCheckEmail: helperFaucetPayCheckEmail,
+    checkFaucetPayEmail: helperFaucetPayCheckEmail,
+    faucetPayGetCurrencies: helperFaucetPayGetCurrencies,
+    getFaucetPayCurrencies: helperFaucetPayGetCurrencies,
+    faucetPayCurrencies: helperFaucetPayGetCurrencies,
+    faucetPayGetSupportedCurrencies: helperFaucetPayGetCurrencies,
     isFaucetPayCurrencySupported: (currency) => faucetPayCurrencyList.includes(String(currency || '').toUpperCase()),
     faucetPaySupportedCurrencies: () => [...faucetPayCurrencyList],
     faucetPayFormatAmount: (amount) => normalizePaymentAmount(amount, 8),
@@ -2879,16 +2982,72 @@ async function faucetPayPost(url, form) {
 }
 
 async function faucetPayBalance(apiKey, currency) {
-  return faucetPayPost('https://faucetpay.io/api/v1/getbalance', { api_key: apiKey, currency: String(currency).toUpperCase() });
+  const sym = String(currency).toUpperCase();
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/getbalance', { api_key: apiKey, currency: sym });
+  return faucetPayResult(data, sym, { balance: extractFaucetPayBalance(data, sym) });
 }
 
 async function faucetPaySend(apiKey, toEmailOrAddress, amount, currency) {
-  return faucetPayPost('https://faucetpay.io/api/v1/send', {
+  const safeAmount = normalizeDecimalAmount(amount, false);
+  const sym = String(currency).toUpperCase();
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/send', {
     api_key: apiKey,
     to: toEmailOrAddress,
-    amount: normalizeDecimalAmount(amount, false),
-    currency: String(currency).toUpperCase(),
+    amount: safeAmount,
+    currency: sym,
   });
+  return faucetPayResult(data, sym, { amount: safeAmount, amount_smallest_unit: safeAmount });
+}
+
+async function faucetPayCheckAddress(apiKey, currency, address) {
+  const sym = String(currency).toUpperCase();
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/checkaddress', {
+    api_key: apiKey,
+    currency: sym,
+    address,
+  });
+  return faucetPayResult(data, sym);
+}
+
+async function faucetPayCurrencies(apiKey) {
+  const data = await faucetPayPost('https://faucetpay.io/api/v1/currencies', { api_key: apiKey });
+  return faucetPayResult(data, null, { currencies: extractFaucetPayCurrencies(data) });
+}
+
+function faucetPayResult(data, currency = null, extra = {}) {
+  const raw = plainObject(data || {});
+  const ok = Number(raw.status || 0) === 200;
+  const message = String(raw.message || (ok ? 'OK' : 'FaucetPay request failed.'));
+  return {
+    ok,
+    status: Number(raw.status || 0),
+    message,
+    error: ok ? null : friendlyFaucetPayError(message),
+    ...(currency ? { currency } : {}),
+    ...extra,
+    data: raw,
+    raw,
+  };
+}
+
+function extractFaucetPayCurrencies(raw) {
+  const candidates = [raw && raw.currencies, raw && raw.data && raw.data.currencies, raw && raw.data];
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === 'object') {
+      const values = Array.isArray(candidate) ? candidate : Object.keys(candidate);
+      const symbols = [...new Set(values.map((value) => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')).filter(Boolean))];
+      if (symbols.length > 0) return symbols;
+    }
+  }
+  return [];
+}
+
+function friendlyFaucetPayError(message) {
+  const text = String(message || '').trim();
+  const lower = text.toLowerCase();
+  if (lower.includes('invalid') && lower.includes('api')) return 'FaucetPay API key is invalid.';
+  if (lower.includes('address') || lower.includes('linked') || lower.includes('payout')) return 'FaucetPay email/address is not linked.';
+  return text || 'FaucetPay request failed.';
 }
 
 function normalizeDecimalAmount(value, allowZero = false) {
@@ -3195,7 +3354,7 @@ function buildPayoutMessage(data) {
   const d = isPlainObject(data) ? plainObject(data) : {};
   const userId = d.user_id ?? '';
   const amount = d.amount ?? 0;
-  const currency = String(d.currency || 'PEPE');
+  const currency = String(d.currency || 'USDT');
   const wallet = String(d.wallet || '');
   const botName = String(d.bot || '');
   const maskedId = maskUserId(userId);
@@ -3226,6 +3385,14 @@ function normalizeRuntimeSettings(settings) {
     command_timeout_ms: Math.min(Math.max(Number(settings.command_timeout_ms || 30000), 1000), 30000),
     max_delay_ms: Math.min(Math.max(Number(settings.max_delay_ms || 10000), 0), 30000),
   };
+}
+
+function normalizeCommandCode(code) {
+  return String(code || '')
+    .replace(/^\uFEFF/, '')
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*```[A-Za-z0-9_-]*\s*$/.test(line))
+    .join('\n');
 }
 
 function requireHttpsUrl(value, label) {
@@ -3264,6 +3431,15 @@ function maskSecretValue(value) {
   if (!s) return '';
   if (s.length <= 8) return `${s.slice(0, 2)}***`;
   return `${s.slice(0, 5)}***${s.slice(-3)}`;
+}
+
+function isMaskedSecretValue(value) {
+  return /^\S{1,8}\*{3}\S{0,8}$/.test(String(value || '').trim());
+}
+
+function isLikelyFaucetPayCurrency(value) {
+  return ['BTC', 'ETH', 'DOGE', 'LTC', 'BCH', 'DASH', 'DGB', 'TRX', 'USDT', 'FEY', 'ZEC', 'BNB', 'SOL', 'XRP', 'MATIC', 'ADA', 'TON', 'USDC']
+    .includes(String(value || '').trim().toUpperCase());
 }
 
 function requireChatId(value, label) {

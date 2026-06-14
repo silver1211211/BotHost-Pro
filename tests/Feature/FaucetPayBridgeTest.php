@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RuntimeStorageController;
+use App\Http\Controllers\RuntimeOxaPayController;
 use App\Models\Bot;
 use App\Models\BotRuntimeData;
 use App\Models\BotUserRuntimeData;
@@ -47,6 +48,69 @@ it('validates FaucetPay keys and reads balance with an explicit key', function (
 
     Http::assertSent(fn ($request) => $request['api_key'] === 'fp_test_key'
         && $request['currency'] === 'USDT');
+});
+
+it('uses the saved FaucetPay key for balance and currencies bridge calls', function (): void {
+    Http::fake([
+        'https://faucetpay.io/api/v1/getbalance' => Http::response([
+            'status' => 200,
+            'message' => 'OK',
+            'balance' => 25,
+        ]),
+        'https://faucetpay.io/api/v1/currencies' => Http::response([
+            'status' => 200,
+            'message' => 'OK',
+            'currencies' => ['USDT', 'DOGE'],
+        ]),
+    ]);
+
+    $bot = faucetPayTestBot('faucetpay-saved-key-test');
+    BotRuntimeData::create([
+        'bot_id' => $bot->id,
+        'key' => 'faucetpay_api_key',
+        'value' => 'fp_saved_key',
+    ]);
+
+    $service = app(FaucetPayService::class);
+
+    expect($service->balance($bot, 'USDT'))
+        ->ok->toBeTrue()
+        ->balance->toBe(25.0);
+
+    expect($service->currencies($bot))
+        ->ok->toBeTrue()
+        ->currencies->toBe(['USDT', 'DOGE']);
+
+    Http::assertSent(fn ($request) => $request['api_key'] === 'fp_saved_key');
+});
+
+it('returns allowlisted bot secrets through the runtime payment bridge', function (): void {
+    config(['services.node_runtime.secret' => 'runtime-test-secret']);
+
+    $bot = faucetPayTestBot('runtime-secret-get-test');
+    BotRuntimeData::create([
+        'bot_id' => $bot->id,
+        'key' => 'faucetpay_api_key',
+        'value' => 'fp_saved_key',
+    ]);
+
+    $request = Request::create('/runtime/oxapay', 'POST', [
+        'bot_id' => $bot->id,
+        'action' => 'secret.get',
+        'options' => ['key' => 'faucetpay_api_key'],
+    ]);
+    $request->headers->set('X-Runtime-Secret', 'runtime-test-secret');
+
+    $response = app(RuntimeOxaPayController::class)($request, app(\App\Services\OxaPayService::class), app(FaucetPayService::class));
+    $payload = json_decode($response->getContent(), true);
+
+    expect($payload)
+        ->toMatchArray([
+            'ok' => true,
+            'key' => 'faucetpay_api_key',
+            'configured' => true,
+            'value' => 'fp_saved_key',
+        ]);
 });
 
 it('sends FaucetPay amount without converting it again', function (): void {

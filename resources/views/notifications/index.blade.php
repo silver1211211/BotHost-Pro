@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Notifications">
+﻿<x-dashboard-layout title="Notifications">
 
 <div
     x-data="{ filter: 'all' }"
@@ -15,11 +15,11 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-xl font-black text-[#F8FAFC]">Notifications</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Platform alerts, account updates, and important messages.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Platform alerts, account updates, and important messages.</p>
         </div>
         <div class="flex items-center gap-2">
             <button
-                class="shrink-0 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#71717A] transition hover:border-[#8B5CF6]/30 hover:text-[#A1A1AA] disabled:cursor-not-allowed disabled:opacity-40"
+                class="shrink-0 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#94A3B8] transition hover:border-[#8B5CF6]/30 hover:text-[#A1A1AA] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled
                 title="Notifications are marked read when this page opens"
             >
@@ -40,7 +40,7 @@
             @click="filter = '{{ $id }}'"
             :class="filter === '{{ $id }}'
                 ? 'border-[#8B5CF6] bg-[#8B5CF6]/12 text-white'
-                : 'border-[#27213D] bg-[#0F0D1A] text-[#71717A] hover:border-[#8B5CF6]/30 hover:text-[#A1A1AA]'"
+                : 'border-[#27213D] bg-[#0F0D1A] text-[#94A3B8] hover:border-[#8B5CF6]/30 hover:text-[#A1A1AA]'"
             class="shrink-0 rounded-xl border px-4 py-2 text-xs font-black transition"
         >{{ $label }}</button>
         @endforeach
@@ -58,7 +58,7 @@
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                             <p class="text-sm font-black text-[#F8FAFC]">{{ $notification->title }}</p>
-                            <span class="rounded-full border border-[#27213D] px-2 py-0.5 text-[10px] font-bold text-[#71717A]">{{ ucfirst($notification->priority ?: 'normal') }}</span>
+                            <span class="rounded-full border border-[#27213D] px-2 py-0.5 text-[10px] font-bold text-[#94A3B8]">{{ ucfirst($notification->priority ?: 'normal') }}</span>
                             @if ($notification->status === 'unread')
                                 <span class="rounded-full border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-2 py-0.5 text-[10px] font-bold text-[#A855F7]">Unread</span>
                             @endif
@@ -74,7 +74,7 @@
                     <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
                 </div>
                 <div>
-                    <p class="text-base font-black text-[#71717A]">No notifications yet</p>
+                    <p class="text-base font-black text-[#94A3B8]">No notifications yet</p>
                     <p class="mt-1 text-sm text-[#52525B]">Important platform updates and account alerts will appear here.</p>
                 </div>
             </div>
@@ -88,7 +88,7 @@
 
     {{-- ── What you'll receive info ── --}}
     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-        <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#71717A]">Types of Notifications</p>
+        <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Types of Notifications</p>
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             @foreach([
                 ['Bot Alerts',     'Runtime pauses, token errors, and status changes for your bots.',    '#8B5CF6', 'M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728M12 9v3l2 2'],

@@ -15,7 +15,15 @@ it('exposes telegram membership helpers in the fallback runtime', function (): v
 await reply([
   typeof checkChannelMember,
   typeof verifyTelegramChannel,
-  typeof isChannelMember
+  typeof isChannelMember,
+  typeof getTelegramChatMember,
+  typeof getChannelMember,
+  typeof checkTelegramChannelMember,
+  typeof checkTelegramChannel,
+  typeof checkChannel,
+  typeof verifyChannel,
+  typeof verifyChannelMember,
+  typeof isTelegramChannelMember
 ].join(","));
 JS,
         ],
@@ -36,7 +44,7 @@ JS,
     $output = json_decode($process->getOutput(), true);
 
     expect($output)->toBeArray()
-        ->and($output['replies'][0]['text'] ?? null)->toBe('function,function,function');
+        ->and($output['replies'][0]['text'] ?? null)->toBe(str_repeat('function,', 10).'function');
 });
 
 it('preserves runtime replies when command execution times out', function (): void {

@@ -1,4 +1,4 @@
-<x-admin-layout title="{{ $template->exists ? 'Edit Template' : 'Create Template' }}" subtitle="Command template management">
+﻿<x-admin-layout title="{{ $template->exists ? 'Edit Template' : 'Create Template' }}" subtitle="Command template management">
 <div class="mx-auto max-w-3xl space-y-5">
 
     <a href="{{ route('admin.templates.index') }}"
@@ -26,7 +26,7 @@
         {{-- ── Section 1: Template Files ─────────────────── --}}
         <div class="overflow-hidden rounded-xl border border-[#27213D] bg-[#0F0D1A]">
             <div class="border-b border-[#27213D] px-4 py-3">
-                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Template Files</h2>
+                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Template Files</h2>
             </div>
             <div class="grid gap-4 p-4 md:grid-cols-2">
 
@@ -54,7 +54,7 @@
                             ? 'border-[#8B5CF6] bg-[#8B5CF6]/8 scale-[1.01]'
                             : 'border-[#27213D] hover:border-[#8B5CF6]/40'"
                     >
-                        <svg class="h-7 w-7 transition" :class="dragging ? 'text-[#8B5CF6]' : 'text-[#3D3657]'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <svg class="h-7 w-7 transition" :class="dragging ? 'text-[#8B5CF6]' : 'text-[#6B6890]'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
                         </svg>
                         <div class="text-center">
@@ -69,7 +69,7 @@
                         <input x-ref="zipInput" name="template_zip" type="file"
                                class="hidden"
                                x-on:change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''">
-                        <span class="rounded-lg border border-[#27213D] bg-[#11101C] px-3 py-1.5 text-[11px] font-bold text-[#71717A] transition group-hover:border-[#8B5CF6]/30">Browse file</span>
+                        <span class="rounded-lg border border-[#27213D] bg-[#11101C] px-3 py-1.5 text-[11px] font-bold text-[#94A3B8] transition group-hover:border-[#8B5CF6]/30">Browse file</span>
                         @if($template->template_zip_path)
                             <span class="text-xs text-[#22C55E]">&#10003; Template file already stored - drop or click to replace.</span>
                         @endif
@@ -81,15 +81,15 @@
                     <label class="flex cursor-pointer flex-col gap-2 rounded-xl border border-dashed border-[#27213D] bg-[#090713] p-4 text-sm transition hover:border-[#8B5CF6]/40">
                         <span class="font-bold text-[#A1A1AA]">Thumbnail Image</span>
                         <input name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                               class="block w-full text-xs text-[#71717A] file:mr-3 file:rounded-lg file:border-0 file:bg-[#27213D] file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-[#A1A1AA]">
-                        <span class="text-xs text-[#71717A]">JPG, PNG or WebP · 1280 × 720 px recommended · Displayed on marketplace.</span>
+                               class="block w-full text-xs text-[#94A3B8] file:mr-3 file:rounded-lg file:border-0 file:bg-[#27213D] file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-[#A1A1AA]">
+                        <span class="text-xs text-[#94A3B8]">JPG, PNG or WebP · 1280 × 720 px recommended · Displayed on marketplace.</span>
                     </label>
                     @if($template->thumbnail_url)
                         <div class="relative overflow-hidden rounded-xl border border-[#27213D]" style="aspect-ratio:16/9">
                             <img src="{{ $template->thumbnail_url }}" alt="Current thumbnail"
                                  class="absolute inset-0 h-full w-full object-cover">
                         </div>
-                        <p class="text-[11px] text-[#4D4868]">Current thumbnail — upload to replace.</p>
+                        <p class="text-[11px] text-[#7E7AA0]">Current thumbnail — upload to replace.</p>
                     @endif
                 </div>
 
@@ -99,7 +99,7 @@
         {{-- ── Section 2: Basic Information ──────────────── --}}
         <div class="overflow-hidden rounded-xl border border-[#27213D] bg-[#0F0D1A]">
             <div class="border-b border-[#27213D] px-4 py-3">
-                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Basic Information</h2>
+                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Basic Information</h2>
             </div>
             <div class="space-y-3 p-4">
                 <input name="name" value="{{ old('name', $template->name) }}" placeholder="Template name *"
@@ -115,7 +115,7 @@
         {{-- overflow-visible so the category dropdown is not clipped --}}
         <div class="rounded-xl border border-[#27213D] bg-[#0F0D1A]">
             <div class="rounded-t-xl border-b border-[#27213D] px-4 py-3">
-                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Marketplace Settings</h2>
+                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Marketplace Settings</h2>
             </div>
             <div class="space-y-3 p-4">
                 <div class="grid gap-3 sm:grid-cols-2">
@@ -146,9 +146,9 @@
                         <button type="button"
                                 @click="open = !open; if (open) $nextTick(function() { $refs.catSearch && $refs.catSearch.focus(); })"
                                 class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-left text-sm focus:border-[#8B5CF6]/50 focus:outline-none"
-                                :class="selected ? 'text-white' : 'text-[#4D4868]'">
+                                :class="selected ? 'text-white' : 'text-[#7E7AA0]'">
                             <span x-text="displayLabel || 'Category'"></span>
-                            <svg class="h-4 w-4 shrink-0 text-[#71717A] transition-transform duration-150"
+                            <svg class="h-4 w-4 shrink-0 text-[#94A3B8] transition-transform duration-150"
                                  :class="{ 'rotate-180': open }"
                                  fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/>
@@ -173,7 +173,7 @@
                             <div style="max-height:200px;overflow-y:auto;">
                                 <button type="button"
                                         @click="select('')"
-                                        class="block w-full px-3 py-2 text-left text-sm text-[#71717A] transition hover:bg-[#11101C]">
+                                        class="block w-full px-3 py-2 text-left text-sm text-[#94A3B8] transition hover:bg-[#11101C]">
                                     — No category —
                                 </button>
                                 <template x-for="entry in filtered" :key="entry[0]">
@@ -185,7 +185,7 @@
                                     </button>
                                 </template>
                                 <p x-show="filtered.length === 0"
-                                   class="px-3 py-4 text-center text-xs text-[#71717A]">
+                                   class="px-3 py-4 text-center text-xs text-[#94A3B8]">
                                     No categories found
                                 </p>
                             </div>
@@ -196,7 +196,7 @@
                         <input type="hidden" name="level" :value="val">
                         <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/15' : ''">
                             <span x-text="label"></span>
-                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                         </button>
                         <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -215,7 +215,7 @@
                         <input type="hidden" name="status" :value="val">
                         <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/15' : ''">
                             <span x-text="label"></span>
-                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                         </button>
                         <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -232,7 +232,7 @@
                         <input type="hidden" name="marketplace_status" :value="val">
                         <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/15' : ''">
                             <span x-text="label"></span>
-                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                         </button>
                         <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -249,7 +249,7 @@
                     <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $template->is_featured))
                            class="h-4 w-4 rounded border-[#27213D] bg-[#090713] accent-[#8B5CF6]">
                     Featured
-                    <span class="text-xs text-[#71717A]">— highlighted on the marketplace</span>
+                    <span class="text-xs text-[#94A3B8]">— highlighted on the marketplace</span>
                 </label>
             </div>
         </div>
@@ -257,7 +257,7 @@
         {{-- ── Section 4: Pricing & Access ───────────────── --}}
         <div class="overflow-hidden rounded-xl border border-[#27213D] bg-[#0F0D1A]">
             <div class="border-b border-[#27213D] px-4 py-3">
-                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Pricing & Access</h2>
+                <h2 class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Pricing & Access</h2>
             </div>
             <div class="space-y-3 p-4">
                 <div class="grid gap-3 sm:grid-cols-2">
@@ -266,7 +266,7 @@
                         <input type="hidden" name="access_type" :value="val">
                         <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/15' : ''">
                             <span x-text="label"></span>
-                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                         </button>
                         <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -283,7 +283,7 @@
                         <input type="hidden" name="included_plan" :value="val">
                         <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/15' : ''">
                             <span x-text="label" class="truncate text-left"></span>
-                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                         </button>
                         <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -303,7 +303,7 @@
                     <input name="currency" value="{{ old('currency', $template->currency ?: 'USD') }}" placeholder="USD"
                            class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">
                 </div>
-                <p class="text-xs text-[#71717A]">Plan users can unlock this template without payment.</p>
+                <p class="text-xs text-[#94A3B8]">Plan users can unlock this template without payment.</p>
             </div>
         </div>
 
@@ -319,7 +319,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#27213D] bg-[#0F0D1A] px-4 py-3">
                 <div>
                     <h2 class="text-sm font-black">Extracted Template Commands</h2>
-                    <p class="mt-0.5 text-xs text-[#71717A]">Commands come from the uploaded template file. Re-upload to refresh.</p>
+                    <p class="mt-0.5 text-xs text-[#94A3B8]">Commands come from the uploaded template file. Re-upload to refresh.</p>
                 </div>
                 @php($summary = $template->metadata['zip_parse'] ?? null)
                 @if($summary)
@@ -330,12 +330,12 @@
                 @forelse ($template->commands as $command)
                     <div class="px-4 py-3">
                         <p class="font-mono text-sm font-bold text-[#A855F7]">{{ $command->command_name }}</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">
                             {{ $command->folder ?: 'No folder' }} &middot; {{ $command->status }} &middot; {{ filled($command->code) ? 'code' : 'text' }}
                         </p>
                     </div>
                 @empty
-                    <p class="px-4 py-6 text-sm text-[#71717A]">No commands extracted yet.</p>
+                    <p class="px-4 py-6 text-sm text-[#94A3B8]">No commands extracted yet.</p>
                 @endforelse
             </div>
         </section>

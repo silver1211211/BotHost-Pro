@@ -1,23 +1,23 @@
-<x-dashboard-layout title="Broadcasts">
+﻿<x-dashboard-layout title="Broadcasts">
     <div class="space-y-5">
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
                 <h1 class="text-xl font-black text-[#F8FAFC]">Broadcasts</h1>
-                <p class="mt-1 text-sm text-[#71717A]">Create and monitor Telegram bot broadcasts from eligible bots.</p>
+                <p class="mt-1 text-sm text-[#94A3B8]">Create and monitor Telegram bot broadcasts from eligible bots.</p>
             </div>
         </div>
 
         @if ($eligibleBots->isEmpty())
             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-6">
                 <p class="font-black text-[#A1A1AA]">No eligible bots</p>
-                <p class="mt-1 text-sm text-[#71717A]">A bot needs a verified token before it can send broadcasts.</p>
+                <p class="mt-1 text-sm text-[#94A3B8]">A bot needs a verified token before it can send broadcasts.</p>
             </div>
         @else
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($eligibleBots as $bot)
                     <a href="{{ route('bots.broadcasts.index', $bot) }}" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4 transition hover:border-[#8B5CF6]/40">
                         <p class="truncate text-sm font-black text-[#F8FAFC]">{{ $bot->name }}</p>
-                        <p class="mt-1 text-xs text-[#71717A]">
+                        <p class="mt-1 text-xs text-[#94A3B8]">
                             {{ $bot->telegram_username ? '@'.$bot->telegram_username : 'Verified token available' }}
                             @if ($bot->trashed()) <span class="text-[#F59E0B]">(recycled)</span> @endif
                         </p>
@@ -37,7 +37,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-black text-[#F8FAFC]">{{ $broadcast->title ?: 'Untitled Broadcast' }}</p>
-                                <p class="mt-1 text-xs text-[#71717A]">
+                                <p class="mt-1 text-xs text-[#94A3B8]">
                                     {{ $broadcast->bot?->name ?? 'Deleted bot' }}
                                     @if ($broadcast->bot?->trashed()) <span class="text-[#F59E0B]">(recycled)</span> @endif
                                     · {{ $broadcast->created_at->diffForHumans() }}
@@ -51,7 +51,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="px-5 py-12 text-center text-sm text-[#71717A]">No broadcasts yet.</div>
+                    <div class="px-5 py-12 text-center text-sm text-[#94A3B8]">No broadcasts yet.</div>
                 @endforelse
             </div>
             <div class="px-5 py-4">{{ $broadcasts->links() }}</div>

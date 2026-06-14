@@ -297,14 +297,15 @@ class TelegramBotService
 
     public function checkTelegramChannelMember(string $token, int|string $chatId, int|string $telegramUserId): array
     {
+        $startedAt = microtime(true);
         $token = $this->normalizeToken($token);
 
         if (! $this->looksLikeBotToken($token)) {
-            return $this->channelMemberFailure('Invalid Telegram bot token.', 'unknown');
+            return $this->channelMemberFailure('Invalid Telegram bot token.', 'unknown', null, null, $startedAt);
         }
 
         if ($chatId === '' || $telegramUserId === '') {
-            return $this->channelMemberFailure('Channel and Telegram user ID are required.', 'unknown');
+            return $this->channelMemberFailure('Channel and Telegram user ID are required.', 'unknown', null, null, $startedAt);
         }
 
         $response = $this->requestQuick($token, 'getChatMember', [
@@ -333,6 +334,7 @@ class TelegramBotService
                 'unknown',
                 is_array($payload) ? ($payload['error_code'] ?? null) : null,
                 is_array($payload) ? $payload : null,
+                $startedAt,
             );
         }
 
@@ -355,6 +357,7 @@ class TelegramBotService
                 'unknown',
                 is_array($payload) ? ($payload['error_code'] ?? null) : null,
                 is_array($payload) ? $payload : null,
+                $startedAt,
             );
         }
 
@@ -369,6 +372,7 @@ class TelegramBotService
             'status' => $status,
             'message' => $isMember ? 'User is a member.' : 'User is not a member.',
             'raw' => $member,
+            'elapsed_ms' => (int) round((microtime(true) - $startedAt) * 1000),
         ];
     }
 
@@ -685,7 +689,7 @@ class TelegramBotService
         $token = $this->normalizeToken($token);
 
         try {
-            $request = Http::connectTimeout(3)->timeout(20)->acceptJson();
+            $request = Http::connectTimeout(3)->timeout(15)->acceptJson();
             $url = "https://api.telegram.org/bot{$token}/{$method}";
             $response = $payload === [] ? $request->get($url) : $request->post($url, $payload);
         } catch (ConnectionException $exception) {
@@ -722,13 +726,14 @@ class TelegramBotService
         return preg_match('/^\d+:[A-Za-z0-9_-]{10,}$/', $token) === 1;
     }
 
-    private function channelMemberFailure(string $message, string $status = 'unknown', ?int $errorCode = null, ?array $raw = null): array
+    private function channelMemberFailure(string $message, string $status = 'unknown', ?int $errorCode = null, ?array $raw = null, ?float $startedAt = null): array
     {
         $result = [
             'ok' => false,
             'is_member' => false,
             'status' => $status,
             'message' => $message,
+            'elapsed_ms' => $startedAt !== null ? (int) round((microtime(true) - $startedAt) * 1000) : null,
         ];
 
         if ($errorCode !== null) {

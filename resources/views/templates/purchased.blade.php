@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Purchased Templates">
+﻿<x-dashboard-layout title="Purchased Templates">
     <div class="mx-auto max-w-5xl space-y-5">
         <a href="{{ route('dashboard.templates.index') }}" class="text-sm text-[#A1A1AA]">Back to marketplace</a>
         <h1 class="text-2xl font-black">Purchased Templates</h1>
@@ -10,23 +10,23 @@
                             <img src="{{ $purchase->template->thumbnail_url }}" alt="{{ $purchase->template->name }}"
                                  class="absolute inset-0 h-full w-full object-cover"
                                  onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-                            <div class="absolute inset-0 items-center justify-center bg-[#11101C] text-xs text-[#71717A]" style="display:none">No image</div>
+                            <div class="absolute inset-0 items-center justify-center bg-[#11101C] text-xs text-[#94A3B8]" style="display:none">No image</div>
                         @else
-                            <div class="flex h-full w-full items-center justify-center border border-[#27213D] bg-[#11101C] text-xs text-[#71717A]">No image</div>
+                            <div class="flex h-full w-full items-center justify-center border border-[#27213D] bg-[#11101C] text-xs text-[#94A3B8]">No image</div>
                         @endif
                     </div>
 
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
                             <h2 class="text-base font-black">{{ $purchase->template?->name ?? 'Template removed' }}</h2>
-                            <p class="mt-1 text-xs text-[#71717A]">
+                            <p class="mt-1 text-xs text-[#94A3B8]">
                                 Purchased {{ $purchase->purchased_at?->diffForHumans() }}
                                 @if((float)$purchase->amount > 0) &middot; {{ $purchase->currency }} {{ number_format((float)$purchase->amount, 2) }} @endif
                             </p>
                         </div>
                         @if($purchase->template && ($purchase->template->short_description || $purchase->template->description))
                             <button type="button" @click="open = !open"
-                                    class="mt-0.5 shrink-0 rounded-lg border border-[#27213D] bg-[#11101C] p-1.5 text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#A1A1AA]"
+                                    class="mt-0.5 shrink-0 rounded-lg border border-[#27213D] bg-[#11101C] p-1.5 text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#A1A1AA]"
                                     :aria-expanded="open">
                                 <svg class="h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': open }"
                                      fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -57,7 +57,7 @@
                     @endif
                 </div>
             @empty
-                <div class="col-span-2 py-10 text-center text-sm text-[#71717A]">No purchased templates yet. <a href="{{ route('dashboard.templates.index') }}" class="text-[#8B5CF6] hover:underline">Browse the marketplace</a>.</div>
+                <div class="col-span-2 py-10 text-center text-sm text-[#94A3B8]">No purchased templates yet. <a href="{{ route('dashboard.templates.index') }}" class="text-[#8B5CF6] hover:underline">Browse the marketplace</a>.</div>
             @endforelse
         </div>
         {{ $purchases->links() }}

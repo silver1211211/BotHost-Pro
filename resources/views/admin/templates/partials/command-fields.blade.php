@@ -1,4 +1,4 @@
-<div class="grid gap-3 md:grid-cols-2">
+﻿<div class="grid gap-3 md:grid-cols-2">
     <input name="command_name" value="{{ old('command_name', $command->command_name) }}" placeholder="/start" class="rounded border border-[#27213D] bg-[#0F0D1A] p-3">
     <input name="description" value="{{ old('description', $command->description) }}" placeholder="Description" class="rounded border border-[#27213D] bg-[#0F0D1A] p-3">
     <input name="aliases" value="{{ old('aliases', implode(', ', $command->aliases ?? [])) }}" placeholder="Aliases, comma separated" class="rounded border border-[#27213D] bg-[#0F0D1A] p-3">
@@ -10,7 +10,7 @@
         <input type="hidden" name="status" :value="val">
         <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3 py-3 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/15' : ''">
             <span x-text="label"></span>
-            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+            <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
         </button>
         <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
             class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">

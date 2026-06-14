@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Crypto Invoice" :no-flash="true">
+﻿<x-dashboard-layout title="Crypto Invoice" :no-flash="true">
 <div class="mx-auto max-w-xl space-y-4">
 
     @php
@@ -17,7 +17,7 @@
             $isPaid   => 'border-[#22C55E]/30 bg-[#22C55E]/10 text-[#22C55E]',
             $isFailed => 'border-[#EF4444]/30 bg-[#EF4444]/10 text-[#EF4444]',
             $isActive => 'border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#F59E0B]',
-            default   => 'border-[#71717A]/30 bg-[#71717A]/10 text-[#71717A]',
+            default   => 'border-[#71717A]/30 bg-[#71717A]/10 text-[#94A3B8]',
         };
 
         $statusLabel = match($invoice->status) {
@@ -34,12 +34,12 @@
 
     {{-- Back link --}}
     @if ($isTemplate && ! $isPaid)
-        <button id="back-btn" class="inline-flex items-center gap-1.5 text-sm text-[#71717A] transition hover:text-[#A1A1AA]">
+        <button id="back-btn" class="inline-flex items-center gap-1.5 text-sm text-[#94A3B8] transition hover:text-[#A1A1AA]">
             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
             Back
         </button>
     @else
-        <a href="{{ $product['return_url'] }}" class="inline-flex items-center gap-1.5 text-sm text-[#71717A] transition hover:text-[#A1A1AA]">
+        <a href="{{ $product['return_url'] }}" class="inline-flex items-center gap-1.5 text-sm text-[#94A3B8] transition hover:text-[#A1A1AA]">
             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
             Back
         </a>
@@ -64,7 +64,7 @@
         {{-- Header --}}
         <div class="flex items-center justify-between gap-3 border-b border-[#27213D] px-5 py-4">
             <div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">{{ $product['type'] }}</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">{{ $product['type'] }}</p>
                 <h1 class="mt-0.5 text-lg font-black leading-tight">{{ $product['name'] }}</h1>
             </div>
             <span class="rounded-full border px-3 py-1 text-xs font-black {{ $statusColour }}">{{ $statusLabel }}</span>
@@ -78,9 +78,9 @@
         <div class="p-5 space-y-4">
 
             <div class="rounded-xl border border-[#27213D] bg-[#090713] px-4 py-3">
-                <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Amount Due</p>
+                <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Amount Due</p>
                 <p class="mt-0.5 text-2xl font-black text-white">{{ $invoice->currency }} {{ number_format((float) $invoice->amount, 2) }}</p>
-                <p class="mt-2 text-[10px] text-[#4D4868]">Invoice ID: <span class="font-mono font-bold text-[#71717A]">#{{ $invoice->id }}</span></p>
+                <p class="mt-2 text-[10px] text-[#7E7AA0]">Invoice ID: <span class="font-mono font-bold text-[#94A3B8]">#{{ $invoice->id }}</span></p>
             </div>
 
             @if ($isFailed)
@@ -92,7 +92,7 @@
             <form method="POST" action="{{ route('dashboard.payments.generate', $invoice) }}" class="space-y-3">
                 @csrf
                 <div>
-                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#71717A]">Payment Network <span class="text-[#EF4444]">*</span></label>
+                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#94A3B8]">Payment Network <span class="text-[#EF4444]">*</span></label>
                     <select name="pay_currency" required
                             class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white focus:border-[#8B5CF6]/50 focus:outline-none">
                         <option value="" disabled selected>Select Network</option>
@@ -124,7 +124,7 @@
             {{-- Stats row --}}
             <div class="grid grid-cols-2 gap-3">
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Amount Due</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Amount Due</p>
                     <p class="mt-0.5 text-xl font-black text-white">{{ $invoice->currency }} {{ number_format((float) $invoice->amount, 2) }}</p>
                 </div>
                 @if (filled($invoice->pay_amount))
@@ -134,7 +134,7 @@
                 </div>
                 @else
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Network</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Network</p>
                     <p class="mt-0.5 text-base font-black text-white">{{ $networkLabel ?? $invoice->pay_currency ?? 'Crypto' }}</p>
                 </div>
                 @endif
@@ -143,13 +143,13 @@
             <div class="grid grid-cols-2 gap-3">
                 @if (filled($invoice->pay_amount))
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Network</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Network</p>
                     <p class="mt-0.5 text-base font-black text-white">{{ $networkLabel ?? $invoice->pay_currency ?? 'Crypto' }}</p>
                 </div>
                 @endif
                 @if ($invoice->expires_at)
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3 {{ ! filled($invoice->pay_amount) ? 'col-span-2 sm:col-span-1' : '' }}">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Expires In</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Expires In</p>
                     <p class="mt-0.5 text-base font-black text-[#F59E0B]" id="expiry-timer">{{ $invoice->expires_at->diffForHumans() }}</p>
                 </div>
                 @endif
@@ -160,7 +160,7 @@
 
                 {{-- Payment address (takes more space) --}}
                 <div class="flex-1 rounded-xl border border-[#27213D] bg-[#090713] p-4 space-y-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Payment Address</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Payment Address</p>
                     @if (filled($invoice->pay_amount))
                         <p class="text-xs text-[#A1A1AA]">Send exactly <span class="font-black text-white">{{ $invoice->pay_amount }} {{ $networkLabel ?? $invoice->pay_currency }}</span> in one transaction.</p>
                     @else
@@ -176,20 +176,20 @@
                     <p class="text-[11px] text-[#F59E0B]">Unique address — send in a single transaction.</p>
                     <p class="mt-1 text-[11px] leading-snug text-[#EF4444]">⚠ Only send <strong>{{ $networkLabel ?? $invoice->pay_currency }}</strong>. Payments sent in any other currency or network are permanently lost and cannot be refunded.</p>
                     @if (filled($invoice->track_id))
-                        <p class="text-[10px] text-[#4D4868]">Ref: <span class="font-mono">{{ $invoice->track_id }}</span></p>
+                        <p class="text-[10px] text-[#7E7AA0]">Ref: <span class="font-mono">{{ $invoice->track_id }}</span></p>
                     @endif
                 </div>
 
                 {{-- QR code --}}
                 @if (filled($invoice->qr_code))
                 <div class="flex shrink-0 flex-col items-center gap-2 rounded-xl border border-[#27213D] bg-[#090713] p-4 md:w-44">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Scan to Pay</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Scan to Pay</p>
                     <div class="rounded-xl bg-white p-1.5">
                         <img src="{{ $invoice->qr_code }}" alt="QR"
                              class="h-32 w-32 rounded-lg md:h-28 md:w-28"
                              onerror="this.parentElement.style.display='none'">
                     </div>
-                    <p class="text-center text-[10px] text-[#71717A]">Scan with wallet</p>
+                    <p class="text-center text-[10px] text-[#94A3B8]">Scan with wallet</p>
                 </div>
                 @endif
             </div>
@@ -209,7 +209,7 @@
                 @endif
             </div>
 
-            <p class="text-xs text-[#4D4868]">Status updates automatically every 12 seconds or click <strong class="text-[#71717A]">Check Payment Status</strong> manually.</p>
+            <p class="text-xs text-[#7E7AA0]">Status updates automatically every 12 seconds or click <strong class="text-[#94A3B8]">Check Payment Status</strong> manually.</p>
         </div>
 
 
@@ -225,24 +225,24 @@
             </div>
             <div>
                 <p class="text-xl font-black text-[#22C55E]">Payment Confirmed</p>
-                <p class="mt-1 text-sm text-[#71717A]">
+                <p class="mt-1 text-sm text-[#94A3B8]">
                     {{ $isTemplate ? 'Your template has been unlocked and is ready to import.' : 'Your plan has been upgraded successfully.' }}
                 </p>
             </div>
             <dl class="mx-auto grid max-w-xs gap-2 text-left text-sm">
                 <div class="flex justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2">
-                    <dt class="text-[#71717A]">Amount paid</dt>
+                    <dt class="text-[#94A3B8]">Amount paid</dt>
                     <dd class="font-bold">{{ $invoice->currency }} {{ number_format((float) $invoice->amount, 2) }}</dd>
                 </div>
                 @if (filled($invoice->pay_amount))
                 <div class="flex justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2">
-                    <dt class="text-[#71717A]">Paid in crypto</dt>
+                    <dt class="text-[#94A3B8]">Paid in crypto</dt>
                     <dd class="font-bold">{{ $invoice->pay_amount }} {{ $networkLabel ?? $invoice->pay_currency }}</dd>
                 </div>
                 @endif
                 @if ($invoice->paid_at)
                 <div class="flex justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2">
-                    <dt class="text-[#71717A]">Confirmed at</dt>
+                    <dt class="text-[#94A3B8]">Confirmed at</dt>
                     <dd class="font-bold text-xs">{{ $invoice->paid_at->toDayDateTimeString() }}</dd>
                 </div>
                 @endif
@@ -276,14 +276,14 @@
                 Invoice {{ $statusLabel }}. Generate a new crypto invoice below.
             </div>
             <div class="rounded-xl border border-[#27213D] bg-[#090713] px-4 py-3">
-                <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Amount Due</p>
+                <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Amount Due</p>
                 <p class="mt-0.5 text-2xl font-black text-white">{{ $invoice->currency }} {{ number_format((float) $invoice->amount, 2) }}</p>
-                <p class="mt-2 text-[10px] text-[#4D4868]">Invoice #{{ $invoice->id }}</p>
+                <p class="mt-2 text-[10px] text-[#7E7AA0]">Invoice #{{ $invoice->id }}</p>
             </div>
             <form method="POST" action="{{ route('dashboard.payments.generate', $invoice) }}" class="space-y-3">
                 @csrf
                 <div>
-                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#71717A]">Payment Network <span class="text-[#EF4444]">*</span></label>
+                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#94A3B8]">Payment Network <span class="text-[#EF4444]">*</span></label>
                     <select name="pay_currency" required
                             class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white focus:border-[#8B5CF6]/50 focus:outline-none">
                         <option value="" disabled selected>Select Network</option>
@@ -319,7 +319,7 @@
     <div class="w-full max-w-sm rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-3 shadow-2xl">
         <div>
             <h2 class="text-base font-black">Leave Payment Page?</h2>
-            <p class="mt-0.5 text-sm text-[#71717A]">Your invoice is still active. What would you like to do?</p>
+            <p class="mt-0.5 text-sm text-[#94A3B8]">Your invoice is still active. What would you like to do?</p>
         </div>
         <form method="POST" action="{{ route('dashboard.payments.keep-active', $invoice) }}">
             @csrf
@@ -358,7 +358,7 @@
                 <div>
                     <p class="text-lg font-black text-[#22C55E]">Template Unlocked!</p>
                     <p class="mt-0.5 text-sm font-bold text-white">{{ $reference->name }}</p>
-                    <p class="mt-1 text-xs text-[#71717A]">Ready to import into any of your bots.</p>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Ready to import into any of your bots.</p>
                 </div>
                 <div class="flex flex-col gap-2">
                     <a href="{{ route('dashboard.templates.show', $reference) }}" class="w-full rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] px-5 py-2.5 text-sm font-black text-white">Install Template</a>
@@ -389,7 +389,7 @@
         @else
             <div>
                 <p class="text-lg font-black text-[#22C55E]" id="popup-title">Payment Confirmed!</p>
-                <p class="mt-1 text-sm text-[#71717A]" id="popup-subtitle"></p>
+                <p class="mt-1 text-sm text-[#94A3B8]" id="popup-subtitle"></p>
             </div>
             <div class="flex flex-col gap-2" id="popup-actions"></div>
         @endif

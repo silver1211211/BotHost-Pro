@@ -1,4 +1,4 @@
-@props(['title' => 'Dashboard'])
+﻿@props(['title' => 'Dashboard'])
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
@@ -271,7 +271,7 @@
                     </div>
                 @endif
             </a>
-            <button type="button" class="grid h-7 w-7 place-items-center rounded-lg text-[#71717A] transition hover:text-white lg:hidden" @click="open = false" aria-label="Close sidebar">
+            <button type="button" class="grid h-7 w-7 place-items-center rounded-lg text-[#94A3B8] transition hover:text-white lg:hidden" @click="open = false" aria-label="Close sidebar">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -284,7 +284,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <p class="truncate text-xs font-black text-[#F8FAFC]">{{ $user->username ?? $user->name ?? 'User' }}</p>
-                    <p class="text-[10px] text-[#71717A]">{{ $plan }} Plan</p>
+                    <p class="text-[10px] text-[#94A3B8]">{{ $plan }} Plan</p>
                 </div>
                 <span class="h-2 w-2 shrink-0 rounded-full bg-[#22C55E] shadow-[0_0_6px_rgba(34,197,94,0.7)]"></span>
             </div>
@@ -293,12 +293,12 @@
         {{-- Navigation --}}
         <nav class="nav-scroll relative flex-1 overflow-y-auto px-3 pb-2 pt-1">
             @foreach ($navGroups as $groupLabel => $items)
-                <p class="mb-2 mt-4 px-2 text-[9px] font-black uppercase tracking-[0.18em] text-[#3D3657]">{{ $groupLabel }}</p>
+                <p class="mb-2 mt-4 px-2 text-[9px] font-black uppercase tracking-[0.18em] text-[#514B6E]">{{ $groupLabel }}</p>
                 @foreach ($items as [$label, $route, $active, $icon])
                     @php $isActive = request()->routeIs($active); @endphp
                     <a
                         href="{{ route($route) }}"
-                        class="group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-all duration-200 {{ $isActive ? 'text-white' : 'text-[#52506E] hover:bg-[#0F0D1A]/60 hover:text-[#C4C0D8]' }}"
+                        class="group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-all duration-200 {{ $isActive ? 'text-white' : 'text-[#8C88AD] hover:bg-[#0F0D1A]/60 hover:text-[#C4C0D8]' }}"
                         @if ($isActive) style="background:linear-gradient(90deg,rgba(139,92,246,0.16) 0%,rgba(139,92,246,0.04) 100%)" @endif
                         @click="open = false"
                     >
@@ -313,7 +313,7 @@
                                 <svg class="h-[17px] w-[17px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                             </span>
                         @else
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center text-[#4D4868] transition-colors group-hover:text-[#A855F7]">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center text-[#7A77A0] transition-colors group-hover:text-[#A855F7]">
                                 <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                             </span>
                         @endif
@@ -339,13 +339,13 @@
                         <svg class="h-3.5 w-3.5 text-[#8B5CF6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         <p class="text-[10px] font-black uppercase tracking-wide text-[#8B5CF6]">Upgrade to Pro</p>
                     </div>
-                    <p class="text-[11px] leading-relaxed text-[#71717A]">Unlock more bots, commands & premium features.</p>
+                    <p class="text-[11px] leading-relaxed text-[#94A3B8]">Unlock more bots, commands & premium features.</p>
                     <a href="{{ route('dashboard.upgrade') }}" class="mt-3 block rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] py-2 text-center text-[11px] font-black text-white shadow-[0_0_18px_rgba(139,92,246,0.35)]">Upgrade Now</a>
                 </div>
             @else
                 <div class="mb-3 flex items-center justify-between rounded-xl border border-[#1B172B] bg-[#0F0D1A] px-3 py-2">
                     <div>
-                        <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Plan</p>
+                        <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Plan</p>
                         <p class="text-sm font-black text-[#F8FAFC]">{{ $plan }}</p>
                     </div>
                     <span class="rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2.5 py-1 text-[10px] font-black text-[#22C55E]">Active</span>
@@ -357,9 +357,9 @@
                 @csrf
                 <button
                     type="submit"
-                    class="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-[#4D4868] transition hover:bg-[#EF4444]/8 hover:text-[#EF4444]"
+                    class="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-[#7A77A0] transition hover:bg-[#EF4444]/8 hover:text-[#EF4444]"
                 >
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[#4D4868] transition group-hover:bg-[#EF4444]/15 group-hover:text-[#EF4444]">
+                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[#7A77A0] transition group-hover:bg-[#EF4444]/15 group-hover:text-[#EF4444]">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     </span>
                     Sign Out
@@ -379,7 +379,7 @@
                 <div class="flex min-w-0 items-center gap-3">
                     <button
                         type="button"
-                        class="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#27213D]/60 text-[#71717A] transition hover:text-white lg:hidden"
+                        class="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#27213D]/60 text-[#94A3B8] transition hover:text-white lg:hidden"
                         @click="open = true"
                         aria-label="Open sidebar"
                     >
@@ -392,10 +392,10 @@
                             @if($branding['platform_logo_url'])
                                 <img src="{{ $branding['platform_logo_url'] }}" alt="{{ $branding['platform_name'] }}" class="h-5 w-auto max-w-[90px] object-contain">
                             @else
-                                <span class="text-xs text-[#4D4868] transition hover:text-[#71717A]">BotHost</span>
+                                <span class="text-xs text-[#6E6A90] transition hover:text-[#94A3B8]">BotHost</span>
                             @endif
                         </a>
-                        <svg class="hidden h-3 w-3 shrink-0 text-[#3D3657] sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        <svg class="hidden h-3 w-3 shrink-0 text-[#514B6E] sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                         <h1 class="truncate text-sm font-black text-[#F8FAFC]">{{ $title }}</h1>
                     </div>
                 </div>
@@ -405,7 +405,7 @@
                     {{-- Search --}}
                     <div class="relative hidden md:block">
                         <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-                            <svg class="h-3 w-3 text-[#3D3657]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0Z"/></svg>
+                            <svg class="h-3 w-3 text-[#6B6890]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0Z"/></svg>
                         </span>
                         <input
                             type="text"
@@ -415,7 +415,7 @@
                     </div>
 
                     {{-- Notification bell --}}
-                    <a href="{{ route('notifications.index') }}" data-notification-bell="{{ $unreadNotifications > 0 ? 'ringing' : 'idle' }}" class="relative grid h-8 w-8 place-items-center rounded-xl border border-[#1B172B] bg-[#0F0D1A] text-[#4D4868] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8] {{ $unreadNotifications > 0 ? 'bell-ringing border-[#EF4444]/35 text-[#EF4444]' : '' }}" aria-label="Notifications">
+                    <a href="{{ route('notifications.index') }}" data-notification-bell="{{ $unreadNotifications > 0 ? 'ringing' : 'idle' }}" class="relative grid h-8 w-8 place-items-center rounded-xl border border-[#1B172B] bg-[#0F0D1A] text-[#7E7AA0] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8] {{ $unreadNotifications > 0 ? 'bell-ringing border-[#EF4444]/35 text-[#EF4444]' : '' }}" aria-label="Notifications">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                         @if ($unreadNotifications > 0)
                             <span class="absolute inset-0 rounded-xl bg-[#EF4444]/10 animate-ping"></span>
@@ -487,11 +487,11 @@
         {{-- Footer --}}
         <footer class="shrink-0 border-t border-[#1B172B]/60 px-4 py-4 sm:px-6">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <p class="text-[11px] text-[#3D3657]">{{ $branding['footer_text'] }}</p>
-                <div class="flex items-center gap-4 text-[11px] text-[#3D3657]">
-                    <a href="{{ route('legal.privacy') }}" class="transition hover:text-[#71717A]">Privacy</a>
-                    <a href="{{ route('legal.terms') }}" class="transition hover:text-[#71717A]">Terms</a>
-                    <a href="{{ route('support.index') }}" class="transition hover:text-[#71717A]">Support</a>
+                <p class="text-[11px] text-[#6B6890]">{{ $branding['footer_text'] }}</p>
+                <div class="flex items-center gap-4 text-[11px] text-[#6B6890]">
+                    <a href="{{ route('legal.privacy') }}" class="transition hover:text-[#94A3B8]">Privacy</a>
+                    <a href="{{ route('legal.terms') }}" class="transition hover:text-[#94A3B8]">Terms</a>
+                    <a href="{{ route('support.index') }}" class="transition hover:text-[#94A3B8]">Support</a>
                 </div>
             </div>
         </footer>

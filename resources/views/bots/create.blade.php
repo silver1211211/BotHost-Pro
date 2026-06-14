@@ -1,8 +1,8 @@
-<x-dashboard-layout title="Create New Bot">
+﻿<x-dashboard-layout title="Create New Bot">
 <div class="mx-auto max-w-5xl">
 
     {{-- Back link --}}
-    <a href="{{ route('bots.index') }}" class="inline-flex items-center gap-2 text-sm font-black text-[#71717A] transition hover:text-[#F8FAFC]">
+    <a href="{{ route('bots.index') }}" class="inline-flex items-center gap-2 text-sm font-black text-[#94A3B8] transition hover:text-[#F8FAFC]">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
         Back to My Bots
     </a>
@@ -10,7 +10,7 @@
     {{-- ── Page header ── --}}
     <div class="mt-6 mb-6">
         <h1 class="text-2xl font-black text-[#F8FAFC]">Create New Bot</h1>
-        <p class="mt-1 text-sm text-[#71717A]">Connect your Telegram bot and start building your workspace.</p>
+        <p class="mt-1 text-sm text-[#94A3B8]">Connect your Telegram bot and start building your workspace.</p>
     </div>
 
     {{-- ── Plan limit alert ── --}}
@@ -45,7 +45,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-black text-[#F8FAFC]">Bot Details</p>
-                        <p class="text-xs text-[#71717A]">Fill in the fields below to connect your bot.</p>
+                        <p class="text-xs text-[#94A3B8]">Fill in the fields below to connect your bot.</p>
                     </div>
                 </div>
             </div>
@@ -56,7 +56,7 @@
 
                 {{-- Bot Name --}}
                 <div>
-                    <label for="name" class="text-xs font-black uppercase tracking-wider text-[#71717A]">Workspace Name</label>
+                    <label for="name" class="text-xs font-black uppercase tracking-wider text-[#94A3B8]">Workspace Name</label>
                     <input
                         id="name"
                         name="name"
@@ -77,7 +77,7 @@
                 {{-- Bot Token --}}
                 <div>
                     <div class="flex items-center justify-between gap-2">
-                        <label for="token" class="text-xs font-black uppercase tracking-wider text-[#71717A]">Telegram Bot Token</label>
+                        <label for="token" class="text-xs font-black uppercase tracking-wider text-[#94A3B8]">Telegram Bot Token</label>
                     </div>
                     <div class="relative mt-2">
                         <input
@@ -105,7 +105,7 @@
                     {{-- Security note --}}
                     <div class="mt-3 flex items-start gap-2 rounded-xl border border-[#27213D] bg-[#0B0918] px-3 py-2.5">
                         <svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
-                        <p class="text-[11px] text-[#71717A]">Your token is encrypted and never shown publicly after saving.</p>
+                        <p class="text-[11px] text-[#94A3B8]">Your token is encrypted and never shown publicly after saving.</p>
                     </div>
                 </div>
 
@@ -113,7 +113,7 @@
                 <div class="flex flex-col-reverse gap-3 border-t border-[#27213D] pt-5 sm:flex-row sm:items-center sm:justify-between">
                     <a
                         href="{{ route('bots.index') }}"
-                        class="flex items-center justify-center rounded-xl border border-[#27213D] bg-[#151225] px-5 py-2.5 text-sm font-black text-[#71717A] transition hover:text-[#A1A1AA] sm:w-auto"
+                        class="flex items-center justify-center rounded-xl border border-[#27213D] bg-[#151225] px-5 py-2.5 text-sm font-black text-[#94A3B8] transition hover:text-[#A1A1AA] sm:w-auto"
                     >
                         Cancel
                     </a>
@@ -144,7 +144,7 @@
 
             {{-- Plan usage --}}
             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
-                <p class="mb-3 text-[10px] font-black uppercase tracking-widest text-[#71717A]">Bot Usage</p>
+                <p class="mb-3 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Bot Usage</p>
                 <div class="flex items-end justify-between gap-2">
                     <p class="text-2xl font-black text-[#F8FAFC]">{{ $botsUsed }}</p>
                     <p class="mb-1 text-sm text-[#52525B]">/ {{ $botsLimit === 'unlimited' ? 'Unlimited' : $botsLimit }} bots</p>
@@ -207,7 +207,7 @@
                         ] as $i => $step)
                         <li class="flex items-start gap-2.5">
                             <span class="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#8B5CF6]/20 text-[9px] font-black text-[#8B5CF6]">{{ $i + 1 }}</span>
-                            <p class="text-[11px] leading-relaxed text-[#71717A]">{!! $step !!}</p>
+                            <p class="text-[11px] leading-relaxed text-[#94A3B8]">{!! $step !!}</p>
                         </li>
                         @endforeach
                     </ol>
@@ -216,7 +216,7 @@
 
             {{-- Tips --}}
             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
-                <p class="mb-3 text-[10px] font-black uppercase tracking-widest text-[#71717A]">Good to know</p>
+                <p class="mb-3 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Good to know</p>
                 <div class="space-y-3">
                     @foreach([
                         ['#22C55E', 'M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z', 'Token stays private — encrypted and never exposed after saving.'],
@@ -227,7 +227,7 @@
                         <div class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-lg" style="background-color:{{ $color }}18">
                             <svg style="height:10px;width:10px;color:{{ $color }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                         </div>
-                        <p class="text-[11px] leading-relaxed text-[#71717A]">{{ $text }}</p>
+                        <p class="text-[11px] leading-relaxed text-[#94A3B8]">{{ $text }}</p>
                     </div>
                     @endforeach
                 </div>

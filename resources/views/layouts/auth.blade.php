@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
@@ -63,15 +63,15 @@
             {{-- Policy footer --}}
             <footer class="mt-8 space-y-3 text-center">
                 <nav class="flex flex-wrap items-center justify-center gap-y-2 text-[11px] text-[#3D3759]">
-                    <a href="{{ route('legal.privacy') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#71717A]">Privacy Policy</a>
+                    <a href="{{ route('legal.privacy') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Privacy Policy</a>
                     <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.terms') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#71717A]">Terms of Service</a>
+                    <a href="{{ route('legal.terms') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Terms of Service</a>
                     <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.cookies') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#71717A]">Cookie Policy</a>
+                    <a href="{{ route('legal.cookies') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Cookie Policy</a>
                     <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.refunds') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#71717A]">Refund Policy</a>
+                    <a href="{{ route('legal.refunds') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Refund Policy</a>
                     <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.acceptable-use') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#71717A]">Acceptable Use</a>
+                    <a href="{{ route('legal.acceptable-use') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Acceptable Use</a>
                 </nav>
                 <p class="text-[10px] text-[#2A2640]">{{ $branding['footer_text'] }}</p>
             </footer>

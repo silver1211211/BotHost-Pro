@@ -1,4 +1,4 @@
-<x-dashboard-layout title="{{ $template->name }}">
+﻿<x-dashboard-layout title="{{ $template->name }}">
     <div class="mx-auto max-w-4xl space-y-5">
         <a href="{{ route('bots.templates.index', $bot) }}" class="text-sm font-semibold text-[#A1A1AA]">Back to templates</a>
 
@@ -10,11 +10,11 @@
         @endif
 
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-            @if($template->thumbnail_url)<img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="mb-5 max-h-72 w-full rounded-xl object-cover">@else<div class="mb-5 flex h-60 w-full items-center justify-center rounded-xl border border-[#27213D] bg-[#11101C] text-sm text-[#71717A]">No image</div>@endif
+            @if($template->thumbnail_url)<img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="mb-5 max-h-72 w-full rounded-xl object-cover">@else<div class="mb-5 flex h-60 w-full items-center justify-center rounded-xl border border-[#27213D] bg-[#11101C] text-sm text-[#94A3B8]">No image</div>@endif
             <h1 class="text-2xl font-black text-[#F8FAFC]">{{ $template->name }}</h1>
             <p class="mt-2 text-sm font-bold text-[#A1A1AA]">{{ $template->short_description }}</p>
             <p class="mt-2 text-sm text-[#A1A1AA]">{{ $template->description }}</p>
-            <div class="mt-3 flex flex-wrap gap-2 text-xs text-[#71717A]">
+            <div class="mt-3 flex flex-wrap gap-2 text-xs text-[#94A3B8]">
                 <span>{{ $template->category ?: 'General' }}</span>
                 <span>{{ ucfirst($template->level) }}</span>
                 <span>{{ $template->commands_count }} commands</span>
@@ -49,7 +49,7 @@
                     @endforeach
                 </div>
             </div>
-            <p class="mt-2 text-xs text-[#71717A]">Ignore duplicates imports only non-conflicting commands. Replace duplicates overwrites matching commands. <span class="text-[#EF4444]">Replace all commands deletes every existing command in this bot first, then imports fresh.</span></p>
+            <p class="mt-2 text-xs text-[#94A3B8]">Ignore duplicates imports only non-conflicting commands. Replace duplicates overwrites matching commands. <span class="text-[#EF4444]">Replace all commands deletes every existing command in this bot first, then imports fresh.</span></p>
             <button class="mt-4 rounded-xl bg-[#8B5CF6] px-5 py-3 text-sm font-black text-white">Import to This Bot</button>
         </form>
 

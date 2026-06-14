@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Account Settings" :no-flash="true">
+﻿<x-dashboard-layout title="Account Settings" :no-flash="true">
 
 @php
     $initialTab = 'profile';
@@ -133,7 +133,7 @@
                                 <span class="inline-flex items-center gap-1 rounded-full border border-[#F59E0B]/30 bg-[#F59E0B]/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#F59E0B]">Admin</span>
                             @endif
                         </div>
-                        <p class="mt-0.5 text-sm text-[#71717A]">{{ $user->email }}</p>
+                        <p class="mt-0.5 text-sm text-[#94A3B8]">{{ $user->email }}</p>
                     </div>
                 </div>
                 {{-- Right: quick stats --}}
@@ -146,7 +146,7 @@
                     ] as [$label, $value, $color])
                     <div class="px-4 py-2 text-center {{ !$loop->last ? 'border-r border-[#1E293B]' : '' }}">
                         <p class="text-lg font-black sm:text-xl" style="color:{{ $color }}">{{ number_format($value) }}</p>
-                        <p class="text-[9px] font-black uppercase tracking-wide text-[#71717A]">{{ $label }}</p>
+                        <p class="text-[9px] font-black uppercase tracking-wide text-[#94A3B8]">{{ $label }}</p>
                     </div>
                     @endforeach
                 </div>
@@ -172,7 +172,7 @@
                         </div>
                         <div class="min-w-0">
                             <p class="truncate text-sm font-black text-[#F8FAFC]">{{ $user->name ?? $user->username }}</p>
-                            <p class="truncate text-[11px] text-[#71717A]">{{ $user->email }}</p>
+                            <p class="truncate text-[11px] text-[#94A3B8]">{{ $user->email }}</p>
                         </div>
                     </div>
                 </div>
@@ -183,19 +183,19 @@
                         ['Member Since',   $user->created_at?->format('M Y') ?? '—',     '#A1A1AA'],
                     ] as [$key, $val, $col])
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="text-[11px] text-[#71717A]">{{ $key }}</span>
+                        <span class="text-[11px] text-[#94A3B8]">{{ $key }}</span>
                         <span class="text-[11px] font-semibold" style="color:{{ $col }}">{{ $val }}</span>
                     </div>
                     @endforeach
                     @if($user->subscription_expires_at)
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="text-[11px] text-[#71717A]">{{ $user->subscription_expires_at->isPast() ? 'Plan Expired' : 'Plan Renews' }}</span>
+                        <span class="text-[11px] text-[#94A3B8]">{{ $user->subscription_expires_at->isPast() ? 'Plan Expired' : 'Plan Renews' }}</span>
                         <span class="text-[11px] font-semibold {{ $user->subscription_expires_at->isPast() ? 'text-[#EF4444]' : 'text-[#A1A1AA]' }}">{{ $user->subscription_expires_at->format('M d, Y') }}</span>
                     </div>
                     @endif
                     @if($user->wallet_balance > 0)
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="text-[11px] text-[#71717A]">Wallet</span>
+                        <span class="text-[11px] text-[#94A3B8]">Wallet</span>
                         <span class="text-[11px] font-semibold text-[#22C55E]">${{ number_format($user->wallet_balance, 2) }}</span>
                     </div>
                     @endif
@@ -222,7 +222,7 @@
                         class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all"
                         :class="tab === '{{ $item['id'] }}'
                             ? '{{ $item['id'] === 'danger' ? 'bg-[#EF4444]/15 text-[#EF4444]' : 'bg-[#8B5CF6] text-white shadow-[0_0_12px_rgba(139,92,246,0.5)]' }}'
-                            : '{{ $item['id'] === 'danger' ? 'text-[#EF4444]/40' : 'text-[#4D4868]' }}'"
+                            : '{{ $item['id'] === 'danger' ? 'text-[#EF4444]/40' : 'text-[#7E7AA0]' }}'"
                     >
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/>
@@ -260,7 +260,7 @@
                         <div class="h-full w-2/3 rounded-full bg-gradient-to-r from-[#8B5CF6]/40 to-[#38BDF8]/40"></div>
                     @endif
                 </div>
-                <p class="text-[11px] text-[#71717A]">
+                <p class="text-[11px] text-[#94A3B8]">
                     <span class="font-semibold text-[#A1A1AA]">{{ $storeUsedDisplay }}</span>
                     &nbsp;of&nbsp;
                     <span class="font-semibold text-[#A1A1AA]">{{ $storeLimitDisplay }}</span>
@@ -286,7 +286,7 @@
                     @click="tab = '{{ $item['id'] }}'"
                     :class="tab === '{{ $item['id'] }}'
                         ? '{{ $item['id'] === 'danger' ? 'border-[#EF4444]/40 bg-[#EF4444]/10 text-[#EF4444]' : 'border-[#8B5CF6] bg-[#8B5CF6]/12 text-white' }}'
-                        : '{{ $item['id'] === 'danger' ? 'border-[#1E293B] text-[#EF4444]/50' : 'border-[#1E293B] text-[#71717A]' }}'"
+                        : '{{ $item['id'] === 'danger' ? 'border-[#1E293B] text-[#EF4444]/50' : 'border-[#1E293B] text-[#94A3B8]' }}'"
                     class="shrink-0 rounded-xl border px-3 py-2 text-xs font-semibold transition whitespace-nowrap"
                 >{{ $item['label'] }}</button>
                 @endforeach
@@ -311,7 +311,7 @@
                         </div>
                         <div>
                             <h2 class="text-sm font-black text-[#F8FAFC]">Profile Information</h2>
-                            <p class="text-[11px] text-[#71717A]">Update your display name, username, and email address.</p>
+                            <p class="text-[11px] text-[#94A3B8]">Update your display name, username, and email address.</p>
                         </div>
                     </div>
                     {{-- Form --}}
@@ -396,7 +396,7 @@
                         </div>
                         <div>
                             <h2 class="text-sm font-black text-[#F8FAFC]">Update Password</h2>
-                            <p class="text-[11px] text-[#71717A]">Use a long, random password to keep your account secure.</p>
+                            <p class="text-[11px] text-[#94A3B8]">Use a long, random password to keep your account secure.</p>
                         </div>
                     </div>
                     <div class="p-6">
@@ -438,7 +438,7 @@
                 <div class="rounded-2xl border border-[#1E293B] bg-[#0F0D1A] p-5">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
-                            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#1E293B] bg-[#07060F] text-[#4D4868]">
+                            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#1E293B] bg-[#07060F] text-[#7E7AA0]">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                             </div>
                             <div>
@@ -446,7 +446,7 @@
                                     <h3 class="text-sm font-black text-[#F8FAFC]">Two-Factor Authentication</h3>
                                     <span class="rounded-full border border-[#38BDF8]/30 bg-[#38BDF8]/8 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-[#38BDF8]">Coming Soon</span>
                                 </div>
-                                <p class="mt-1 text-xs text-[#71717A]">Add an extra layer of protection using an authenticator app.</p>
+                                <p class="mt-1 text-xs text-[#94A3B8]">Add an extra layer of protection using an authenticator app.</p>
                             </div>
                         </div>
                     </div>
@@ -463,7 +463,7 @@
                     </div>
                     <div class="rounded-2xl border border-[#1E293B] bg-[#0F0D1A] p-4">
                         <p class="text-[9px] font-black uppercase tracking-widest text-[#52525B]">2FA Status</p>
-                        <p class="mt-1.5 text-sm font-black text-[#71717A]">Not enabled</p>
+                        <p class="mt-1.5 text-sm font-black text-[#94A3B8]">Not enabled</p>
                     </div>
                 </div>
             </div>
@@ -492,7 +492,7 @@
                                 <div>
                                     <h2 class="text-lg font-black text-[#F8FAFC]">{{ $planName }}</h2>
                                     @if($subscriptionPlan?->description)
-                                        <p class="text-xs text-[#71717A]">{{ $subscriptionPlan->description }}</p>
+                                        <p class="text-xs text-[#94A3B8]">{{ $subscriptionPlan->description }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -504,7 +504,7 @@
                         <div class="text-right shrink-0">
                             <p class="text-3xl font-black text-[#F8FAFC]">{{ $subscriptionPlan?->formattedPrice() ?? 'Free' }}</p>
                             @if($subscriptionPlan && (float) $subscriptionPlan->price > 0)
-                                <p class="text-xs text-[#71717A]">per {{ $subscriptionPlan->billing_period ?? 'month' }}</p>
+                                <p class="text-xs text-[#94A3B8]">per {{ $subscriptionPlan->billing_period ?? 'month' }}</p>
                             @endif
                         </div>
                     </div>
@@ -513,13 +513,13 @@
                     <div class="mt-5 grid grid-cols-2 gap-4 border-t pt-4" style="border-color:{{ $planColor }}12">
                         @if($user->subscription_started_at)
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A] mb-0.5">Started</p>
+                            <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8] mb-0.5">Started</p>
                             <p class="text-sm font-semibold text-[#A1A1AA]">{{ $user->subscription_started_at->format('M d, Y') }}</p>
                         </div>
                         @endif
                         @if($user->subscription_expires_at)
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A] mb-0.5">{{ $user->subscription_expires_at->isPast() ? 'Expired' : 'Renews' }}</p>
+                            <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8] mb-0.5">{{ $user->subscription_expires_at->isPast() ? 'Expired' : 'Renews' }}</p>
                             <p class="text-sm font-semibold {{ $user->subscription_expires_at->isPast() ? 'text-[#EF4444]' : 'text-[#A1A1AA]' }}">{{ $user->subscription_expires_at->format('M d, Y') }}</p>
                         </div>
                         @endif
@@ -540,7 +540,7 @@
                 @php $visibleLimits = array_filter($limitCards, fn($key) => isset($planLimits[$key]), ARRAY_FILTER_USE_KEY); @endphp
                 @if(!empty($visibleLimits))
                 <div class="rounded-2xl border border-[#1E293B] bg-[#0F0D1A] p-5">
-                    <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#71717A]">Plan Limits</p>
+                    <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Plan Limits</p>
                     <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-4">
                         @foreach($limitCards as $key => $cfg)
                             @if(isset($planLimits[$key]))
@@ -550,11 +550,11 @@
                                     $isUnlim = $ld['is_unlimited'] || $ld['value'] === null;
                                 @endphp
                                 <div class="flex flex-col gap-2 rounded-xl border border-[#1E293B] bg-[#07060F] p-3.5">
-                                    <svg class="h-3.5 w-3.5 text-[#4D4868]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <svg class="h-3.5 w-3.5 text-[#7E7AA0]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="{{ $cfg['icon'] }}"/>
                                     </svg>
                                     <p class="text-lg font-black leading-none {{ $isUnlim ? 'text-[#22C55E]' : 'text-[#F8FAFC]' }}">{{ $dv }}</p>
-                                    <p class="text-[10px] text-[#71717A]">{{ $cfg['label'] }}</p>
+                                    <p class="text-[10px] text-[#94A3B8]">{{ $cfg['label'] }}</p>
                                 </div>
                             @endif
                         @endforeach
@@ -565,7 +565,7 @@
                 {{-- Plan Features --}}
                 @if(!empty($planFeatures))
                 <div class="rounded-2xl border border-[#1E293B] bg-[#0F0D1A] p-5">
-                    <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#71717A]">Features</p>
+                    <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Features</p>
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         @foreach($featureLabels as $key => $cfg)
                             @if(array_key_exists($key, $planFeatures))
@@ -575,10 +575,10 @@
                                         @if($on)
                                             <svg class="h-2.5 w-2.5 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                         @else
-                                            <svg class="h-2.5 w-2.5 text-[#4D4868]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            <svg class="h-2.5 w-2.5 text-[#7E7AA0]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         @endif
                                     </span>
-                                    <span class="text-xs font-semibold {{ $on ? 'text-[#A1A1AA]' : 'text-[#4D4868]' }}">{{ $cfg['label'] }}</span>
+                                    <span class="text-xs font-semibold {{ $on ? 'text-[#A1A1AA]' : 'text-[#7E7AA0]' }}">{{ $cfg['label'] }}</span>
                                 </div>
                             @endif
                         @endforeach
@@ -612,7 +612,7 @@
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                         </div>
                         <p class="text-2xl font-black text-[#F8FAFC]">{{ number_format($value) }}</p>
-                        <p class="mt-0.5 text-[11px] text-[#71717A]">{{ $label }}</p>
+                        <p class="mt-0.5 text-[11px] text-[#94A3B8]">{{ $label }}</p>
                     </div>
                     @endforeach
                 </div>
@@ -620,16 +620,16 @@
                 {{-- Bots List --}}
                 <div class="rounded-2xl border border-[#1E293B] bg-[#0F0D1A]">
                     <div class="flex items-center justify-between border-b border-[#131220] px-5 py-4">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Your Bots</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Your Bots</p>
                         <a href="{{ route('bots.index') }}" class="text-xs font-semibold text-[#8B5CF6] transition hover:text-[#A855F7]">View All →</a>
                     </div>
                     @if($botStats['recent']->isEmpty())
                         <div class="flex flex-col items-center gap-3 py-14 text-center">
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#1E293B] bg-[#07060F] text-[#4D4868]">
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#1E293B] bg-[#07060F] text-[#7E7AA0]">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
                             </div>
                             <div>
-                                <p class="text-sm font-black text-[#71717A]">No bots yet</p>
+                                <p class="text-sm font-black text-[#94A3B8]">No bots yet</p>
                                 <a href="{{ route('bots.create') }}" class="mt-1 inline-block text-xs font-semibold text-[#8B5CF6] transition hover:text-[#A855F7]">Create your first bot →</a>
                             </div>
                         </div>
@@ -642,9 +642,9 @@
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-semibold text-[#F8FAFC] transition group-hover:text-[#8B5CF6]">{{ $bot->name }}</p>
-                                    <p class="text-[10px] capitalize text-[#71717A]">{{ $bot->status }}</p>
+                                    <p class="text-[10px] capitalize text-[#94A3B8]">{{ $bot->status }}</p>
                                 </div>
-                                <div class="hidden items-center gap-3 text-[11px] text-[#71717A] sm:flex">
+                                <div class="hidden items-center gap-3 text-[11px] text-[#94A3B8] sm:flex">
                                     <span>{{ $bot->commands_count }} cmds</span>
                                     <span>{{ $bot->bot_users_count }} users</span>
                                 </div>
@@ -681,18 +681,18 @@
                             </div>
                             <div>
                                 <h2 class="text-sm font-black text-[#F8FAFC]">Recent Activity</h2>
-                                <p class="text-[11px] text-[#71717A]">Last {{ $recentActivity->count() }} account events</p>
+                                <p class="text-[11px] text-[#94A3B8]">Last {{ $recentActivity->count() }} account events</p>
                             </div>
                         </div>
                     </div>
                     @if($recentActivity->isEmpty())
                         <div class="flex flex-col items-center gap-3 py-14 text-center">
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#1E293B] bg-[#07060F] text-[#4D4868]">
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#1E293B] bg-[#07060F] text-[#7E7AA0]">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             </div>
                             <div>
                                 <p class="text-sm font-black text-[#A1A1AA]">No activity recorded yet</p>
-                                <p class="mt-0.5 text-xs text-[#71717A]">Account events will appear here as you use BotHost Pro.</p>
+                                <p class="mt-0.5 text-xs text-[#94A3B8]">Account events will appear here as you use BotHost Pro.</p>
                             </div>
                         </div>
                     @else
@@ -703,13 +703,13 @@
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-xs font-semibold text-[#A1A1AA]">{{ $log->action }}</p>
                                     @if($log->description)
-                                        <p class="mt-0.5 truncate text-[11px] text-[#71717A]">{{ $log->description }}</p>
+                                        <p class="mt-0.5 truncate text-[11px] text-[#94A3B8]">{{ $log->description }}</p>
                                     @endif
                                 </div>
                                 <div class="shrink-0 text-right">
-                                    <p class="text-[11px] text-[#71717A]">{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->diffForHumans() : '—' }}</p>
+                                    <p class="text-[11px] text-[#94A3B8]">{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->diffForHumans() : '—' }}</p>
                                     @if($log->ip_address)
-                                        <p class="mt-0.5 font-mono text-[10px] text-[#3D3657]">{{ $log->ip_address }}</p>
+                                        <p class="mt-0.5 font-mono text-[10px] text-[#6B6890]">{{ $log->ip_address }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -743,13 +743,13 @@
                         </div>
                         <div>
                             <h2 class="text-sm font-black text-[#F8FAFC]">Delete Account</h2>
-                            <p class="mt-1 text-xs leading-relaxed text-[#71717A]">Permanently delete your account, all bots, commands, and data. This action cannot be reversed.</p>
+                            <p class="mt-1 text-xs leading-relaxed text-[#94A3B8]">Permanently delete your account, all bots, commands, and data. This action cannot be reversed.</p>
                         </div>
                     </div>
 
                     <div class="rounded-xl border border-[#EF4444]/15 bg-[#07060F] px-4 py-3 mb-5">
-                        <p class="text-xs text-[#71717A]">This will permanently delete:</p>
-                        <ul class="mt-2 space-y-1 text-xs text-[#71717A]">
+                        <p class="text-xs text-[#94A3B8]">This will permanently delete:</p>
+                        <ul class="mt-2 space-y-1 text-xs text-[#94A3B8]">
                             @foreach(['All your bots and their commands', 'All bot users and activity data', 'All broadcasts and logs', 'Your account and profile data'] as $item)
                             <li class="flex items-center gap-2">
                                 <svg class="h-3 w-3 shrink-0 text-[#EF4444]/60" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>

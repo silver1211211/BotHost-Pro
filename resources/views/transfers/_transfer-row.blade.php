@@ -1,11 +1,11 @@
-@php
+﻿@php
     $statusColors = [
         'pending'   => ['border-[#F59E0B]/30', 'bg-[#F59E0B]/8',  'text-[#F59E0B]', '#F59E0B'],
         'imported'  => ['border-[#22C55E]/30', 'bg-[#22C55E]/8',  'text-[#22C55E]', '#22C55E'],
-        'cancelled' => ['border-[#71717A]/30', 'bg-[#71717A]/8',  'text-[#71717A]', '#71717A'],
+        'cancelled' => ['border-[#71717A]/30', 'bg-[#71717A]/8',  'text-[#94A3B8]', '#71717A'],
         'expired'   => ['border-[#EF4444]/30', 'bg-[#EF4444]/8',  'text-[#EF4444]', '#EF4444'],
     ];
-    [$borderClass, $bgClass, $textClass, $dotColor] = $statusColors[$transfer->status] ?? ['border-[#27213D]', 'bg-[#0F0D1A]', 'text-[#71717A]', '#71717A'];
+    [$borderClass, $bgClass, $textClass, $dotColor] = $statusColors[$transfer->status] ?? ['border-[#27213D]', 'bg-[#0F0D1A]', 'text-[#94A3B8]', '#71717A'];
 @endphp
 <div class="flex flex-wrap items-start justify-between gap-3 rounded-xl border {{ $borderClass }} {{ $bgClass }} p-4">
     <div class="flex items-start gap-3">
@@ -21,9 +21,9 @@
         <div>
             <p class="text-sm font-black text-[#F8FAFC]">{{ $transfer->bot_name }}</p>
             @if($role === 'sender')
-                <p class="mt-0.5 text-xs text-[#71717A]">To <span class="text-[#A1A1AA]">{{ $transfer->receiver_email }}</span></p>
+                <p class="mt-0.5 text-xs text-[#94A3B8]">To <span class="text-[#A1A1AA]">{{ $transfer->receiver_email }}</span></p>
             @else
-                <p class="mt-0.5 text-xs text-[#71717A]">From <span class="text-[#A1A1AA]">{{ $transfer->sender?->email ?? 'unknown' }}</span></p>
+                <p class="mt-0.5 text-xs text-[#94A3B8]">From <span class="text-[#A1A1AA]">{{ $transfer->sender?->email ?? 'unknown' }}</span></p>
             @endif
             @if($transfer->note)
                 <p class="mt-0.5 text-[11px] text-[#52525B]">"{{ Str::limit($transfer->note, 60) }}"</p>

@@ -1,4 +1,4 @@
-<x-dashboard-layout title="My Bots">
+﻿<x-dashboard-layout title="My Bots">
 @php
     $runningCount   = $statusCounts['running']   ?? 0;
     $pausedCount    = $statusCounts['paused']    ?? 0;
@@ -59,19 +59,19 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black sm:text-3xl text-[#F8FAFC]">My Bots</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Manage your Telegram bot workspaces.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Manage your Telegram bot workspaces.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             {{-- Plan usage badge --}}
             @if ($limitDisplay !== null)
                 <div class="flex items-center gap-1.5 rounded-xl border {{ $limitReached ? 'border-[#EF4444]/35 bg-[#EF4444]/8' : 'border-[#27213D] bg-[#0F0D1A]' }} px-3.5 py-2">
-                    <svg class="h-3.5 w-3.5 {{ $limitReached ? 'text-[#EF4444]' : 'text-[#71717A]' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <svg class="h-3.5 w-3.5 {{ $limitReached ? 'text-[#EF4444]' : 'text-[#94A3B8]' }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
                     </svg>
                     <span class="text-xs">
                         <span class="{{ $limitReached ? 'font-black text-[#EF4444]' : 'font-black text-[#F8FAFC]' }}">{{ $totalBots }}</span>
-                        <span class="text-[#4D4868]"> / {{ $limitDisplay }}</span>
-                        <span class="ml-1 text-[#71717A]">bots</span>
+                        <span class="text-[#7E7AA0]"> / {{ $limitDisplay }}</span>
+                        <span class="ml-1 text-[#94A3B8]">bots</span>
                     </span>
                 </div>
             @endif
@@ -86,7 +86,7 @@
                     </a>
                 @else
                     <span title="Bot limit reached — upgrade your plan"
-                          class="inline-flex cursor-not-allowed items-center gap-2 rounded-xl border border-[#27213D] bg-[#0B0918] px-5 py-2.5 text-sm font-black text-[#4D4868] opacity-70">
+                          class="inline-flex cursor-not-allowed items-center gap-2 rounded-xl border border-[#27213D] bg-[#0B0918] px-5 py-2.5 text-sm font-black text-[#7E7AA0] opacity-70">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                         New Bot
                     </span>
@@ -113,7 +113,7 @@
                 </span>
                 <div class="min-w-0">
                     <p class="text-base font-black text-[#F8FAFC]">{{ number_format($count) }}</p>
-                    <p class="truncate text-[10px] font-semibold text-[#71717A]">{{ $label }}</p>
+                    <p class="truncate text-[10px] font-semibold text-[#94A3B8]">{{ $label }}</p>
                 </div>
             </div>
         @endforeach
@@ -127,7 +127,7 @@
         <div class="flex flex-wrap items-center gap-2">
             {{-- Search --}}
             <div class="relative min-w-0 flex-1">
-                <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[#3D3657]">
+                <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[#6B6890]">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0Z"/></svg>
                 </span>
                 <input
@@ -161,7 +161,7 @@
             {{-- View toggle --}}
             <div class="flex items-center gap-1 rounded-xl border border-[#1B172B] bg-[#0B0918] p-1">
                 <button type="button" @click="setView('grid')"
-                    :class="view === 'grid' ? 'bg-[#151225] text-[#F8FAFC]' : 'text-[#4D4868] hover:text-[#71717A]'"
+                    :class="view === 'grid' ? 'bg-[#151225] text-[#F8FAFC]' : 'text-[#7A77A0] hover:text-[#94A3B8]'"
                     class="rounded-lg p-1.5 transition" title="Grid view">
                     <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 16 16">
                         <rect x="1" y="1" width="6" height="6" rx="1"/>
@@ -171,7 +171,7 @@
                     </svg>
                 </button>
                 <button type="button" @click="setView('list')"
-                    :class="view === 'list' ? 'bg-[#151225] text-[#F8FAFC]' : 'text-[#4D4868] hover:text-[#71717A]'"
+                    :class="view === 'list' ? 'bg-[#151225] text-[#F8FAFC]' : 'text-[#7A77A0] hover:text-[#94A3B8]'"
                     class="rounded-lg p-1.5 transition" title="List view">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
@@ -188,9 +188,9 @@
                         class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition"
                         style="{{ $filter === $val
                             ? 'background-color:' . $info['color'] . '22;border-color:' . $info['color'] . '60;color:' . $info['color']
-                            : 'border-color:#1B172B;color:#4D4868' }}"
+                            : 'border-color:#1B172B;color:#7E7AA0' }}"
                         onmouseover="{{ $filter !== $val ? "this.style.borderColor='#27213D';this.style.color='#A1A1AA'" : '' }}"
-                        onmouseout="{{ $filter !== $val ? "this.style.borderColor='#1B172B';this.style.color='#4D4868'" : '' }}"
+                        onmouseout="{{ $filter !== $val ? "this.style.borderColor='#1B172B';this.style.color='#7E7AA0'" : '' }}"
                     >
                         {{ $info['label'] }}
                         <span class="rounded-full px-1.5 py-0.5 text-[9px]"
@@ -207,7 +207,7 @@
                     ]);
                 @endphp
                 <a href="{{ route('bots.index', $clearParams) }}"
-                   class="inline-flex items-center gap-1 rounded-full border border-[#27213D] px-3 py-1 text-xs text-[#71717A] transition hover:border-[#EF4444]/40 hover:text-[#EF4444]">
+                   class="inline-flex items-center gap-1 rounded-full border border-[#27213D] px-3 py-1 text-xs text-[#94A3B8] transition hover:border-[#EF4444]/40 hover:text-[#EF4444]">
                     Clear search
                     <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                 </a>
@@ -249,7 +249,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <h3 class="truncate text-sm font-black leading-tight text-[#F8FAFC]">{{ $bot->name }}</h3>
-                                    <p class="truncate text-xs text-[#4D4868]">{{ $bot->telegramUsernameLabel() }}</p>
+                                    <p class="truncate text-xs text-[#7E7AA0]">{{ $bot->telegramUsernameLabel() }}</p>
                                 </div>
                             </div>
                             <div class="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
@@ -267,19 +267,19 @@
                         <div class="grid grid-cols-3 gap-2 text-center">
                             <div>
                                 <p class="text-base font-black text-[#F8FAFC]">{{ number_format($bot->commands_count) }}</p>
-                                <p class="text-xs text-[#4D4868]">Commands</p>
+                                <p class="text-xs text-[#94A3B8]">Commands</p>
                             </div>
                             <div>
                                 <p class="text-base font-black text-[#F8FAFC]">{{ number_format($bot->users_count) }}</p>
-                                <p class="text-xs text-[#4D4868]">Users</p>
+                                <p class="text-xs text-[#94A3B8]">Users</p>
                             </div>
                             <div>
                                 <p class="text-base font-black text-[#F8FAFC]">{{ $bot->setup_type === 'template' ? 'TPL' : 'CST' }}</p>
-                                <p class="text-xs text-[#4D4868]">Type</p>
+                                <p class="text-xs text-[#94A3B8]">Type</p>
                             </div>
                         </div>
 
-                        <div class="mt-2 text-xs text-[#3D3657]">
+                        <div class="mt-2 text-xs text-[#6B6890]">
                             Created {{ $bot->created_at->diffForHumans() }}
                             @if ($bot->last_active_at)
                                 · Active {{ $bot->last_active_at->diffForHumans() }}
@@ -295,7 +295,7 @@
                             Workspace
                         </a>
                         <a href="{{ route('bots.settings.show', $bot) }}"
-                           class="flex items-center justify-center rounded-xl border border-[#1B172B] bg-[#151225] px-2.5 py-2 text-[#71717A] transition hover:border-[#27213D] hover:text-[#F8FAFC]"
+                           class="flex items-center justify-center rounded-xl border border-[#1B172B] bg-[#151225] px-2.5 py-2 text-[#94A3B8] transition hover:border-[#27213D] hover:text-[#F8FAFC]"
                            title="Settings">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </a>
@@ -308,7 +308,7 @@
                                 data-confirm-title="Move bot to recycle bin?"
                                 data-confirm-message="&quot;{{ addslashes($bot->name) }}&quot; will be moved to the recycle bin. You can restore it later."
                                 data-confirm-btn="Move to Recycle Bin"
-                                class="flex items-center justify-center rounded-xl border border-[#1B172B] bg-[#151225] px-2.5 py-2 text-[#71717A] transition hover:border-[#EF4444]/30 hover:bg-[#EF4444]/8 hover:text-[#EF4444]"
+                                class="flex items-center justify-center rounded-xl border border-[#1B172B] bg-[#151225] px-2.5 py-2 text-[#94A3B8] transition hover:border-[#EF4444]/30 hover:bg-[#EF4444]/8 hover:text-[#EF4444]"
                                 title="Delete"
                             >
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -324,12 +324,12 @@
             <table class="w-full min-w-[600px] text-sm">
                 <thead>
                     <tr class="border-b border-[#1B172B] bg-[#07060F]">
-                        <th class="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#3D3657]">Bot</th>
-                        <th class="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#3D3657]">Commands</th>
-                        <th class="hidden px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#3D3657] sm:table-cell">Users</th>
-                        <th class="hidden px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#3D3657] md:table-cell">Created</th>
-                        <th class="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#3D3657]">Status</th>
-                        <th class="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest text-[#3D3657]">Actions</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#5C5A78]">Bot</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#5C5A78]">Commands</th>
+                        <th class="hidden px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#5C5A78] sm:table-cell">Users</th>
+                        <th class="hidden px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#5C5A78] md:table-cell">Created</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-[#5C5A78]">Status</th>
+                        <th class="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest text-[#5C5A78]">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#1B172B] bg-[#0B0918]">
@@ -352,7 +352,7 @@
                                     </div>
                                     <div class="min-w-0">
                                         <p class="truncate font-black text-[#F8FAFC]">{{ $bot->name }}</p>
-                                        <p class="truncate text-xs text-[#4D4868]">{{ $bot->telegramUsernameLabel() }}</p>
+                                        <p class="truncate text-xs text-[#7E7AA0]">{{ $bot->telegramUsernameLabel() }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -362,7 +362,7 @@
                             <td class="hidden px-4 py-3 sm:table-cell">
                                 <span class="font-black text-[#F8FAFC]">{{ number_format($bot->users_count) }}</span>
                             </td>
-                            <td class="hidden px-4 py-3 text-xs text-[#4D4868] md:table-cell">
+                            <td class="hidden px-4 py-3 text-xs text-[#7E7AA0] md:table-cell">
                                 {{ $bot->created_at->format('M j, Y') }}
                             </td>
                             <td class="px-4 py-3">
@@ -381,7 +381,7 @@
                                     <a href="{{ route('bots.show', $bot) }}"
                                        class="rounded-lg bg-[#8B5CF6]/15 px-3 py-1.5 text-xs font-black text-[#8B5CF6] transition hover:bg-[#8B5CF6]/25">Open</a>
                                     <a href="{{ route('bots.settings.show', $bot) }}"
-                                       class="rounded-lg border border-[#1B172B] px-3 py-1.5 text-xs font-semibold text-[#71717A] transition hover:text-[#F8FAFC]">Settings</a>
+                                       class="rounded-lg border border-[#1B172B] px-3 py-1.5 text-xs font-semibold text-[#94A3B8] transition hover:text-[#F8FAFC]">Settings</a>
                                     <form method="POST" action="{{ route('bots.destroy', $bot) }}">
                                         @csrf @method('DELETE')
                                         <button
@@ -391,7 +391,7 @@
                                             data-confirm-title="Move bot to recycle bin?"
                                             data-confirm-message="&quot;{{ addslashes($bot->name) }}&quot; will be moved to the recycle bin. You can restore it later."
                                             data-confirm-btn="Move to Recycle Bin"
-                                            class="rounded-lg border border-[#1B172B] px-3 py-1.5 text-xs font-semibold text-[#71717A] transition hover:border-[#EF4444]/30 hover:text-[#EF4444]"
+                                            class="rounded-lg border border-[#1B172B] px-3 py-1.5 text-xs font-semibold text-[#94A3B8] transition hover:border-[#EF4444]/30 hover:text-[#EF4444]"
                                         >Delete</button>
                                     </form>
                                 </div>
@@ -418,9 +418,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0Z"/>
                 </svg>
                 <p class="mt-3 text-sm font-semibold text-[#A1A1AA]">No bots match your search</p>
-                <p class="mt-1 text-xs text-[#71717A]">Try a different name, username, or ID.</p>
+                <p class="mt-1 text-xs text-[#94A3B8]">Try a different name, username, or ID.</p>
                 <a href="{{ route('bots.index') }}"
-                   class="mt-4 inline-block rounded-xl border border-[#27213D] px-4 py-1.5 text-xs font-semibold text-[#71717A] transition hover:text-[#F8FAFC]">
+                   class="mt-4 inline-block rounded-xl border border-[#27213D] px-4 py-1.5 text-xs font-semibold text-[#94A3B8] transition hover:text-[#F8FAFC]">
                     Clear all filters
                 </a>
             </div>
@@ -440,7 +440,7 @@
                     </svg>
                 </div>
                 <h3 class="mt-5 text-xl font-black text-[#F8FAFC]">No bots yet</h3>
-                <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#71717A]">
+                <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#94A3B8]">
                     Create a bot workspace, add your Telegram token, and start building commands.
                 </p>
                 @if (! $limitReached)
@@ -453,7 +453,7 @@
                     </div>
                 @endif
                 @if ($limitDisplay !== null)
-                    <p class="mt-4 text-xs text-[#3D3657]">
+                    <p class="mt-4 text-xs text-[#6B6890]">
                         {{ ucfirst(auth()->user()->subscription_plan ?? 'Free') }} plan ·
                         {{ $limitDisplay === 'Unlimited' ? 'Unlimited bots' : "Up to {$limitDisplay} bots" }}
                     </p>

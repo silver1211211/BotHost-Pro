@@ -1,4 +1,4 @@
-<x-admin-layout title="Plans" subtitle="Manage subscription plans, features, and limits">
+﻿<x-admin-layout title="Plans" subtitle="Manage subscription plans, features, and limits">
 
     @php $activeTab = request('tab', 'plans'); @endphp
 
@@ -21,7 +21,7 @@
         ] as $tabKey => $tabLabel)
             <a href="{{ route('admin.plans.index', ['tab' => $tabKey]) }}"
                class="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition
-                      {{ $activeTab === $tabKey ? 'bg-[#27213D] text-white' : 'text-[#71717A] hover:text-white' }}">
+                      {{ $activeTab === $tabKey ? 'bg-[#27213D] text-white' : 'text-[#94A3B8] hover:text-white' }}">
                 {{ $tabLabel }}
             </a>
         @endforeach
@@ -36,7 +36,7 @@
                     @csrf @method('PATCH')
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-black text-white">{{ $plan->name }}
-                            <span class="ml-2 text-xs font-normal text-[#71717A]">slug: {{ $plan->slug }}</span>
+                            <span class="ml-2 text-xs font-normal text-[#94A3B8]">slug: {{ $plan->slug }}</span>
                         </h2>
                         <span class="rounded-full px-2 py-0.5 text-xs font-bold
                             {{ $plan->status === 'active' ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'bg-[#EF4444]/15 text-[#EF4444]' }}">
@@ -65,7 +65,7 @@
                                 <input type="hidden" name="billing_period" :value="val">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-1 ring-[#8B5CF6]/15' : ''">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -84,7 +84,7 @@
                                 <input type="hidden" name="status" :value="val">
                                 <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-1 ring-[#8B5CF6]/15' : ''">
                                     <span x-text="label"></span>
-                                    <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    <svg class="ml-2 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                     class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -126,9 +126,9 @@
                 <table class="w-full min-w-[700px] text-sm">
                     <thead>
                         <tr class="border-b border-[#27213D]">
-                            <th class="p-3 text-left text-xs font-bold uppercase text-[#71717A]">Limit</th>
+                            <th class="p-3 text-left text-xs font-bold uppercase text-[#94A3B8]">Limit</th>
                             @foreach($plans as $plan)
-                                <th class="p-3 text-left text-xs font-bold uppercase text-[#71717A]">{{ $plan->name }}</th>
+                                <th class="p-3 text-left text-xs font-bold uppercase text-[#94A3B8]">{{ $plan->name }}</th>
                             @endforeach
                         </tr>
                     </thead>
@@ -156,7 +156,7 @@
                                                        onchange="this.closest('td').querySelector('input[type=number]').disabled=this.checked; this.closest('td').querySelector('input[type=number]').classList.toggle('opacity-40',this.checked)">
                                                 Unlimited
                                             </label>
-                                            <label class="flex items-center gap-1 text-xs text-[#71717A] cursor-pointer">
+                                            <label class="flex items-center gap-1 text-xs text-[#94A3B8] cursor-pointer">
                                                 <input type="checkbox" name="limits[{{ $plan->id }}][{{ $limitKey }}][visible]" value="1"
                                                        {{ $visible ? 'checked' : '' }}>
                                                 Show on upgrade page
@@ -181,7 +181,7 @@
         <form method="POST" action="{{ route('admin.plans.features.update') }}"
               class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
             @csrf @method('PATCH')
-            <p class="mb-4 text-xs text-[#71717A]">
+            <p class="mb-4 text-xs text-[#94A3B8]">
                 <strong class="text-[#A1A1AA]">Enabled</strong> — feature is available to that plan.
                 <strong class="text-[#A1A1AA]">Visible</strong> — feature shows on the upgrade page card.
             </p>
@@ -189,12 +189,12 @@
                 <table class="w-full min-w-[800px] text-sm">
                     <thead>
                         <tr class="border-b border-[#27213D]">
-                            <th class="p-3 text-left text-xs font-bold uppercase text-[#71717A]">Feature</th>
-                            <th class="p-3 text-xs font-bold uppercase text-[#71717A]">Category</th>
+                            <th class="p-3 text-left text-xs font-bold uppercase text-[#94A3B8]">Feature</th>
+                            <th class="p-3 text-xs font-bold uppercase text-[#94A3B8]">Category</th>
                             @foreach($plans as $plan)
-                                <th class="p-3 text-xs font-bold uppercase text-[#71717A]">
+                                <th class="p-3 text-xs font-bold uppercase text-[#94A3B8]">
                                     {{ $plan->name }}<br>
-                                    <span class="font-normal normal-case text-[#4D4868]">enabled / visible</span>
+                                    <span class="font-normal normal-case text-[#7E7AA0]">enabled / visible</span>
                                 </th>
                             @endforeach
                         </tr>
@@ -204,9 +204,9 @@
                             <tr class="border-b border-[#27213D]/60">
                                 <td class="p-3 font-semibold text-white">
                                     {{ $feature->name }}
-                                    <div class="text-xs text-[#71717A]">{{ $feature->key }}</div>
+                                    <div class="text-xs text-[#94A3B8]">{{ $feature->key }}</div>
                                 </td>
-                                <td class="p-3 text-center text-xs text-[#71717A]">{{ $feature->category }}</td>
+                                <td class="p-3 text-center text-xs text-[#94A3B8]">{{ $feature->category }}</td>
                                 @foreach($plans as $plan)
                                     @php
                                         $access = $accessMatrix->get($plan->id)?->firstWhere('plan_feature_id', $feature->id);
@@ -222,7 +222,7 @@
                                                        {{ $enabled ? 'checked' : '' }}>
                                                 On
                                             </label>
-                                            <label class="flex items-center gap-1 text-xs text-[#71717A] cursor-pointer">
+                                            <label class="flex items-center gap-1 text-xs text-[#94A3B8] cursor-pointer">
                                                 <input type="checkbox"
                                                        name="visible[{{ $plan->id }}][{{ $feature->id }}]"
                                                        value="1"
@@ -256,14 +256,14 @@
 
             <div>
                 <h3 class="text-base font-black text-white mb-1">Template Feature Access</h3>
-                <p class="text-xs text-[#71717A] mb-4">Control which plans can access free/paid/included templates.</p>
+                <p class="text-xs text-[#94A3B8] mb-4">Control which plans can access free/paid/included templates.</p>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[700px] text-sm">
                         <thead>
                             <tr class="border-b border-[#27213D]">
-                                <th class="p-3 text-left text-xs font-bold uppercase text-[#71717A]">Feature</th>
+                                <th class="p-3 text-left text-xs font-bold uppercase text-[#94A3B8]">Feature</th>
                                 @foreach($plans as $plan)
-                                    <th class="p-3 text-center text-xs font-bold uppercase text-[#71717A]">{{ $plan->name }}</th>
+                                    <th class="p-3 text-center text-xs font-bold uppercase text-[#94A3B8]">{{ $plan->name }}</th>
                                 @endforeach
                             </tr>
                         </thead>
@@ -272,7 +272,7 @@
                                 <tr class="border-b border-[#27213D]/60">
                                     <td class="p-3 font-semibold text-white">
                                         {{ $feature->name }}
-                                        <div class="text-xs text-[#71717A]">{{ $feature->key }}</div>
+                                        <div class="text-xs text-[#94A3B8]">{{ $feature->key }}</div>
                                     </td>
                                     @foreach($plans as $plan)
                                         @php
@@ -289,7 +289,7 @@
                                                            {{ $enabled ? 'checked' : '' }}>
                                                     Enabled
                                                 </label>
-                                                <label class="flex items-center gap-1 text-xs text-[#71717A] cursor-pointer">
+                                                <label class="flex items-center gap-1 text-xs text-[#94A3B8] cursor-pointer">
                                                     <input type="checkbox"
                                                            name="visible[{{ $plan->id }}][{{ $feature->id }}]"
                                                            value="1"
@@ -308,7 +308,7 @@
 
             <div>
                 <h3 class="text-base font-black text-white mb-1">Free Templates Unlocked Per Month</h3>
-                <p class="text-xs text-[#71717A] mb-4">How many free/included templates a user can unlock per month without paying.</p>
+                <p class="text-xs text-[#94A3B8] mb-4">How many free/included templates a user can unlock per month without paying.</p>
                 <div class="grid gap-4 md:grid-cols-3">
                     @foreach($plans as $plan)
                         @php
@@ -335,7 +335,7 @@
 
             <div>
                 <h3 class="text-base font-black text-white mb-1">Paid Templates Purchase Limit</h3>
-                <p class="text-xs text-[#71717A] mb-4">Maximum paid template purchases allowed. Unlimited by default for all plans.</p>
+                <p class="text-xs text-[#94A3B8] mb-4">Maximum paid template purchases allowed. Unlimited by default for all plans.</p>
                 <div class="grid gap-4 md:grid-cols-3">
                     @foreach($plans as $plan)
                         @php
@@ -360,7 +360,7 @@
                 </div>
             </div>
 
-            <div class="rounded border border-[#27213D] bg-[#090713] p-4 text-xs text-[#71717A]">
+            <div class="rounded border border-[#27213D] bg-[#090713] p-4 text-xs text-[#94A3B8]">
                 <p class="font-bold text-[#A1A1AA] mb-1">Included Plan Rules (template level):</p>
                 <ul class="list-disc list-inside space-y-0.5">
                     <li>Template <code>included_plan = free</code>: all plans can unlock without payment.</li>
@@ -382,7 +382,7 @@
         <form method="POST" action="{{ route('admin.plans.broadcast-limits.update') }}"
               class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5 space-y-5">
             @csrf @method('PATCH')
-            <p class="text-xs text-[#71717A]">
+            <p class="text-xs text-[#94A3B8]">
                 These limits control how many bot users can receive a broadcast per send, and how many broadcasts a user can create per month.
                 Set a value or check Unlimited.
             </p>
@@ -390,9 +390,9 @@
                 <table class="w-full min-w-[600px] text-sm">
                     <thead>
                         <tr class="border-b border-[#27213D]">
-                            <th class="p-3 text-left text-xs font-bold uppercase text-[#71717A]">Limit</th>
+                            <th class="p-3 text-left text-xs font-bold uppercase text-[#94A3B8]">Limit</th>
                             @foreach($plans as $plan)
-                                <th class="p-3 text-left text-xs font-bold uppercase text-[#71717A]">{{ $plan->name }}</th>
+                                <th class="p-3 text-left text-xs font-bold uppercase text-[#94A3B8]">{{ $plan->name }}</th>
                             @endforeach
                         </tr>
                     </thead>
@@ -423,7 +423,7 @@
                                                        onchange="this.closest('td').querySelector('input[type=number]').disabled=this.checked; this.closest('td').querySelector('input[type=number]').classList.toggle('opacity-40',this.checked)">
                                                 Unlimited
                                             </label>
-                                            <label class="flex items-center gap-1 text-xs text-[#71717A] cursor-pointer">
+                                            <label class="flex items-center gap-1 text-xs text-[#94A3B8] cursor-pointer">
                                                 <input type="checkbox" name="limits[{{ $plan->id }}][{{ $limitKey }}][visible]" value="1"
                                                        {{ $visible ? 'checked' : '' }}>
                                                 Show on upgrade page

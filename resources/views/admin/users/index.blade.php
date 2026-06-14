@@ -18,7 +18,7 @@
 <div class="mb-5">
     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#8B5CF6]">Management</p>
     <h2 class="mt-1 text-2xl font-black text-white">All Users</h2>
-    <p class="mt-0.5 text-sm text-[#71717A]">{{ $users->total() }} registered accounts</p>
+    <p class="mt-0.5 text-sm text-[#94A3B8]">{{ $users->total() }} registered accounts</p>
 </div>
 
 {{-- Filter / Search Bar --}}
@@ -26,7 +26,7 @@
     <div class="rounded-2xl border border-[#27213D] p-3" style="background: #0F0D1A;">
         {{-- Search --}}
         <div class="flex items-center gap-2 rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2 mb-3">
-            <svg class="h-4 w-4 shrink-0 text-[#71717A]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <svg class="h-4 w-4 shrink-0 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
             <input type="text" name="search" value="{{ $filters['search'] ?? '' }}"
@@ -46,7 +46,7 @@
                 <input type="hidden" name="role" :value="val">
                 <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-xl border bg-[#11101C] px-3 py-2 text-xs text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-1 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                     <span x-text="label"></span>
-                    <svg class="h-3 w-3 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                    <svg class="h-3 w-3 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                 </button>
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     class="absolute z-50 mt-1.5 min-w-[130px] overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -63,7 +63,7 @@
                 <input type="hidden" name="status" :value="val">
                 <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-xl border bg-[#11101C] px-3 py-2 text-xs text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-1 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                     <span x-text="label"></span>
-                    <svg class="h-3 w-3 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                    <svg class="h-3 w-3 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                 </button>
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     class="absolute z-50 mt-1.5 min-w-[140px] overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -80,7 +80,7 @@
                 <input type="hidden" name="plan" :value="val">
                 <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-xl border bg-[#11101C] px-3 py-2 text-xs text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-1 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                     <span x-text="label"></span>
-                    <svg class="h-3 w-3 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                    <svg class="h-3 w-3 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                 </button>
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     class="absolute z-50 mt-1.5 min-w-[130px] overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -97,7 +97,7 @@
                 <input type="hidden" name="sort" :value="val">
                 <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-xl border bg-[#11101C] px-3 py-2 text-xs text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/60 ring-1 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                     <span x-text="label"></span>
-                    <svg class="h-3 w-3 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                    <svg class="h-3 w-3 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                 </button>
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     class="absolute z-50 mt-1.5 min-w-[150px] overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -113,7 +113,7 @@
                 Filter
             </button>
             @if (array_filter($filters ?? []))
-                <a href="{{ route('admin.users.index') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-bold text-[#71717A] transition hover:text-white">
+                <a href="{{ route('admin.users.index') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-bold text-[#94A3B8] transition hover:text-white">
                     Clear
                 </a>
             @endif
@@ -167,7 +167,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <p class="truncate text-sm font-semibold text-white">{{ $user->name }}</p>
-                                    <p class="truncate text-xs text-[#71717A]">{{ $user->email }}</p>
+                                    <p class="truncate text-xs text-[#94A3B8]">{{ $user->email }}</p>
                                     @if ($user->username)
                                         <p class="truncate text-[10px] text-[#3D3658]">{{ $user->username }}</p>
                                     @endif
@@ -211,7 +211,7 @@
                         {{-- Joined --}}
                         <td class="px-4 py-3.5">
                             <p class="text-xs text-[#A1A1AA]">{{ optional($user->created_at)->format('M d, Y') }}</p>
-                            <p class="text-[10px] text-[#71717A]">{{ optional($user->created_at)->diffForHumans() }}</p>
+                            <p class="text-[10px] text-[#94A3B8]">{{ optional($user->created_at)->diffForHumans() }}</p>
                         </td>
 
                         {{-- Actions — compact dropdown --}}
@@ -302,10 +302,10 @@
                                                     @csrf
                                                     {{-- Type toggle --}}
                                                     <div class="flex rounded-lg border border-[#27213D] overflow-hidden text-[10px] font-bold">
-                                                        <label class="flex-1 text-center cursor-pointer py-1 transition" :class="type==='timed' ? 'bg-[#27213D] text-white' : 'text-[#71717A]'">
+                                                        <label class="flex-1 text-center cursor-pointer py-1 transition" :class="type==='timed' ? 'bg-[#27213D] text-white' : 'text-[#94A3B8]'">
                                                             <input type="radio" name="suspend_type" value="timed" x-model="type" class="sr-only"> Timed
                                                         </label>
-                                                        <label class="flex-1 text-center cursor-pointer py-1 transition border-l border-[#27213D]" :class="type==='support' ? 'bg-[#27213D] text-white' : 'text-[#71717A]'">
+                                                        <label class="flex-1 text-center cursor-pointer py-1 transition border-l border-[#27213D]" :class="type==='support' ? 'bg-[#27213D] text-white' : 'text-[#94A3B8]'">
                                                             <input type="radio" name="suspend_type" value="support" x-model="type" class="sr-only"> Until Support
                                                         </label>
                                                     </div>
@@ -364,7 +364,7 @@
                                     </svg>
                                 </div>
                                 <p class="mt-3 text-base font-black text-white">No users found</p>
-                                <p class="mt-1 text-sm text-[#71717A]">
+                                <p class="mt-1 text-sm text-[#94A3B8]">
                                     @if (array_filter($filters ?? []))
                                         Try adjusting your filters.
                                     @else
@@ -388,7 +388,7 @@
 {{-- Pagination --}}
 @if ($users->hasPages())
     <div class="mt-4 flex items-center justify-between">
-        <p class="text-xs text-[#71717A]">
+        <p class="text-xs text-[#94A3B8]">
             Showing {{ $users->firstItem() }}–{{ $users->lastItem() }} of {{ $users->total() }}
         </p>
         <div class="flex items-center gap-1">

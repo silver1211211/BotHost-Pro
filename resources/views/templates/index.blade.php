@@ -1,11 +1,11 @@
-<x-dashboard-layout title="Template Marketplace">
+﻿<x-dashboard-layout title="Template Marketplace">
     <div class="mx-auto max-w-6xl space-y-3">
 
         {{-- Header --}}
         <div class="flex items-center justify-between gap-3 rounded-2xl border border-[#27213D] bg-[#0F0D1A] px-4 py-3">
             <div>
                 <h1 class="text-xl font-black leading-tight">Template Marketplace</h1>
-                <p class="text-xs text-[#71717A]">Browse free and paid command templates.</p>
+                <p class="text-xs text-[#94A3B8]">Browse free and paid command templates.</p>
             </div>
             <a href="{{ route('dashboard.templates.purchased') }}"
                class="rounded-xl border border-[#22C55E]/35 bg-[#22C55E]/12 px-4 py-1.5 text-sm font-bold text-[#22C55E] transition hover:bg-[#22C55E]/20">
@@ -96,22 +96,22 @@
                             <img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}"
                                  class="absolute inset-0 h-full w-full object-cover"
                                  onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
-                            <div class="absolute inset-0 items-center justify-center bg-[#11101C] text-xs text-[#71717A]" style="display:none">No image</div>
+                            <div class="absolute inset-0 items-center justify-center bg-[#11101C] text-xs text-[#94A3B8]" style="display:none">No image</div>
                         @else
-                            <div class="flex h-full w-full items-center justify-center border border-[#27213D] bg-[#11101C] text-xs text-[#71717A]">No image</div>
+                            <div class="flex h-full w-full items-center justify-center border border-[#27213D] bg-[#11101C] text-xs text-[#94A3B8]">No image</div>
                         @endif
                     </div>
 
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
                             <h2 class="truncate text-base font-black">{{ $template->name }}</h2>
-                            <p class="mt-0.5 line-clamp-2 text-xs text-[#71717A]">{{ Str::limit($template->short_description ?: $template->description, 120) }}</p>
+                            <p class="mt-0.5 line-clamp-2 text-xs text-[#94A3B8]">{{ Str::limit($template->short_description ?: $template->description, 120) }}</p>
                         </div>
                         <span class="shrink-0 rounded-full border border-[#27213D] px-2 py-0.5 text-[11px] font-bold">{{ $template->formatted_price }}</span>
                     </div>
 
                     {{-- Meta badges --}}
-                    <div class="mt-2 flex flex-wrap gap-1.5 text-[10px] text-[#71717A]">
+                    <div class="mt-2 flex flex-wrap gap-1.5 text-[10px] text-[#94A3B8]">
                         <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ $template->category ?: 'General' }}</span>
                         <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ ucfirst($template->level) }}</span>
                         <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ $template->commands_count }} cmds</span>

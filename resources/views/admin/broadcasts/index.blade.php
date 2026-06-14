@@ -1,4 +1,4 @@
-<x-admin-layout title="Broadcast Center" subtitle="Send platform-wide announcements to your BotHost Pro audience.">
+﻿<x-admin-layout title="Broadcast Center" subtitle="Send platform-wide announcements to your BotHost Pro audience.">
 
 @php $s = $stats; @endphp
 
@@ -10,13 +10,13 @@
     <div class="relative flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#27213D] bg-[#151225] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#71717A]">Admin Only</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#27213D] bg-[#151225] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Admin Only</span>
                 <span class="inline-flex items-center gap-1.5 rounded-full border border-[#22C55E]/25 bg-[#22C55E]/8 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#22C55E]">
                     <span class="h-1.5 w-1.5 rounded-full bg-[#22C55E]"></span>Safe Queue
                 </span>
             </div>
             <h2 class="mt-3 text-xl font-black text-[#F8FAFC] sm:text-2xl">Broadcast Center</h2>
-            <p class="mt-1 text-sm text-[#71717A]">Send updates to platform users, email subscribers, Telegram bot users, or platform banners.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Send updates to platform users, email subscribers, Telegram bot users, or platform banners.</p>
             <p class="mt-0.5 text-xs text-[#52525B]">Broadcasts run in the background after they are queued.</p>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -94,20 +94,20 @@
                 <div class="overflow-hidden rounded-3xl border border-[#27213D] bg-[#0F0D1A]">
                     <div class="border-b border-[#27213D] px-5 py-4">
                         <p class="text-sm font-black text-[#F8FAFC]">Campaign Setup</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">Define the campaign identity, subject, and message.</p>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">Define the campaign identity, subject, and message.</p>
                     </div>
                     <div class="space-y-4 p-5">
 
                         {{-- Name + Priority --}}
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Campaign Name</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Campaign Name</label>
                                 <input x-model="bcTitle" name="campaign_name" maxlength="120" type="text"
                                     class="mt-2 w-full rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/15 transition"
                                     placeholder="Maintenance notice, New feature alert…">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Priority</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Priority</label>
                                 <div class="mt-2 grid grid-cols-4 gap-1.5">
                                     @foreach ([
                                         ['low',      'Low',      '#71717A'],
@@ -127,7 +127,7 @@
 
                         {{-- Subject --}}
                         <div>
-                            <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Title / Subject</label>
+                            <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Title / Subject</label>
                             <input x-model="bcSubject" name="title" maxlength="150" type="text"
                                 class="mt-2 w-full rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/15 transition"
                                 placeholder="Important update from BotHost Pro">
@@ -136,7 +136,7 @@
                         {{-- Message --}}
                         <div>
                             <div class="flex items-center justify-between">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Message</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Message</label>
                                 <span class="text-[10px]" :class="bcLen > 3800 ? 'font-black text-[#EF4444]' : 'text-[#3D3658]'" x-text="bcLen + ' / 4096'">0 / 4096</span>
                             </div>
                             <textarea x-model="bcMsg" name="message" rows="6" maxlength="4096"
@@ -169,7 +169,7 @@
                 <div class="overflow-hidden rounded-3xl border border-[#27213D] bg-[#0F0D1A]">
                     <div class="border-b border-[#27213D] px-5 py-4">
                         <p class="text-sm font-black text-[#F8FAFC]">Delivery Channels</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">Select one or more channels for this broadcast.</p>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">Select one or more channels for this broadcast.</p>
                     </div>
                     <div class="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
                         @foreach ([
@@ -188,7 +188,7 @@
                                     <svg class="h-4 w-4 shrink-0" style="color:{{ $chColor }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $chPath }}"/></svg>
                                     <p class="text-sm font-black text-[#F8FAFC]">{{ $chLabel }}</p>
                                 </div>
-                                <p class="mt-1 text-xs leading-4 text-[#71717A]">{{ $chDesc }}</p>
+                                <p class="mt-1 text-xs leading-4 text-[#94A3B8]">{{ $chDesc }}</p>
                             </div>
                         </label>
                         @endforeach
@@ -196,12 +196,12 @@
 
                     {{-- Telegram audience window picker — shown when telegram channel is selected --}}
                     <div x-show="channels.includes('telegram')" class="border-t border-[#1B172B] px-5 pb-5 pt-4" x-cloak>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Telegram Audience Window</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Telegram Audience Window</p>
                         <div class="mt-2 overflow-hidden rounded-2xl border border-[#229ED9]/25 bg-[#229ED9]/5">
                             <div class="flex items-center justify-between gap-3 px-4 py-3.5">
                                 <div class="min-w-0">
                                     <p class="text-sm font-black text-[#229ED9]" x-text="tgWindowLabel"></p>
-                                    <p class="mt-0.5 text-[10px] text-[#71717A]">
+                                    <p class="mt-0.5 text-[10px] text-[#94A3B8]">
                                         <span class="font-black text-[#F8FAFC]" x-text="(tgWindowCounts[tgWindow] || 0).toLocaleString()"></span> bot users in this window
                                     </p>
                                 </div>
@@ -219,7 +219,7 @@
                 <div class="overflow-hidden rounded-3xl border border-[#27213D] bg-[#0F0D1A]">
                     <div class="border-b border-[#27213D] px-5 py-4">
                         <p class="text-sm font-black text-[#F8FAFC]">Audience Targeting</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">Select who receives this campaign. One segment at a time.</p>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">Select who receives this campaign. One segment at a time.</p>
                     </div>
                     <div class="space-y-5 p-5">
 
@@ -294,17 +294,17 @@
                 <div class="overflow-hidden rounded-3xl border border-[#27213D] bg-[#0F0D1A]">
                     <div class="border-b border-[#27213D] px-5 py-4">
                         <p class="text-sm font-black text-[#F8FAFC]">Schedule &amp; Launch</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">Queue now or save as a draft for later.</p>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">Queue now or save as a draft for later.</p>
                     </div>
                     <div class="p-5">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">When to Send</label>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">When to Send</label>
                         <input type="hidden" name="schedule" :value="scheduleVal">
                         <div class="relative mt-2" @click.away="scheduleOpen = false">
                             <button type="button" @click="scheduleOpen = !scheduleOpen"
                                 class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] transition focus:outline-none"
                                 :class="scheduleOpen ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                 <span x-text="scheduleLabel" class="text-left"></span>
-                                <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform duration-150" :class="scheduleOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform duration-150" :class="scheduleOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                             </button>
                             <div x-show="scheduleOpen" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                 class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -349,7 +349,7 @@
                 <div class="overflow-hidden rounded-3xl border border-[#27213D] bg-[#0F0D1A]">
                     <div class="border-b border-[#27213D] px-5 py-4">
                         <p class="text-sm font-black text-[#F8FAFC]">Campaign Preview</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">In-app notification preview</p>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">In-app notification preview</p>
                     </div>
                     <div class="p-5">
                         <div class="overflow-hidden rounded-2xl border border-[#27213D] bg-[#090713]">
@@ -410,7 +410,7 @@
                 <div class="overflow-hidden rounded-3xl border border-[#27213D] bg-[#0F0D1A]">
                     <div class="border-b border-[#27213D] px-5 py-4">
                         <p class="text-sm font-black text-[#F8FAFC]">Batch Planning</p>
-                        <p class="mt-0.5 text-xs text-[#71717A]">Delivery speed and queue settings</p>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">Delivery speed and queue settings</p>
                     </div>
                     <div class="space-y-4 p-5">
                         <div class="grid grid-cols-2 gap-3">
@@ -422,7 +422,7 @@
                                         class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none"
                                         :class="batchSizeOpen ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                         <span x-text="batchSizeLabel"></span>
-                                        <svg class="ml-1 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform duration-150" :class="batchSizeOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                        <svg class="ml-1 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform duration-150" :class="batchSizeOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                     </button>
                                     <div x-show="batchSizeOpen" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                         class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -445,7 +445,7 @@
                                         class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-3 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none"
                                         :class="batchDelayOpen ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                         <span x-text="batchDelayLabel"></span>
-                                        <svg class="ml-1 h-3.5 w-3.5 shrink-0 text-[#71717A] transition-transform duration-150" :class="batchDelayOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                        <svg class="ml-1 h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-transform duration-150" :class="batchDelayOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                                     </button>
                                     <div x-show="batchDelayOpen" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                                         class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -466,12 +466,12 @@
                             <div class="flex items-center justify-between gap-2">
                                 <div class="min-w-0">
                                     <p class="text-[10px] font-black uppercase tracking-widest text-[#52525B]">Recipient Cap</p>
-                                    <p class="mt-0.5 text-xs text-[#71717A]" x-show="!maxRecipients">Sending to all eligible recipients</p>
+                                    <p class="mt-0.5 text-xs text-[#94A3B8]" x-show="!maxRecipients">Sending to all eligible recipients</p>
                                     <p class="mt-0.5 text-xs font-black text-[#A855F7]" x-show="maxRecipients" x-cloak x-text="Number(maxRecipients).toLocaleString() + ' max recipients'"></p>
                                 </div>
                                 <button type="button" @click="recipientCapOpen = !recipientCapOpen"
                                     class="shrink-0 rounded-xl border px-3 py-1.5 text-xs font-black transition"
-                                    :class="maxRecipients ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#A855F7]' : 'border-[#27213D] bg-[#151225] text-[#71717A] hover:text-[#F8FAFC]'"
+                                    :class="maxRecipients ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#A855F7]' : 'border-[#27213D] bg-[#151225] text-[#94A3B8] hover:text-[#F8FAFC]'"
                                     x-text="recipientCapOpen ? 'Close' : (maxRecipients ? 'Edit cap' : 'Set limit')">
                                 </button>
                             </div>
@@ -482,7 +482,7 @@
                                     <input type="number" min="1" x-model="maxRecipients" placeholder="e.g. 5000"
                                         class="flex-1 rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:outline-none transition">
                                     <button type="button" @click="maxRecipients = ''; recipientCapOpen = false"
-                                        class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 text-xs font-black text-[#71717A] transition hover:border-[#EF4444]/40 hover:text-[#EF4444]">
+                                        class="rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2.5 text-xs font-black text-[#94A3B8] transition hover:border-[#EF4444]/40 hover:text-[#EF4444]">
                                         Clear
                                     </button>
                                 </div>
@@ -496,7 +496,7 @@
                             ['Plan Level',  'Admin — no recipient limits'],
                         ] as [$bl, $bv])
                         <div class="flex items-center justify-between border-b border-[#1B172B] pb-3 last:border-0 last:pb-0">
-                            <p class="text-xs text-[#71717A]">{{ $bl }}</p>
+                            <p class="text-xs text-[#94A3B8]">{{ $bl }}</p>
                             <p class="text-xs font-black text-[#A1A1AA]">{{ $bv }}</p>
                         </div>
                         @endforeach
@@ -546,7 +546,7 @@
                 </div>
                 <div class="border-b border-[#27213D] px-5 py-4">
                     <p class="text-sm font-black text-[#F8FAFC]">Select Telegram Audience</p>
-                    <p class="mt-0.5 text-xs text-[#71717A]">Choose which bot users receive this broadcast by activity window.</p>
+                    <p class="mt-0.5 text-xs text-[#94A3B8]">Choose which bot users receive this broadcast by activity window.</p>
                 </div>
                 <div class="space-y-2 p-4">
                     @foreach ([
@@ -564,7 +564,7 @@
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-black transition" :class="tgWindow === '{{ $wval }}' ? 'text-[#229ED9]' : 'text-[#F8FAFC]'">{{ $wlabel }}</p>
-                            <p class="mt-0.5 text-[10px] text-[#71717A]">
+                            <p class="mt-0.5 text-[10px] text-[#94A3B8]">
                                 <span class="font-black" :class="tgWindow === '{{ $wval }}' ? 'text-[#229ED9]' : 'text-[#A1A1AA]'">{{ number_format($wcount) }}</span> bot users available
                             </p>
                         </div>
@@ -586,11 +586,11 @@
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#27213D] px-5 py-4">
         <div>
             <p class="text-sm font-black text-[#F8FAFC]">Campaign History</p>
-            <p class="text-xs text-[#71717A]">All admin broadcasts and platform campaigns</p>
+            <p class="text-xs text-[#94A3B8]">All admin broadcasts and platform campaigns</p>
         </div>
         <div class="flex flex-wrap gap-2">
             @foreach (['All' => '', 'Sending' => 'sending', 'Completed' => 'completed', 'Draft' => 'draft', 'Failed' => 'failed'] as $fl => $fv)
-            <button type="button" class="rounded-xl border px-3 py-1.5 text-xs font-black transition {{ $fl === 'All' ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#A855F7]' : 'border-[#27213D] bg-[#151225] text-[#71717A] hover:text-[#A1A1AA]' }}">{{ $fl }}</button>
+            <button type="button" class="rounded-xl border px-3 py-1.5 text-xs font-black transition {{ $fl === 'All' ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#A855F7]' : 'border-[#27213D] bg-[#151225] text-[#94A3B8] hover:text-[#A1A1AA]' }}">{{ $fl }}</button>
             @endforeach
         </div>
     </div>
@@ -627,7 +627,7 @@
                         <p class="whitespace-nowrap font-black text-[#F8FAFC]">{{ $broadcast->title ?: '(No title)' }}</p>
                         <p class="text-[11px] text-[#52525B]">{{ $broadcast->campaign_name ?: 'Admin broadcast' }}</p>
                     </td>
-                    <td class="whitespace-nowrap px-5 py-3 text-xs text-[#71717A]">
+                    <td class="whitespace-nowrap px-5 py-3 text-xs text-[#94A3B8]">
                         {{ collect($broadcast->channels ?? [])->map(fn($ch) => ucfirst(str_replace('_', ' ', $ch)))->implode(', ') ?: '—' }}
                     </td>
                     <td class="px-5 py-3">
@@ -639,7 +639,7 @@
                     <td class="whitespace-nowrap px-5 py-3 text-sm font-black text-[#A1A1AA]">{{ number_format($broadcast->total_recipients ?? 0) }}</td>
                     <td class="whitespace-nowrap px-5 py-3 text-sm font-black text-[#22C55E]">{{ number_format($broadcast->sent_count ?? 0) }}</td>
                     <td class="whitespace-nowrap px-5 py-3 text-sm font-black text-[#EF4444]">{{ number_format($broadcast->failed_count ?? 0) }}</td>
-                    <td class="whitespace-nowrap px-5 py-3 text-xs text-[#71717A]">{{ $broadcast->created_at?->diffForHumans() ?? '—' }}</td>
+                    <td class="whitespace-nowrap px-5 py-3 text-xs text-[#94A3B8]">{{ $broadcast->created_at?->diffForHumans() ?? '—' }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -662,7 +662,7 @@
 <div class="mt-5 overflow-hidden rounded-2xl border border-[#27213D] bg-[#0F0D1A]">
     <div class="flex items-center gap-2.5 border-b border-[#1B172B] px-5 py-3.5">
         <svg class="h-4 w-4 shrink-0 text-[#F59E0B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
-        <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Safety &amp; Compliance</p>
+        <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Safety &amp; Compliance</p>
     </div>
     <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
         <div class="space-y-2">
@@ -674,7 +674,7 @@
             ] as $rule)
             <div class="flex items-start gap-2">
                 <svg class="mt-0.5 h-3 w-3 shrink-0 text-[#F59E0B]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                <p class="text-xs text-[#71717A]">{{ $rule }}</p>
+                <p class="text-xs text-[#94A3B8]">{{ $rule }}</p>
             </div>
             @endforeach
         </div>
@@ -687,7 +687,7 @@
             ] as $rule)
             <div class="flex items-start gap-2">
                 <svg class="mt-0.5 h-3 w-3 shrink-0 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                <p class="text-xs text-[#71717A]">{{ $rule }}</p>
+                <p class="text-xs text-[#94A3B8]">{{ $rule }}</p>
             </div>
             @endforeach
         </div>
@@ -701,7 +701,7 @@
             ] as [$plan, $rule, $color])
             <div class="flex items-start gap-2">
                 <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full" style="background-color:{{ $color }}"></span>
-                <p class="text-xs text-[#71717A]"><span class="font-black" style="color:{{ $color }}">{{ $plan }}</span> — {{ $rule }}</p>
+                <p class="text-xs text-[#94A3B8]"><span class="font-black" style="color:{{ $color }}">{{ $plan }}</span> — {{ $rule }}</p>
             </div>
             @endforeach
         </div>

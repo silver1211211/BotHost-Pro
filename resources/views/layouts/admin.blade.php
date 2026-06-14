@@ -31,7 +31,7 @@
             padding-left: calc(0.75rem - 2px);
             color: #A855F7;
         }
-        .nav-inactive { color: #71717A; border-left: 2px solid transparent; }
+        .nav-inactive { color: #94A3B8; border-left: 2px solid transparent; }
         .nav-inactive:hover { background: #151225; color: #F8FAFC; }
         .metric-card:hover { border-color: rgba(139,92,246,0.35); transform: translateY(-1px); }
     </style>
@@ -80,7 +80,7 @@
                     <span class="inline-flex rounded px-2 py-0.5 text-[9px] font-black uppercase tracking-widest" style="background: rgba(139,92,246,0.15); color: #A855F7;">Admin Panel</span>
                 </div>
             @endif
-            <button @click="sidebarOpen = false" class="flex h-7 w-7 items-center justify-center rounded-lg text-[#71717A] transition hover:text-white lg:hidden">
+            <button @click="sidebarOpen = false" class="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] transition hover:text-white lg:hidden">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
@@ -124,7 +124,7 @@
 
             @foreach ($navGroups as $groupLabel => $items)
                 <div class="mb-6">
-                    <p class="mb-2 px-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#514B6E]">{{ $groupLabel }}</p>
+                    <p class="mb-2 px-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#6B6890]">{{ $groupLabel }}</p>
                     <div class="space-y-1">
                         @foreach ($items as $item)
                             @php
@@ -166,7 +166,7 @@
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit" title="Logout"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg text-[#71717A] transition hover:bg-[#EF4444]/10 hover:text-[#EF4444]">
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94A3B8] transition hover:bg-[#EF4444]/10 hover:text-[#EF4444]">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
                         </svg>
@@ -200,22 +200,22 @@
         <div class="min-w-0 flex-1">
             <h1 class="truncate text-base font-black text-white sm:text-lg">{{ $title }}</h1>
             @if ($subtitle)
-                <p class="hidden truncate text-xs text-[#71717A] sm:block">{{ $subtitle }}</p>
+                <p class="hidden truncate text-xs text-[#94A3B8] sm:block">{{ $subtitle }}</p>
             @else
-                <p class="hidden text-xs text-[#71717A] sm:block">BotHost Pro — Platform administration</p>
+                <p class="hidden text-xs text-[#94A3B8] sm:block">BotHost Pro — Platform administration</p>
             @endif
         </div>
 
         {{-- Global search --}}
         <div class="hidden items-center gap-2 rounded-xl border border-[#27213D] bg-[#11101C] px-3 py-2 md:flex" style="width: 220px;">
-            <svg class="h-4 w-4 shrink-0 text-[#71717A]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <svg class="h-4 w-4 shrink-0 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
             <input type="text" placeholder="Quick search..." class="flex-1 bg-transparent text-sm text-[#A1A1AA] outline-none placeholder:text-[#71717A]" />
         </div>
 
         {{-- Notification --}}
-        <button class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#27213D] text-[#71717A] transition hover:bg-[#151225] hover:text-white">
+        <button class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#27213D] text-[#94A3B8] transition hover:bg-[#151225] hover:text-white">
             <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
             </svg>

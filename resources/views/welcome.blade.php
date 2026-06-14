@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
@@ -107,7 +107,7 @@ $faqs = [
             @endif
         </a>
 
-        <div class="hidden items-center gap-6 text-sm font-semibold text-[#71717A] lg:flex">
+        <div class="hidden items-center gap-6 text-sm font-semibold text-[#94A3B8] lg:flex">
             @foreach ([['Features','#features'],['How It Works','#how'],['Templates','#templates'],['Pricing','#pricing'],['FAQ','#faq']] as [$l,$h])
                 <a href="{{ $h }}" class="transition hover:text-[#F8FAFC]">{{ $l }}</a>
             @endforeach
@@ -162,7 +162,7 @@ $faqs = [
                     without starting from scratch
                 </h1>
 
-                <p class="mx-auto mt-6 max-w-xl text-base leading-7 text-[#71717A] sm:text-lg sm:leading-8">
+                <p class="mx-auto mt-6 max-w-xl text-base leading-7 text-[#94A3B8] sm:text-lg sm:leading-8">
                     Create bots, manage commands, import templates, track users, send broadcasts, and connect external callbacks — all from one clean workspace.
                 </p>
 
@@ -176,7 +176,7 @@ $faqs = [
                     </a>
                 </div>
 
-                <div class="mt-8 flex flex-wrap justify-center gap-4 text-xs font-semibold text-[#3D3657]">
+                <div class="mt-8 flex flex-wrap justify-center gap-4 text-xs font-semibold text-[#6B6890]">
                     @foreach (['Free to start', 'No credit card required', 'Bot tokens encrypted', 'Templates included'] as $b)
                         <span class="flex items-center gap-1.5">
                             <svg class="h-3 w-3 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
@@ -196,7 +196,7 @@ $faqs = [
                             <div class="h-2.5 w-2.5 rounded-full bg-[#F59E0B]"></div>
                             <div class="h-2.5 w-2.5 rounded-full bg-[#22C55E]"></div>
                         </div>
-                        <span class="rounded-full border border-[#27213D] px-3 py-1 text-[10px] font-black text-[#71717A]">bothost.pro — workspace</span>
+                        <span class="rounded-full border border-[#27213D] px-3 py-1 text-[10px] font-black text-[#94A3B8]">bothost.pro — workspace</span>
                         <div class="w-14"></div>
                     </div>
                     <div class="grid lg:grid-cols-[200px_1fr]">
@@ -208,7 +208,7 @@ $faqs = [
                             @foreach ([['Commands',true,'#8B5CF6'],['Users',false,null],['Broadcast',false,null],['Logs',false,null],['Settings',false,null],['Webhook',false,null]] as [$label,$active,$clr])
                                 <div class="mb-0.5 flex items-center gap-2.5 rounded-xl px-2.5 py-2 {{ $active ? 'bg-[#8B5CF6]/15' : '' }}">
                                     <div class="h-4 w-4 rounded {{ $active ? 'bg-[#8B5CF6]' : 'bg-[#1B172B]' }}"></div>
-                                    <span class="text-[11px] {{ $active ? 'font-black text-[#8B5CF6]' : 'text-[#3D3657]' }}">{{ $label }}</span>
+                                    <span class="text-[11px] {{ $active ? 'font-black text-[#8B5CF6]' : 'text-[#6B6890]' }}">{{ $label }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -232,7 +232,7 @@ $faqs = [
                                 @foreach ([['#8B5CF6','/start','Send welcome message'],['#38BDF8','/help','Show help menu'],['#A855F7','deposit','Show deposit info'],['#22C55E','balance','Return wallet balance']] as [$c,$cmd,$desc])
                                     <div class="flex items-center gap-3 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3">
                                         <span class="shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-black" style="background:{{ $c }}20;color:{{ $c }}">{{ $cmd }}</span>
-                                        <span class="truncate text-xs text-[#71717A]">{{ $desc }}</span>
+                                        <span class="truncate text-xs text-[#94A3B8]">{{ $desc }}</span>
                                         <div class="ml-auto h-1.5 w-1.5 shrink-0 rounded-full" style="background:{{ $c }}"></div>
                                     </div>
                                 @endforeach
@@ -260,7 +260,7 @@ $faqs = [
                         </div>
                         <div class="min-w-0">
                             <p class="text-sm font-black text-[#F8FAFC]">{{ $title }}</p>
-                            <p class="mt-0.5 text-xs leading-5 text-[#71717A]">{{ $desc }}</p>
+                            <p class="mt-0.5 text-xs leading-5 text-[#94A3B8]">{{ $desc }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -274,7 +274,7 @@ $faqs = [
             <div class="mx-auto mb-14 max-w-2xl text-center">
                 <p class="text-xs font-black uppercase tracking-widest text-[#38BDF8]">Features</p>
                 <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Everything your bot workspace needs</h2>
-                <p class="mt-3 text-sm leading-7 text-[#71717A]">From workspace creation to commands, templates, broadcasts, webhooks, and transfers — all in one place.</p>
+                <p class="mt-3 text-sm leading-7 text-[#94A3B8]">From workspace creation to commands, templates, broadcasts, webhooks, and transfers — all in one place.</p>
             </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach ($features as [$title,$desc,$icon,$color])
@@ -285,7 +285,7 @@ $faqs = [
                                 <svg class="h-4.5 w-4.5 h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                             </div>
                             <h3 class="text-sm font-black text-[#F8FAFC]">{{ $title }}</h3>
-                            <p class="mt-1.5 text-xs leading-5 text-[#71717A]">{{ $desc }}</p>
+                            <p class="mt-1.5 text-xs leading-5 text-[#94A3B8]">{{ $desc }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -299,7 +299,7 @@ $faqs = [
             <div class="mx-auto mb-14 max-w-2xl text-center">
                 <p class="text-xs font-black uppercase tracking-widest text-[#A855F7]">How It Works</p>
                 <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Up and running in minutes</h2>
-                <p class="mt-3 text-sm leading-7 text-[#71717A]">Four simple steps from sign-up to a live Telegram bot workspace.</p>
+                <p class="mt-3 text-sm leading-7 text-[#94A3B8]">Four simple steps from sign-up to a live Telegram bot workspace.</p>
             </div>
             <div class="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="absolute left-1/2 top-9 hidden h-px w-3/4 -translate-x-1/2 bg-gradient-to-r from-[#8B5CF6]/20 via-[#38BDF8]/30 to-[#22C55E]/20 lg:block"></div>
@@ -307,7 +307,7 @@ $faqs = [
                     <div class="relative rounded-2xl border border-[#27213D] bg-[#0B0918] p-7">
                         <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-black text-white" style="background:linear-gradient(135deg,{{ $color }}cc,{{ $color }}70)">{{ $step }}</div>
                         <h3 class="text-base font-black text-[#F8FAFC]">{{ $title }}</h3>
-                        <p class="mt-2 text-sm leading-6 text-[#71717A]">{{ $desc }}</p>
+                        <p class="mt-2 text-sm leading-6 text-[#94A3B8]">{{ $desc }}</p>
                     </div>
                 @endforeach
             </div>
@@ -322,7 +322,7 @@ $faqs = [
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <p class="text-xs font-black uppercase tracking-widest text-[#38BDF8]">Workspace</p>
                         <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">One workspace.<br>Everything included.</h2>
-                        <p class="mt-4 text-sm leading-7 text-[#71717A]">Each bot gets its own dedicated workspace with all tools in one place — no jumping between platforms.</p>
+                        <p class="mt-4 text-sm leading-7 text-[#94A3B8]">Each bot gets its own dedicated workspace with all tools in one place — no jumping between platforms.</p>
                         <div class="mt-8 grid grid-cols-2 gap-3">
                             @foreach ($workspaceItems as [$label,$color,$icon])
                                 <div class="flex items-center gap-2.5 rounded-xl border border-[#27213D]/60 bg-[#0F0D1A] px-3.5 py-3 text-sm font-semibold text-[#A1A1AA] transition hover:border-[#27213D] hover:text-[#F8FAFC]">
@@ -342,14 +342,14 @@ $faqs = [
                         <div class="rounded-2xl border border-[#27213D] bg-[#0B0918] overflow-hidden">
                             <div class="flex items-center gap-2 border-b border-[#27213D] bg-[#07060F] px-4 py-3">
                                 @foreach (['Commands','Users','Logs'] as $tab)
-                                    <span class="rounded-lg px-3 py-1.5 text-xs font-black {{ $tab === 'Commands' ? 'bg-[#8B5CF6]/15 text-[#8B5CF6]' : 'text-[#3D3657]' }}">{{ $tab }}</span>
+                                    <span class="rounded-lg px-3 py-1.5 text-xs font-black {{ $tab === 'Commands' ? 'bg-[#8B5CF6]/15 text-[#8B5CF6]' : 'text-[#6B6890]' }}">{{ $tab }}</span>
                                 @endforeach
                             </div>
                             <div class="p-4 space-y-2">
                                 @foreach ([['#8B5CF6','/start','Welcome message',true],['#38BDF8','/help','Help menu',true],['#A855F7','deposit','Deposit prompt',true],['#22C55E','balance','Wallet balance',false],['#F59E0B','withdraw','Withdrawal flow',false]] as [$c,$cmd,$desc,$active])
                                     <div class="flex items-center gap-3 rounded-xl border {{ $active ? 'border-[#27213D] bg-[#151225]' : 'border-[#1A1730] bg-[#0F0D1A] opacity-60' }} px-3.5 py-3">
                                         <span class="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-black" style="background:{{ $c }}20;color:{{ $c }}">{{ $cmd }}</span>
-                                        <span class="flex-1 truncate text-xs text-[#71717A]">{{ $desc }}</span>
+                                        <span class="flex-1 truncate text-xs text-[#94A3B8]">{{ $desc }}</span>
                                         <span class="shrink-0 h-1.5 w-1.5 rounded-full" style="background:{{ $active ? $c : '#3D3657' }}"></span>
                                     </div>
                                 @endforeach
@@ -368,7 +368,7 @@ $faqs = [
                 <div>
                     <p class="text-xs font-black uppercase tracking-widest text-[#A855F7]">Marketplace</p>
                     <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Start faster with templates</h2>
-                    <p class="mt-4 text-sm leading-7 text-[#71717A]">Browse ready-made templates, import them into your bot workspace, and customize your setup. Skip the blank-slate setup and launch faster.</p>
+                    <p class="mt-4 text-sm leading-7 text-[#94A3B8]">Browse ready-made templates, import them into your bot workspace, and customize your setup. Skip the blank-slate setup and launch faster.</p>
                     <div class="mt-6 rounded-xl border border-[#F59E0B]/20 bg-[#F59E0B]/6 px-4 py-3">
                         <p class="text-xs leading-5 text-[#F59E0B]">
                             <span class="font-black">Note:</span> Marketplace templates are protected and cannot be exported like self-created commands.
@@ -393,7 +393,7 @@ $faqs = [
                                 <span class="rounded-full px-2 py-0.5 text-[9px] font-black" style="background:{{ $color }}18;color:{{ $color }}">{{ $badge }}</span>
                             </div>
                             <h3 class="text-sm font-black text-[#F8FAFC]">{{ $title }}</h3>
-                            <p class="mt-1.5 text-xs leading-5 text-[#71717A]">{{ $desc }}</p>
+                            <p class="mt-1.5 text-xs leading-5 text-[#94A3B8]">{{ $desc }}</p>
                         </div>
                     @endforeach
                 </div>
@@ -407,7 +407,7 @@ $faqs = [
             <div class="mx-auto mb-14 max-w-2xl text-center">
                 <p class="text-xs font-black uppercase tracking-widest text-[#38BDF8]">Transfers</p>
                 <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Move bot workspaces safely</h2>
-                <p class="mt-4 text-sm leading-7 text-[#71717A]">
+                <p class="mt-4 text-sm leading-7 text-[#94A3B8]">
                     Transfer workspaces between accounts, export your own commands for reuse, or import command files into a fresh workspace. Marketplace templates stay protected throughout.
                 </p>
             </div>
@@ -418,7 +418,7 @@ $faqs = [
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                         </div>
                         <h3 class="text-sm font-black text-[#F8FAFC]">{{ $title }}</h3>
-                        <p class="mt-2 text-xs leading-5 text-[#71717A]">{{ $desc }}</p>
+                        <p class="mt-2 text-xs leading-5 text-[#94A3B8]">{{ $desc }}</p>
                     </div>
                 @endforeach
             </div>
@@ -426,7 +426,7 @@ $faqs = [
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p class="text-sm font-black text-[#F8FAFC]">Workspace transfers are protected</p>
-                        <p class="mt-1 text-xs leading-5 text-[#71717A]">When a workspace is transferred, the receiving user must connect their own Telegram bot token. Marketplace and template commands remain protected and cannot be exported.</p>
+                        <p class="mt-1 text-xs leading-5 text-[#94A3B8]">When a workspace is transferred, the receiving user must connect their own Telegram bot token. Marketplace and template commands remain protected and cannot be exported.</p>
                     </div>
                     <a href="{{ route('register') }}" class="shrink-0 inline-flex items-center gap-2 rounded-xl border border-[#27213D] px-5 py-2.5 text-sm font-bold text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-[#F8FAFC]">
                         Get started
@@ -445,28 +445,28 @@ $faqs = [
                     <div class="rounded-2xl border border-[#27213D] bg-[#0B0918] overflow-hidden">
                         <div class="flex items-center gap-2 border-b border-[#27213D] bg-[#07060F] px-4 py-3">
                             <div class="h-2 w-2 rounded-full bg-[#38BDF8]"></div>
-                            <span class="text-[10px] font-black text-[#71717A]">Incoming Webhook Endpoint</span>
+                            <span class="text-[10px] font-black text-[#94A3B8]">Incoming Webhook Endpoint</span>
                         </div>
                         <div class="p-5 space-y-3">
                             <div class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3">
-                                <p class="text-[10px] font-black uppercase tracking-wider text-[#71717A] mb-1">Endpoint URL</p>
+                                <p class="text-[10px] font-black uppercase tracking-wider text-[#94A3B8] mb-1">Endpoint URL</p>
                                 <p class="text-xs font-mono text-[#38BDF8] truncate">POST /webhooks/custom/{'{'}botId{'}'}/{'{'}secret{'}'}</p>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 @foreach ([['Last delivery','Just now','#22C55E'],['Status','200 OK','#22C55E'],['Method','POST','#38BDF8'],['Auth','Secret key','#8B5CF6']] as [$l,$v,$c])
                                     <div class="rounded-xl border border-[#27213D] bg-[#151225] px-3.5 py-3">
-                                        <p class="text-[9px] font-black uppercase tracking-wider text-[#3D3657]">{{ $l }}</p>
+                                        <p class="text-[9px] font-black uppercase tracking-wider text-[#6B6890]">{{ $l }}</p>
                                         <p class="mt-1 text-xs font-black" style="color:{{ $c }}">{{ $v }}</p>
                                     </div>
                                 @endforeach
                             </div>
                             <div class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3">
-                                <p class="text-[10px] font-black uppercase tracking-wider text-[#71717A] mb-2">Delivery Logs</p>
+                                <p class="text-[10px] font-black uppercase tracking-wider text-[#94A3B8] mb-2">Delivery Logs</p>
                                 @foreach ([['2s ago','200 OK','External payment callback'],['14s ago','200 OK','Order notification received'],['2m ago','200 OK','User action processed']] as [$t,$s,$msg])
                                     <div class="flex items-center gap-2.5 py-1">
-                                        <span class="text-[9px] text-[#3D3657] shrink-0">{{ $t }}</span>
+                                        <span class="text-[9px] text-[#6B6890] shrink-0">{{ $t }}</span>
                                         <span class="rounded px-1.5 py-0.5 text-[9px] font-black text-[#22C55E] bg-[#22C55E]/10">{{ $s }}</span>
-                                        <span class="truncate text-[10px] text-[#71717A]">{{ $msg }}</span>
+                                        <span class="truncate text-[10px] text-[#94A3B8]">{{ $msg }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -476,7 +476,7 @@ $faqs = [
                 <div class="order-1 lg:order-2">
                     <p class="text-xs font-black uppercase tracking-widest text-[#38BDF8]">Custom Webhook</p>
                     <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Receive external callbacks</h2>
-                    <p class="mt-4 text-sm leading-7 text-[#71717A]">Each bot workspace can have a dedicated incoming webhook endpoint. External platforms can send POST callbacks directly into your bot workspace.</p>
+                    <p class="mt-4 text-sm leading-7 text-[#94A3B8]">Each bot workspace can have a dedicated incoming webhook endpoint. External platforms can send POST callbacks directly into your bot workspace.</p>
                     <div class="mt-6 space-y-3">
                         @foreach ([['Unique endpoint per bot workspace','#8B5CF6'],['Accepts POST requests from any external platform','#38BDF8'],['Delivery log for every incoming request','#22C55E'],['Secret key authentication for security','#A855F7']] as [$point,$c])
                             <div class="flex items-center gap-2.5 text-sm text-[#A1A1AA]">
@@ -505,7 +505,7 @@ $faqs = [
                     <div class="p-8 sm:p-12">
                         <p class="text-xs font-black uppercase tracking-widest text-[#22C55E]">Security</p>
                         <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Built with security in mind</h2>
-                        <p class="mt-4 text-sm leading-7 text-[#71717A]">Your bot tokens, workspace data, and user information are handled with security as the baseline. Sensitive credentials are protected throughout the platform.</p>
+                        <p class="mt-4 text-sm leading-7 text-[#94A3B8]">Your bot tokens, workspace data, and user information are handled with security as the baseline. Sensitive credentials are protected throughout the platform.</p>
                         <div class="mt-8 grid gap-3 sm:grid-cols-2">
                             @foreach ($securityPoints as [$point,$color])
                                 <div class="flex items-center gap-2.5 text-sm text-[#A1A1AA]">
@@ -521,7 +521,7 @@ $faqs = [
                         <div class="w-full max-w-xs space-y-2.5">
                             @foreach ([['Bot Token','Protected','#22C55E'],['Duplicate Tokens','Blocked','#EF4444'],['Sensitive Keys','Masked','#38BDF8'],['Marketplace Commands','Protected','#8B5CF6'],['Admin Monitoring','Active','#22C55E'],['Maintenance Mode','Available','#F59E0B']] as [$l,$v,$c])
                                 <div class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#0B0918] px-4 py-3">
-                                    <span class="text-xs font-semibold text-[#71717A]">{{ $l }}</span>
+                                    <span class="text-xs font-semibold text-[#94A3B8]">{{ $l }}</span>
                                     <span class="rounded-full px-2 py-0.5 text-[10px] font-black" style="background:{{ $c }}15;color:{{ $c }}">{{ $v }}</span>
                                 </div>
                             @endforeach
@@ -538,7 +538,7 @@ $faqs = [
             <div class="mx-auto mb-14 max-w-2xl text-center">
                 <p class="text-xs font-black uppercase tracking-widest text-[#38BDF8]">Plans</p>
                 <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Start free, scale when ready</h2>
-                <p class="mt-3 text-sm leading-7 text-[#71717A]">All plans include core workspace features. Upgrade for more bots, commands, templates, and advanced tools.</p>
+                <p class="mt-3 text-sm leading-7 text-[#94A3B8]">All plans include core workspace features. Upgrade for more bots, commands, templates, and advanced tools.</p>
             </div>
             <div class="grid gap-5 lg:grid-cols-3">
                 @foreach ($plans as [$plan,$tagline,$desc,$items,$popular,$cta,$route])
@@ -547,9 +547,9 @@ $faqs = [
                             <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] px-4 py-1 text-[10px] font-black text-white shadow-[0_0_18px_rgba(139,92,246,0.48)]">Most Popular</span>
                         @endif
                         <div class="mb-5">
-                            <p class="text-xs font-black uppercase tracking-wide text-[#71717A]">{{ $plan }}</p>
+                            <p class="text-xs font-black uppercase tracking-wide text-[#94A3B8]">{{ $plan }}</p>
                             <p class="mt-1.5 text-xl font-black text-[#F8FAFC]">{{ $tagline }}</p>
-                            <p class="mt-2 text-sm leading-6 text-[#71717A]">{{ $desc }}</p>
+                            <p class="mt-2 text-sm leading-6 text-[#94A3B8]">{{ $desc }}</p>
                         </div>
                         <ul class="mb-8 flex-1 space-y-3">
                             @foreach ($items as $item)
@@ -565,7 +565,7 @@ $faqs = [
                     </div>
                 @endforeach
             </div>
-            <p class="mt-6 text-center text-xs text-[#3D3657]">Plan limits and pricing details are shown during account upgrade. No credit card required to start.</p>
+            <p class="mt-6 text-center text-xs text-[#6B6890]">Plan limits and pricing details are shown during account upgrade. No credit card required to start.</p>
         </div>
     </section>
 
@@ -575,16 +575,16 @@ $faqs = [
             <div class="mb-14 text-center">
                 <p class="text-xs font-black uppercase tracking-widest text-[#A855F7]">FAQ</p>
                 <h2 class="mt-3 text-3xl font-black text-[#F8FAFC] sm:text-4xl">Common questions</h2>
-                <p class="mt-3 text-sm leading-7 text-[#71717A]">Quick answers about BotHost Pro features and policies.</p>
+                <p class="mt-3 text-sm leading-7 text-[#94A3B8]">Quick answers about BotHost Pro features and policies.</p>
             </div>
             <div class="space-y-2" x-data="{ open: null }">
                 @foreach ($faqs as $i => [$q, $a])
                     <div class="overflow-hidden rounded-2xl border border-[#27213D] transition hover:border-[#8B5CF6]/35">
                         <button type="button" @click="open = open === {{ $i }} ? null : {{ $i }}" class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-black text-[#F8FAFC]">
                             <span>{{ $q }}</span>
-                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#27213D] bg-[#0F0D1A] text-lg font-thin text-[#71717A] transition-transform duration-200" :class="open === {{ $i }} ? 'rotate-45 border-[#8B5CF6]/45 text-[#8B5CF6]' : ''">+</span>
+                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#27213D] bg-[#0F0D1A] text-lg font-thin text-[#94A3B8] transition-transform duration-200" :class="open === {{ $i }} ? 'rotate-45 border-[#8B5CF6]/45 text-[#8B5CF6]' : ''">+</span>
                         </button>
-                        <div x-show="open === {{ $i }}" x-collapse x-cloak class="border-t border-[#27213D]/50 px-5 pb-5 pt-4 text-sm leading-7 text-[#71717A]">{{ $a }}</div>
+                        <div x-show="open === {{ $i }}" x-collapse x-cloak class="border-t border-[#27213D]/50 px-5 pb-5 pt-4 text-sm leading-7 text-[#94A3B8]">{{ $a }}</div>
                     </div>
                 @endforeach
             </div>
@@ -606,7 +606,7 @@ $faqs = [
                     Ready to build
                 </div>
                 <h2 class="text-3xl font-black text-[#F8FAFC] sm:text-4xl">Ready to build your Telegram bot workspace?</h2>
-                <p class="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#71717A]">Create your account, connect your bot, and start building commands in minutes. No credit card required to get started.</p>
+                <p class="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#94A3B8]">Create your account, connect your bot, and start building commands in minutes. No credit card required to get started.</p>
                 <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                     <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] via-[#A855F7] to-[#38BDF8] px-8 py-3.5 text-sm font-black text-white shadow-[0_0_40px_rgba(139,92,246,0.40)] transition hover:-translate-y-0.5 hover:shadow-[0_0_56px_rgba(139,92,246,0.54)]">
                         Create Free Account
@@ -635,10 +635,10 @@ $faqs = [
                         <span class="text-base font-black text-[#F8FAFC]">BotHost<span class="bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span></span>
                     @endif
                 </div>
-                <p class="mt-4 max-w-xs text-sm leading-6 text-[#4D4868]">Create, manage, and grow Telegram bot workspaces with commands, templates, broadcasts, transfers, and webhooks.</p>
+                <p class="mt-4 max-w-xs text-sm leading-6 text-[#7E7AA0]">Create, manage, and grow Telegram bot workspaces with commands, templates, broadcasts, transfers, and webhooks.</p>
                 <div class="mt-6 flex flex-wrap gap-2">
                     <a href="{{ route('register') }}" class="rounded-xl bg-[#8B5CF6]/12 px-4 py-2 text-xs font-black text-[#8B5CF6] transition hover:bg-[#8B5CF6]/20">Get Started Free</a>
-                    <a href="{{ route('login') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-bold text-[#4D4868] transition hover:text-[#A1A1AA]">Log in</a>
+                    <a href="{{ route('login') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-bold text-[#7E7AA0] transition hover:text-[#A1A1AA]">Log in</a>
                 </div>
                 <p class="mt-6 text-xs text-[#2A2540]">{{ $branding['footer_text'] }}</p>
             </div>
@@ -668,8 +668,8 @@ $faqs = [
             @endphp
             @foreach ($footerLinks as $heading => $links)
                 <div>
-                    <p class="mb-5 text-[10px] font-black uppercase tracking-widest text-[#3D3657]">{{ $heading }}</p>
-                    <div class="space-y-3 text-sm text-[#4D4868]">
+                    <p class="mb-5 text-[10px] font-black uppercase tracking-widest text-[#6B6890]">{{ $heading }}</p>
+                    <div class="space-y-3 text-sm text-[#7E7AA0]">
                         @foreach ($links as [$label, $url])
                             <a href="{{ $url }}" class="block transition hover:text-[#A1A1AA]">{{ $label }}</a>
                         @endforeach

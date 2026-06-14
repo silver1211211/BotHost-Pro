@@ -1,4 +1,4 @@
-<x-dashboard-layout :title="$bot->name">
+﻿<x-dashboard-layout :title="$bot->name">
     @php
         $tabs = [
             'intro'    => ['Intro',    'M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z'],
@@ -115,7 +115,7 @@
                     ['LANGUAGE', ucfirst($bot->language ?? 'JavaScript')],
                 ] as [$statLabel, $statValue])
                     <div class="px-4 text-center">
-                        <p class="text-[9px] font-black uppercase tracking-widest text-[#71717A]">{{ $statLabel }}</p>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-[#94A3B8]">{{ $statLabel }}</p>
                         <p class="mt-0.5 text-sm font-black text-[#F8FAFC]">{{ $statValue }}</p>
                     </div>
                 @endforeach
@@ -132,7 +132,7 @@
                         class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-black transition sm:gap-2 sm:px-3.5 sm:py-2"
                         :class="tab === '{{ $key }}'
                             ? 'bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] text-white shadow-[0_0_22px_rgba(139,92,246,0.32)]'
-                            : 'text-[#71717A] hover:bg-[#151225] hover:text-[#F8FAFC]'"
+                            : 'text-[#94A3B8] hover:bg-[#151225] hover:text-[#F8FAFC]'"
                     >
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                         {{ $label }}
@@ -199,7 +199,7 @@
                         ['Language',          'JavaScript · Node.js',                                                 '#8B5CF6'],
                     ] as [$label, $value, $color])
                         <div class="rounded-xl border border-[#27213D] bg-[#0F0D1A] p-3.5">
-                            <p class="text-[10px] font-black uppercase tracking-[0.12em] text-[#71717A]">{{ $label }}</p>
+                            <p class="text-[10px] font-black uppercase tracking-[0.12em] text-[#94A3B8]">{{ $label }}</p>
                             <p class="mt-1 break-words text-sm font-black" style="color:{{ $color }}">{{ $value }}</p>
                         </div>
                     @endforeach
@@ -221,7 +221,7 @@
                                 <div class="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-[#27213D] bg-[#151225]" style="color:{{ $color }}">
                                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                                 </div>
-                                <p class="text-[9px] font-black uppercase tracking-[0.12em] text-[#71717A]">{{ $label }}</p>
+                                <p class="text-[9px] font-black uppercase tracking-[0.12em] text-[#94A3B8]">{{ $label }}</p>
                             </div>
                             <p class="mt-2.5 text-2xl font-black" style="color:{{ $color }}">{{ number_format($value) }}</p>
                         </div>
@@ -244,7 +244,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-black text-[#F8FAFC]">{{ $tabLabel }}</p>
-                                <p class="text-[10px] text-[#71717A]">{{ $sub }}</p>
+                                <p class="text-[10px] text-[#94A3B8]">{{ $sub }}</p>
                             </div>
                         </button>
                     @endforeach
@@ -256,9 +256,9 @@
                 <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                     {{-- Search: full width on mobile --}}
                     <div class="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-[#27213D] bg-[#0F0D1A] px-3.5 py-2.5 focus-within:border-[#8B5CF6]/50 focus-within:ring-2 focus-within:ring-[#8B5CF6]/15 transition">
-                        <svg class="h-[15px] w-[15px] shrink-0 text-[#71717A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                        <svg class="h-[15px] w-[15px] shrink-0 text-[#94A3B8]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
                         <input x-model="cmdSearch" class="w-full border-0 bg-transparent p-0 text-[13px] text-[#F8FAFC] placeholder:text-[#71717A] focus:ring-0" placeholder="Filter commands...">
-                        <button x-show="cmdSearch" x-cloak @click="cmdSearch = ''" class="shrink-0 text-[#71717A] hover:text-[#F8FAFC]">
+                        <button x-show="cmdSearch" x-cloak @click="cmdSearch = ''" class="shrink-0 text-[#94A3B8] hover:text-[#F8FAFC]">
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
@@ -277,8 +277,8 @@
                 <div class="overflow-hidden rounded-2xl border border-[#27213D] bg-[#0F0D1A] shadow-[0_18px_70px_rgba(0,0,0,0.22)]">
                     @if ($bot->commands->isNotEmpty())
                         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#1B172B] px-4 py-2.5">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">{{ $commandCount }} {{ Str::plural('command', $commandCount) }} stored</p>
-                            <div class="hidden items-center gap-2 text-[10px] font-black uppercase tracking-wider text-[#3D3657] md:flex">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">{{ $commandCount }} {{ Str::plural('command', $commandCount) }} stored</p>
+                            <div class="hidden items-center gap-2 text-[10px] font-black uppercase tracking-wider text-[#6B6890] md:flex">
                                 <span class="w-28 text-center">State</span>
                                 <span class="w-40 text-center">Actions</span>
                             </div>
@@ -310,7 +310,7 @@
                                         <div class="min-w-0">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span class="text-sm font-black text-[#F8FAFC]">{{ $command->displayName() }}</span>
-                                                <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#71717A]">{{ $triggerLabel }}</span>
+                                                <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#94A3B8]">{{ $triggerLabel }}</span>
                                             </div>
                                             <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                                                 @if ($triggerType !== 'direct_message')
@@ -325,8 +325,8 @@
                                     </div>
                                     <div class="flex flex-wrap items-center gap-1.5 lg:justify-end">
                                         <x-status-badge :status="$command->status" />
-                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#71717A]">JS</span>
-                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#71717A]">Node.js</span>
+                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#94A3B8]">JS</span>
+                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#94A3B8]">Node.js</span>
                                     </div>
                                     <div class="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
                                         {{-- Actions --}}
@@ -369,16 +369,16 @@
                             @endforeach
                         </div>
                         <div class="border-t border-[#1B172B] px-4 py-2.5">
-                            <p class="text-xs text-[#71717A]">Triggers fire only when the incoming message matches the command name <em>exactly</em>.</p>
+                            <p class="text-xs text-[#94A3B8]">Triggers fire only when the incoming message matches the command name <em>exactly</em>.</p>
                         </div>
                     @else
                         <div class="flex flex-col items-center gap-4 py-16 text-center">
-                            <div class="grid h-14 w-14 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#71717A]">
+                            <div class="grid h-14 w-14 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#94A3B8]">
                                 <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                             </div>
                             <div>
                                 <p class="font-black text-[#A1A1AA]">No commands yet</p>
-                                <p class="mt-1 text-sm text-[#71717A]">Create triggers like <code class="font-mono text-[#8B5CF6]">/start</code> or <code class="font-mono text-[#8B5CF6]">deposit</code></p>
+                                <p class="mt-1 text-sm text-[#94A3B8]">Create triggers like <code class="font-mono text-[#8B5CF6]">/start</code> or <code class="font-mono text-[#8B5CF6]">deposit</code></p>
                             </div>
                             <button type="button" @click="$dispatch('open-modal', 'cmd-create')" class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] px-4 py-2.5 text-sm font-black text-white shadow-[0_0_20px_rgba(139,92,246,0.28)] transition hover:-translate-y-0.5">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
@@ -408,7 +408,7 @@
                             <h2 class="mt-3 text-xl font-black text-[#F8FAFC]">Add Command</h2>
                             <p class="mt-1 text-sm text-[#A1A1AA]">Configure a command trigger and save to continue to the code editor.</p>
                         </div>
-                        <button type="button" @click="$dispatch('close-modal', 'cmd-create')" class="shrink-0 rounded-lg p-1.5 text-[#71717A] transition hover:bg-[#1D1930] hover:text-[#F8FAFC]">
+                        <button type="button" @click="$dispatch('close-modal', 'cmd-create')" class="shrink-0 rounded-lg p-1.5 text-[#94A3B8] transition hover:bg-[#1D1930] hover:text-[#F8FAFC]">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
@@ -435,27 +435,27 @@
                 <div class="space-y-3 border-b border-[#1B172B] p-5">
                     <div class="flex flex-col gap-3 xl:flex-row">
                         <div class="flex flex-1 items-center gap-3 rounded-xl border border-[#8B5CF6]/40 bg-[#151225] px-4 py-3 focus-within:border-[#8B5CF6]/70 focus-within:ring-2 focus-within:ring-[#8B5CF6]/15 transition">
-                            <svg class="h-4 w-4 shrink-0 text-[#71717A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                            <svg class="h-4 w-4 shrink-0 text-[#94A3B8]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
                             <input x-model="searchQuery" class="w-full border-0 bg-transparent p-0 font-mono text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:ring-0" placeholder="Search across command names and code...">
-                            <button x-show="searchQuery" x-cloak @click="searchQuery = ''" class="shrink-0 text-xs font-black text-[#71717A] hover:text-[#F8FAFC]">Clear</button>
+                            <button x-show="searchQuery" x-cloak @click="searchQuery = ''" class="shrink-0 text-xs font-black text-[#94A3B8] hover:text-[#F8FAFC]">Clear</button>
                         </div>
                         <div class="flex gap-2">
                             @foreach (['Aa', '|ab|', '.*'] as $t)
-                                <button class="rounded-lg border border-[#27213D] bg-[#151225] px-3 py-2.5 font-mono text-xs font-black text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#A855F7]">{{ $t }}</button>
+                                <button class="rounded-lg border border-[#27213D] bg-[#151225] px-3 py-2.5 font-mono text-xs font-black text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#A855F7]">{{ $t }}</button>
                             @endforeach
-                            <button class="rounded-lg border border-[#27213D] bg-[#151225] px-3 py-2.5 text-xs font-black text-[#71717A] transition hover:text-[#F8FAFC]">History</button>
+                            <button class="rounded-lg border border-[#27213D] bg-[#151225] px-3 py-2.5 text-xs font-black text-[#94A3B8] transition hover:text-[#F8FAFC]">History</button>
                         </div>
                     </div>
-                    <p class="text-xs text-[#71717A]" x-text="searchQuery ? 'Showing matching commands and code snippets.' : @js('Searching '.$commandCount.' '.Str::plural('command', $commandCount).'.')"></p>
+                    <p class="text-xs text-[#94A3B8]" x-text="searchQuery ? 'Showing matching commands and code snippets.' : @js('Searching '.$commandCount.' '.Str::plural('command', $commandCount).'.')"></p>
                 </div>
                 <div class="min-h-64 p-6">
                     <div x-show="!searchQuery" class="flex min-h-52 flex-col items-center justify-center gap-4 text-center">
-                        <div class="grid h-16 w-16 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#71717A]">
+                        <div class="grid h-16 w-16 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#94A3B8]">
                             <svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
                         </div>
                         <div>
                             <p class="font-black text-[#A1A1AA]">Search across every command</p>
-                            <p class="mt-1 text-sm text-[#71717A]">Find any phrase, keyword, or pattern in your bot's stored responses.</p>
+                            <p class="mt-1 text-sm text-[#94A3B8]">Find any phrase, keyword, or pattern in your bot's stored responses.</p>
                         </div>
                     </div>
                     <div x-show="searchQuery" x-cloak class="space-y-3">
@@ -465,17 +465,17 @@
                                     <code class="font-mono text-sm font-black text-[#A855F7]">{{ $command->displayName() }}</code>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2 px-4 pb-3 pt-1">
-                                    <span class="rounded-full border border-[#27213D] bg-[#0F0D1A] px-2 py-0.5 text-[10px] font-black text-[#71717A]">{{ $command->response_type ?? 'text' }}</span>
-                                    <span class="text-xs text-[#71717A]">{{ strlen((string) $command->code) }} chars</span>
+                                    <span class="rounded-full border border-[#27213D] bg-[#0F0D1A] px-2 py-0.5 text-[10px] font-black text-[#94A3B8]">{{ $command->response_type ?? 'text' }}</span>
+                                    <span class="text-xs text-[#94A3B8]">{{ strlen((string) $command->code) }} chars</span>
                                     @if ($command->is_active ?? true)
                                         <span class="rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2 py-0.5 text-[10px] font-black text-[#22C55E]">Active</span>
                                     @else
-                                        <span class="rounded-full border border-[#71717A]/30 bg-[#71717A]/10 px-2 py-0.5 text-[10px] font-black text-[#71717A]">Inactive</span>
+                                        <span class="rounded-full border border-[#71717A]/30 bg-[#71717A]/10 px-2 py-0.5 text-[10px] font-black text-[#94A3B8]">Inactive</span>
                                     @endif
                                 </div>
                             </div>
                         @empty
-                            <p class="py-10 text-center text-sm text-[#71717A]">No commands to search.</p>
+                            <p class="py-10 text-center text-sm text-[#94A3B8]">No commands to search.</p>
                         @endforelse
                     </div>
                 </div>
@@ -492,7 +492,7 @@
                         <span class="rounded-full border {{ $errorLogs->isEmpty() ? 'border-[#22C55E]/30 bg-[#22C55E]/10 text-[#22C55E]' : 'border-[#EF4444]/30 bg-[#EF4444]/10 text-[#EF4444]' }} px-2 py-0.5 text-[10px] font-black">{{ $errorLogs->count() }} {{ Str::plural('error', $errorLogs->count()) }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button class="rounded-lg border border-[#27213D] bg-[#151225] p-2 text-[#71717A] transition hover:text-[#F8FAFC]">
+                        <button class="rounded-lg border border-[#27213D] bg-[#151225] p-2 text-[#94A3B8] transition hover:text-[#F8FAFC]">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
                         </button>
                         <form method="POST" action="{{ route('bots.logs.errors.clear', $bot) }}">
@@ -505,7 +505,7 @@
                                 data-confirm-title="Clear errors?"
                                 data-confirm-message="This will remove all recorded runtime errors for this bot. This cannot be undone."
                                 data-confirm-btn="Clear Errors"
-                                class="rounded-lg border border-[#27213D] bg-[#151225] px-3 py-2 text-xs font-black text-[#71717A] transition hover:text-[#EF4444]"
+                                class="rounded-lg border border-[#27213D] bg-[#151225] px-3 py-2 text-xs font-black text-[#94A3B8] transition hover:text-[#EF4444]"
                             >Clear</button>
                         </form>
                     </div>
@@ -517,7 +517,7 @@
                         </div>
                         <div>
                             <p class="font-black text-[#22C55E]">All Clear</p>
-                            <p class="mt-1 text-sm text-[#71717A]">No errors found &mdash; your bot workspace has no recorded errors.</p>
+                            <p class="mt-1 text-sm text-[#94A3B8]">No errors found &mdash; your bot workspace has no recorded errors.</p>
                         </div>
                     </div>
                 @else
@@ -526,14 +526,14 @@
                             <div class="px-4 py-3">
                                 <div class="flex flex-wrap items-center justify-between gap-3">
                                     <span class="rounded-full border border-[#EF4444]/30 bg-[#EF4444]/10 px-2.5 py-1 text-[10px] font-black text-[#EF4444]">{{ strtoupper($log->type) }}</span>
-                                    <span class="text-xs text-[#71717A]">{{ $log->created_at?->diffForHumans() }}</span>
+                                    <span class="text-xs text-[#94A3B8]">{{ $log->created_at?->diffForHumans() }}</span>
                                 </div>
                                 @if ($log->title)
                                     <p class="mt-2 text-sm font-black text-[#F8FAFC]">{{ $log->title }}</p>
                                 @endif
                                 <p class="mt-2 break-words font-mono text-xs leading-6 text-[#A1A1AA]">{{ $log->message }}</p>
                                 @if (data_get($log->context, 'error_type'))
-                                    <p class="mt-2 text-xs font-bold text-[#71717A]">Error type: <span class="font-mono text-[#EF4444]">{{ data_get($log->context, 'error_type') }}</span></p>
+                                    <p class="mt-2 text-xs font-bold text-[#94A3B8]">Error type: <span class="font-mono text-[#EF4444]">{{ data_get($log->context, 'error_type') }}</span></p>
                                 @endif
                             </div>
                         @endforeach
@@ -582,7 +582,7 @@
                         </div>
                         <div>
                             <p class="font-black text-[#A1A1AA]">No command activity yet</p>
-                            <p class="mt-1 text-sm text-[#71717A]">Logs appear here once users interact with your bot.</p>
+                            <p class="mt-1 text-sm text-[#94A3B8]">Logs appear here once users interact with your bot.</p>
                         </div>
                     </div>
                 @else
@@ -612,16 +612,16 @@
                                             <code class="font-mono text-sm font-black text-[#A855F7]">{{ $log->command?->displayName() ?? 'No match' }}</code>
                                             <span class="rounded-full border px-2 py-0.5 text-[10px] font-black" style="color:{{ $statusColor }};background:{{ $statusColor }}18;border-color:{{ $statusColor }}40">{{ strtoupper(str_replace('_', ' ', $log->status)) }}</span>
                                         </div>
-                                        <p class="mt-1 break-words text-xs text-[#71717A]">
+                                        <p class="mt-1 break-words text-xs text-[#94A3B8]">
                                             <span class="font-medium text-[#A1A1AA]">{{ $telegramUser }}</span>
-                                            sent <span class="font-mono text-[#71717A]">{{ Str::limit((string) $log->message_text, 60) }}</span>
+                                            sent <span class="font-mono text-[#94A3B8]">{{ Str::limit((string) $log->message_text, 60) }}</span>
                                         </p>
                                     </div>
                                     <span class="shrink-0 text-xs text-[#52525B]">{{ $log->created_at?->diffForHumans() }}</span>
                                 </div>
                                 <div class="mt-2.5 flex flex-wrap gap-1.5">
-                                    <span class="rounded-md border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#71717A]">{{ $log->reply_count }} {{ Str::plural('reply', $log->reply_count) }}</span>
-                                    <span class="rounded-md border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#71717A]">{{ $log->execution_time_ms !== null ? $log->execution_time_ms.'ms' : 'n/a' }}</span>
+                                    <span class="rounded-md border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#94A3B8]">{{ $log->reply_count }} {{ Str::plural('reply', $log->reply_count) }}</span>
+                                    <span class="rounded-md border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-bold text-[#94A3B8]">{{ $log->execution_time_ms !== null ? $log->execution_time_ms.'ms' : 'n/a' }}</span>
                                     @if ($log->execution_id)
                                         <span class="rounded-md border border-[#27213D] bg-[#151225] px-2 py-0.5 font-mono text-[10px] text-[#52525B]">{{ $log->execution_id }}</span>
                                     @endif
@@ -630,7 +630,7 @@
                         @endforeach
                     </div>
                     <div class="border-t border-[#1B172B] px-4 py-2.5">
-                        <p class="text-xs text-[#71717A]">Showing latest {{ $logEntryCount }} {{ Str::plural('entry', $logEntryCount) }}. Use the filter above to narrow results.</p>
+                        <p class="text-xs text-[#94A3B8]">Showing latest {{ $logEntryCount }} {{ Str::plural('entry', $logEntryCount) }}. Use the filter above to narrow results.</p>
                     </div>
                 @endif
             </section>
@@ -691,9 +691,9 @@
                                 </div>
                                 <p class="text-sm font-black text-[#F8FAFC]">Export Bot</p>
                             </div>
-                            <p class="mt-3 text-xs text-[#71717A]">Download a safe backup of this bot's commands and settings. Bot token is never included.</p>
+                            <p class="mt-3 text-xs text-[#94A3B8]">Download a safe backup of this bot's commands and settings. Bot token is never included.</p>
                             @if($protectedCommandCount > 0)
-                                <button type="button" disabled class="mt-4 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[#71717A]/30 bg-[#71717A]/8 py-2.5 text-sm font-black text-[#71717A]">
+                                <button type="button" disabled class="mt-4 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[#71717A]/30 bg-[#71717A]/8 py-2.5 text-sm font-black text-[#94A3B8]">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                     Export Locked
                                 </button>
@@ -715,7 +715,7 @@
                                 </div>
                                 <p class="text-sm font-black text-[#F8FAFC]">Import Commands</p>
                             </div>
-                            <p class="mt-3 text-xs text-[#71717A]">Upload a BotHost Pro export file to import commands into this bot workspace.</p>
+                            <p class="mt-3 text-xs text-[#94A3B8]">Upload a BotHost Pro export file to import commands into this bot workspace.</p>
                             <button @click="open = !open" type="button" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 py-2.5 text-sm font-black text-[#A855F7] transition hover:bg-[#8B5CF6]/18">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
                                 Import Commands
@@ -724,7 +724,7 @@
                                 <form method="POST" action="{{ route('bots.import.current', $bot) }}" enctype="multipart/form-data" class="space-y-3">
                                     @csrf
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Export File (.json)</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Export File (.json)</label>
                                         <label
                                             class="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-4 py-6 text-center transition"
                                             :class="dragging ? 'border-[#8B5CF6] bg-[#8B5CF6]/12' : 'border-[#27213D] bg-[#0F0D1A] hover:border-[#8B5CF6]/40 hover:bg-[#8B5CF6]/8'"
@@ -735,7 +735,7 @@
                                             <input x-ref="importFile" name="import_file" type="file" accept=".json" required class="sr-only" @change="fileName = $event.target.files[0]?.name || ''">
                                             <svg class="h-7 w-7 text-[#8B5CF6]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3.75m0 0L7.5 8.25M12 3.75l4.5 4.5M3.75 16.5v2.25A1.5 1.5 0 0 0 5.25 20.25h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5"/></svg>
                                             <span class="mt-2 text-sm font-black text-[#F8FAFC]" x-text="fileName || 'Drop JSON export here or tap to choose'"></span>
-                                            <span class="mt-1 text-[11px] text-[#71717A]">Accepts the same .json file exported by BotHost Pro.</span>
+                                            <span class="mt-1 text-[11px] text-[#94A3B8]">Accepts the same .json file exported by BotHost Pro.</span>
                                         </label>
                                         @error('import_file') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
                                     </div>
@@ -752,7 +752,7 @@
                                 </div>
                                 <p class="text-sm font-black text-[#F8FAFC]">Clone Bot</p>
                             </div>
-                            <p class="mt-3 text-xs text-[#71717A]">Duplicate this workspace. Add a new token now or skip it and add one later before activation.</p>
+                            <p class="mt-3 text-xs text-[#94A3B8]">Duplicate this workspace. Add a new token now or skip it and add one later before activation.</p>
                             <button @click="open = !open" type="button" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/10 py-2.5 text-sm font-black text-[#38BDF8] transition hover:bg-[#38BDF8]/18">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"/></svg>
                                 Clone Bot
@@ -761,12 +761,12 @@
                                 <form method="POST" action="{{ route('bots.clone', $bot) }}" class="space-y-3">
                                     @csrf
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">New Workspace Name</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">New Workspace Name</label>
                                         <input name="clone_name" type="text" required class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#38BDF8]/60 focus:outline-none focus:ring-2 focus:ring-[#38BDF8]/20 transition" placeholder="{{ $bot->name }} (Clone)">
                                         @error('clone_name') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
                                     </div>
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Bot Token for Clone (optional)</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Bot Token for Clone (optional)</label>
                                         <input name="clone_token" type="password" autocomplete="off" spellcheck="false" autocapitalize="off" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#38BDF8]/60 focus:outline-none focus:ring-2 focus:ring-[#38BDF8]/20 transition" placeholder="Token from @BotFather, or leave blank">
                                         @error('clone_token') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
                                     </div>
@@ -783,8 +783,8 @@
                                 </div>
                                 <p class="text-sm font-black text-[#F8FAFC]">Transfer Bot</p>
                             </div>
-                            <p class="mt-3 text-xs text-[#71717A]">Send this workspace to another account. Only fully self-coded bots can be transferred.</p>
-                            <button @click="open = !open" type="button" @disabled($protectedCommandCount > 0) class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-black transition {{ $protectedCommandCount > 0 ? 'cursor-not-allowed border-[#71717A]/30 bg-[#71717A]/8 text-[#71717A]' : 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/18' }}">
+                            <p class="mt-3 text-xs text-[#94A3B8]">Send this workspace to another account. Only fully self-coded bots can be transferred.</p>
+                            <button @click="open = !open" type="button" @disabled($protectedCommandCount > 0) class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-black transition {{ $protectedCommandCount > 0 ? 'cursor-not-allowed border-[#71717A]/30 bg-[#71717A]/8 text-[#94A3B8]' : 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/18' }}">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg>
                                 {{ $protectedCommandCount > 0 ? 'Transfer Locked' : 'Transfer Bot' }}
                             </button>
@@ -792,12 +792,12 @@
                                 <form method="POST" action="{{ route('bots.transfer', $bot) }}" class="space-y-3">
                                     @csrf
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Receiver Email</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Receiver Email</label>
                                         <input name="receiver_email" type="email" required autocomplete="off" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 transition" placeholder="receiver@example.com">
                                         @error('receiver_email') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
                                     </div>
                                     <div>
-                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#71717A]">Note (optional)</label>
+                                        <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">Note (optional)</label>
                                         <textarea name="transfer_note" rows="2" class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 transition resize-none" placeholder="Optional message to receiver..."></textarea>
                                     </div>
                                     <div class="flex items-start gap-2.5 rounded-xl border border-[#F59E0B]/20 bg-[#F59E0B]/6 px-3 py-2.5">
@@ -855,7 +855,7 @@
                 <div class="overflow-x-auto rounded-2xl border border-[#27213D] bg-[#0B0A15] p-1.5" style="scrollbar-width:none">
                     <div class="flex min-w-max gap-1.5">
                         @foreach (['analytics' => 'Analytics', 'users' => 'Users', 'broadcasts' => 'Broadcasts', 'botData' => 'Bot Data', 'userData' => 'User Data', 'permissions' => 'Permissions'] as $key => $label)
-                            <button @click="setAdminTab('{{ $key }}')" class="rounded-xl px-2.5 py-1.5 text-xs font-black transition sm:px-4 sm:py-2 sm:text-sm" :class="adminTab === '{{ $key }}' ? 'bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] text-white shadow-[0_0_16px_rgba(139,92,246,0.28)]' : 'text-[#71717A] hover:bg-[#151225] hover:text-[#F8FAFC]'">{{ $label }}</button>
+                            <button @click="setAdminTab('{{ $key }}')" class="rounded-xl px-2.5 py-1.5 text-xs font-black transition sm:px-4 sm:py-2 sm:text-sm" :class="adminTab === '{{ $key }}' ? 'bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] text-white shadow-[0_0_16px_rgba(139,92,246,0.28)]' : 'text-[#94A3B8] hover:bg-[#151225] hover:text-[#F8FAFC]'">{{ $label }}</button>
                         @endforeach
                     </div>
                 </div>
@@ -881,7 +881,7 @@
                                         <div class="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-[#27213D] bg-[#151225]" style="color:{{ $color }}">
                                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/></svg>
                                         </div>
-                                        <p class="text-[9px] font-black uppercase tracking-[0.15em] text-[#71717A]">{{ $label }}</p>
+                                        <p class="text-[9px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">{{ $label }}</p>
                                     </div>
                                     <p class="mt-2.5 text-2xl font-black text-[#F8FAFC]">{{ $value }}</p>
                                 </div>
@@ -891,27 +891,27 @@
 
                     <div class="overflow-hidden rounded-2xl border border-[#27213D] bg-[#0F0D1A]">
                         <div class="border-b border-[#1B172B] px-5 py-3.5">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Commands ({{ $commandCount }})</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Commands ({{ $commandCount }})</p>
                         </div>
                         <div class="divide-y divide-[#1B172B]">
                             @forelse ($bot->commands as $cmd)
                                 <div class="flex items-center justify-between px-5 py-3.5">
                                     <code class="font-mono text-sm font-black text-[#A855F7]">{{ $cmd->displayName() }}</code>
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-[#71717A]">{{ strlen((string) $cmd->code) }} chars</span>
+                                        <span class="text-xs text-[#94A3B8]">{{ strlen((string) $cmd->code) }} chars</span>
                                         <div class="h-1.5 w-24 overflow-hidden rounded-full bg-[#27213D]">
                                             <div class="h-1.5 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#A855F7]" style="width:{{ min(strlen((string) $cmd->code) / 5, 100) }}%"></div>
                                         </div>
                                     </div>
                                 </div>
                             @empty
-                                <p class="px-5 py-8 text-center text-sm text-[#71717A]">No commands yet</p>
+                                <p class="px-5 py-8 text-center text-sm text-[#94A3B8]">No commands yet</p>
                             @endforelse
                         </div>
                     </div>
 
                     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Top Languages</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Top Languages</p>
                         <div class="mt-4 space-y-3">
                             @forelse ($botUserLanguages as $language)
                                 @php
@@ -924,10 +924,10 @@
                                     <div class="h-1.5 overflow-hidden rounded-full bg-[#27213D]">
                                         <div class="h-1.5 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#38BDF8]" style="width:{{ min($language['percentage'],100) }}%"></div>
                                     </div>
-                                    <span class="text-right text-xs text-[#71717A]">{{ $count }} <span class="text-[#4B5563]">({{ $pct }})</span></span>
+                                    <span class="text-right text-xs text-[#94A3B8]">{{ $count }} <span class="text-[#4B5563]">({{ $pct }})</span></span>
                                 </div>
                             @empty
-                                <p class="text-sm text-[#71717A]">No language data yet.</p>
+                                <p class="text-sm text-[#94A3B8]">No language data yet.</p>
                             @endforelse
                         </div>
                     </div>
@@ -952,24 +952,24 @@
                                 @endforeach
                             </div>
                         </div>
-                        <button class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-xs font-black text-[#71717A] transition hover:text-[#F8FAFC]">JSON</button>
+                        <button class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-xs font-black text-[#94A3B8] transition hover:text-[#F8FAFC]">JSON</button>
                         <button class="rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-2.5 text-xs font-black text-[#22C55E] transition hover:bg-[#22C55E]/18">CSV</button>
                     </div>
                     <div class="overflow-hidden rounded-2xl border border-[#27213D] bg-[#0F0D1A]">
                         <div class="border-b border-[#1B172B] px-5 py-3">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">{{ $botUsers->count() }} {{ Str::plural('user', $botUsers->count()) }}</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">{{ $botUsers->count() }} {{ Str::plural('user', $botUsers->count()) }}</p>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-max w-full text-left text-sm">
                                 <thead><tr class="border-b border-[#1B172B]">
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">User ID</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Name</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Lang</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Last Active</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Status</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Messages</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Commands</th>
-                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#71717A]">Action</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">User ID</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Name</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Lang</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Last Active</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Status</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Messages</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Commands</th>
+                                    <th class="px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">Action</th>
                                 </tr></thead>
                                 <tbody class="divide-y divide-[#1B172B]">
                                     @forelse ($botUsers as $trackedUser)
@@ -982,7 +982,7 @@
                                             <td class="px-5 py-3.5 font-mono text-sm font-black text-[#38BDF8]">{{ $trackedUser->telegram_user_id }}</td>
                                             <td class="px-5 py-3.5 text-[#A1A1AA]">{{ $displayName !== '' ? $displayName : '�' }}</td>
                                             <td class="px-5 py-3.5"><span class="rounded bg-[#151225] px-1.5 py-0.5 font-mono text-xs text-[#A1A1AA]">{{ $trackedUser->telegram_language_code ?: 'unknown' }}</span></td>
-                                            <td class="px-5 py-3.5 text-xs text-[#71717A]">{{ $trackedUser->last_active_at?->diffForHumans() ?? 'Never' }}</td>
+                                            <td class="px-5 py-3.5 text-xs text-[#94A3B8]">{{ $trackedUser->last_active_at?->diffForHumans() ?? 'Never' }}</td>
                                             <td class="px-5 py-3.5"><x-status-badge :status="$trackedUser->status" /></td>
                                             <td class="px-5 py-3.5 font-mono text-xs text-[#A1A1AA]">{{ number_format($trackedUser->message_count) }}</td>
                                             <td class="px-5 py-3.5 font-mono text-xs text-[#A1A1AA]">{{ number_format($trackedUser->command_count) }}</td>
@@ -998,13 +998,13 @@
                                                     @else
                                                         <form method="POST" action="{{ route('bots.users.pause', [$bot, $trackedUser]) }}">@csrf @method('PATCH')<button type="submit" class="rounded-lg border border-[#F59E0B]/25 bg-[#F59E0B]/8 px-2 py-1 text-[10px] font-black text-[#F59E0B] transition hover:bg-[#F59E0B]/15">Pause</button></form>
                                                     @endif
-                                                    <form method="POST" action="{{ route('bots.users.delete-status', [$bot, $trackedUser]) }}">@csrf @method('PATCH')<button type="submit" data-confirm data-confirm-type="danger" data-confirm-title="Reset user data?" data-confirm-message="This will clear this user's bot data. If they return, they will start as a new user." data-confirm-btn="Reset Data" class="rounded-lg border border-[#27213D] bg-[#151225] px-2 py-1 text-[10px] font-black text-[#71717A] transition hover:text-[#F8FAFC]">Reset Data</button></form>
+                                                    <form method="POST" action="{{ route('bots.users.delete-status', [$bot, $trackedUser]) }}">@csrf @method('PATCH')<button type="submit" data-confirm data-confirm-type="danger" data-confirm-title="Reset user data?" data-confirm-message="This will clear this user's bot data. If they return, they will start as a new user." data-confirm-btn="Reset Data" class="rounded-lg border border-[#27213D] bg-[#151225] px-2 py-1 text-[10px] font-black text-[#94A3B8] transition hover:text-[#F8FAFC]">Reset Data</button></form>
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="px-5 py-8 text-center text-sm text-[#71717A]">No users yet.</td>
+                                            <td colspan="8" class="px-5 py-8 text-center text-sm text-[#94A3B8]">No users yet.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -1169,7 +1169,7 @@
                                     <div class="relative flex flex-wrap items-center gap-3">
                                         <div>
                                             <p class="text-sm font-black uppercase tracking-widest text-[#A855F7]">Message Builder</p>
-                                            <p class="mt-0.5 text-xs text-[#71717A]">Supports text, image, CTA buttons, and parse modes.</p>
+                                            <p class="mt-0.5 text-xs text-[#94A3B8]">Supports text, image, CTA buttons, and parse modes.</p>
                                         </div>
                                         <div class="ml-auto flex flex-wrap gap-2">
                                             <span class="inline-flex items-center gap-1 rounded-full border border-[#22C55E]/25 bg-[#22C55E]/8 px-2.5 py-1 text-[10px] font-black text-[#22C55E]">Text ✓</span>
@@ -1185,7 +1185,7 @@
 
                                         {{-- Title --}}
                                         <div>
-                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Broadcast Title <span class="normal-case font-normal text-[#3D3658]">optional</span></label>
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Broadcast Title <span class="normal-case font-normal text-[#3D3658]">optional</span></label>
                                             <input name="title" x-model="bcTitle" maxlength="100"
                                                 class="mt-2 w-full rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/15 transition"
                                                 placeholder="e.g. Weekend promo, New update, Game alert">
@@ -1193,16 +1193,16 @@
 
                                         {{-- Message Type --}}
                                         <div>
-                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Message Type</label>
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Message Type</label>
                                             <div class="mt-2 flex gap-2">
                                                 <button type="button" @click="bcMsgType = 'text'"
-                                                    :class="bcMsgType === 'text' ? 'border-[#8B5CF6]/60 bg-[#8B5CF6]/15 text-[#A855F7]' : 'border-[#27213D] bg-[#11101C] text-[#71717A] hover:text-[#A1A1AA]'"
+                                                    :class="bcMsgType === 'text' ? 'border-[#8B5CF6]/60 bg-[#8B5CF6]/15 text-[#A855F7]' : 'border-[#27213D] bg-[#11101C] text-[#94A3B8] hover:text-[#A1A1AA]'"
                                                     class="flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-black transition">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg>
                                                     Text Message
                                                 </button>
                                                 <button type="button" @click="bcMsgType = 'image'"
-                                                    :class="bcMsgType === 'image' ? 'border-[#38BDF8]/60 bg-[#38BDF8]/10 text-[#38BDF8]' : 'border-[#27213D] bg-[#11101C] text-[#71717A] hover:text-[#A1A1AA]'"
+                                                    :class="bcMsgType === 'image' ? 'border-[#38BDF8]/60 bg-[#38BDF8]/10 text-[#38BDF8]' : 'border-[#27213D] bg-[#11101C] text-[#94A3B8] hover:text-[#A1A1AA]'"
                                                     class="flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-black transition">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
                                                     Image Message
@@ -1213,7 +1213,7 @@
 
                                         {{-- Image Upload (image type only) --}}
                                         <div x-show="bcMsgType === 'image'" x-cloak>
-                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Image File <span class="normal-case font-normal text-[#EF4444]">required for image</span></label>
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Image File <span class="normal-case font-normal text-[#EF4444]">required for image</span></label>
                                             <label class="mt-2 flex cursor-pointer flex-col items-center gap-3 rounded-2xl border border-dashed border-[#27213D] bg-[#11101C] px-4 py-6 text-center transition hover:border-[#38BDF8]/40 hover:bg-[#0F0D1A]">
                                                 <svg class="h-8 w-8 text-[#38BDF8]/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
                                                 <div>
@@ -1233,7 +1233,7 @@
                                         {{-- Message / Caption --}}
                                         <div>
                                             <div class="flex items-center justify-between">
-                                                <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]" x-text="bcMsgType === 'image' ? 'Caption' : 'Message'">Message</label>
+                                                <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]" x-text="bcMsgType === 'image' ? 'Caption' : 'Message'">Message</label>
                                                 <span class="text-[10px]" :class="bcLen > bcMaxLen - 100 ? 'font-black text-[#EF4444]' : 'text-[#3D3658]'" x-text="bcLen + ' / ' + bcMaxLen">0 / 4096</span>
                                             </div>
                                             <textarea name="message" x-model="bcMsg" rows="7" :maxlength="bcMaxLen"
@@ -1243,14 +1243,14 @@
 
                                         {{-- Parse Mode --}}
                                         <div>
-                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Parse Mode</label>
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Parse Mode</label>
                                             <input type="hidden" name="parse_mode" :value="bcParseMode">
                                             <div class="relative mt-2" @click.away="parseModeOpen = false">
                                                 <button type="button" @click="parseModeOpen = !parseModeOpen"
                                                     class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] transition focus:outline-none"
                                                     :class="parseModeOpen ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                                     <span x-text="bcParseModeLabel" class="text-left"></span>
-                                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform duration-150" :class="parseModeOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/></svg>
+                                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform duration-150" :class="parseModeOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/></svg>
                                                 </button>
                                                 <div x-show="parseModeOpen" x-cloak
                                                     x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
@@ -1271,7 +1271,7 @@
 
                                         {{-- CTA Button --}}
                                         <div class="rounded-2xl border border-[#27213D] bg-[#090713] p-4">
-                                            <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">CTA Button <span class="normal-case font-normal text-[#3D3658]">optional</span></p>
+                                            <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">CTA Button <span class="normal-case font-normal text-[#3D3658]">optional</span></p>
                                             <div class="mt-3 grid gap-3 sm:grid-cols-2">
                                                 <div>
                                                     <label class="text-[10px] font-bold text-[#52525B]">Button Text</label>
@@ -1301,7 +1301,7 @@
 
                                         @if (auth()->user()?->isAdmin())
                                             <div>
-                                                <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Maximum recipients for this broadcast</label>
+                                                <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Maximum recipients for this broadcast</label>
                                                 <input type="number" name="custom_recipient_limit" x-model="bcCustomLimit" @input.debounce.400ms="fetchEstimate()" min="1" max="10000000"
                                                     class="mt-2 w-full rounded-xl border border-[#27213D] bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/15 transition"
                                                     placeholder="Leave empty for default limit">
@@ -1311,14 +1311,14 @@
 
                                         {{-- Target Audience --}}
                                         <div>
-                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Target Audience</label>
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Target Audience</label>
                                             <input type="hidden" name="target_type" :value="bcTarget">
                                             <div class="relative mt-2" @click.away="targetOpen = false">
                                                 <button type="button" @click="targetOpen = !targetOpen"
                                                     class="flex w-full items-center justify-between rounded-xl border bg-[#11101C] px-4 py-3 text-sm text-[#F8FAFC] transition focus:outline-none"
                                                     :class="targetOpen ? 'border-[#8B5CF6]/60 ring-2 ring-[#8B5CF6]/15' : 'border-[#27213D]'">
                                                     <span x-text="bcTargetLabel" class="text-left"></span>
-                                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform duration-150" :class="targetOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/></svg>
+                                                    <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform duration-150" :class="targetOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/></svg>
                                                 </button>
                                                 <div x-show="targetOpen" x-cloak
                                                     x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
@@ -1347,7 +1347,7 @@
                                             </div>
 
                                             <div x-show="bcTarget === 'specific_users'" x-cloak class="mt-3 rounded-2xl border border-[#27213D] bg-[#090713] p-4">
-                                                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Upload Recipients</p>
+                                                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Upload Recipients</p>
                                                 <label class="mt-2 flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-[#27213D] bg-[#11101C] px-4 py-5 text-center transition hover:border-[#38BDF8]/40">
                                                     <svg class="h-7 w-7 text-[#38BDF8]/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
                                                     <span class="text-sm font-bold text-[#A1A1AA]" x-text="bcRecipientUploadName || 'Upload CSV or TXT'"></span>
@@ -1409,7 +1409,7 @@
                                                 Send Now
                                             </button>
                                             <button type="reset" @click="bcMsg='';bcTitle='';bcCtaText='';bcCtaUrl='';bcImageName='';if(bcImagePreviewUrl)URL.revokeObjectURL(bcImagePreviewUrl);bcImagePreviewUrl='';bcRecipientUploadName='';bcRecipientUploadCount=0;bcRecipientPaste='';bcParseMode='';bcDisablePreview=false;bcMsgType='text';bcCustomLimit='';fetchEstimate();"
-                                                class="flex items-center gap-2 rounded-xl border border-[#27213D] bg-[#151225] px-5 py-3 text-sm font-black text-[#71717A] transition hover:text-[#A1A1AA]">
+                                                class="flex items-center gap-2 rounded-xl border border-[#27213D] bg-[#151225] px-5 py-3 text-sm font-black text-[#94A3B8] transition hover:text-[#A1A1AA]">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
                                                 Clear
                                             </button>
@@ -1443,10 +1443,10 @@
                                                 {{-- Parse mode badge --}}
                                                 <div class="mt-3 flex flex-wrap gap-1.5">
                                                     <template x-if="bcParseMode">
-                                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[9px] font-black text-[#71717A]" x-text="bcParseMode + ' mode'"></span>
+                                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[9px] font-black text-[#94A3B8]" x-text="bcParseMode + ' mode'"></span>
                                                     </template>
                                                     <template x-if="bcDisablePreview">
-                                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[9px] font-black text-[#71717A]">No preview</span>
+                                                        <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[9px] font-black text-[#94A3B8]">No preview</span>
                                                     </template>
                                                 </div>
                                             </div>
@@ -1467,7 +1467,7 @@
                                                 ] as [$tKey, $tLabel, $tColor])
                                                     @php $tCount = $broadcastTargetCounts[$tKey] ?? 0; $tMax = max(1, $broadcastTargetCounts['all_active'] ?? 1); $tPct = min(100, round($tCount / $tMax * 100)); @endphp
                                                     <div class="flex items-center gap-2">
-                                                        <span class="w-16 shrink-0 text-[10px] text-[#71717A]">{{ $tLabel }}</span>
+                                                        <span class="w-16 shrink-0 text-[10px] text-[#94A3B8]">{{ $tLabel }}</span>
                                                         <div class="h-1 flex-1 overflow-hidden rounded-full bg-[#27213D]">
                                                             <div class="h-full rounded-full" style="width: {{ $tPct }}%; background-color: {{ $tColor }}60;"></div>
                                                         </div>
@@ -1496,7 +1496,7 @@
                         ] as [$tKey, $tLabel, $tDesc, $tColor])
                             <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
                                 <div class="flex items-center justify-between gap-2">
-                                    <p class="text-[10px] font-bold text-[#71717A]">{{ $tLabel }}</p>
+                                    <p class="text-[10px] font-bold text-[#94A3B8]">{{ $tLabel }}</p>
                                     <span class="h-1.5 w-1.5 rounded-full" style="background-color: {{ $tColor }}"></span>
                                 </div>
                                 <p class="mt-2 text-2xl font-black text-[#F8FAFC]">{{ number_format($broadcastTargetCounts[$tKey] ?? 0) }}</p>
@@ -1529,7 +1529,7 @@
                         <div class="flex items-center justify-between gap-4 border-b border-[#27213D] px-5 py-4 sm:px-6">
                             <div>
                                 <p class="text-sm font-black text-[#F8FAFC]">Broadcast History</p>
-                                <p class="text-xs text-[#71717A]">{{ ($botBroadcasts ?? collect())->count() }} {{ Str::plural('broadcast', ($botBroadcasts ?? collect())->count()) }} · most recent 25 shown</p>
+                                <p class="text-xs text-[#94A3B8]">{{ ($botBroadcasts ?? collect())->count() }} {{ Str::plural('broadcast', ($botBroadcasts ?? collect())->count()) }} · most recent 25 shown</p>
                             </div>
                         </div>
                         <div class="divide-y divide-[#1B172B]">
@@ -1585,7 +1585,7 @@
                                                     <span class="inline-flex items-center gap-1 rounded-full border border-[#229ED9]/20 bg-[#229ED9]/8 px-2 py-0.5 text-[10px] font-black text-[#229ED9]">CTA</span>
                                                 @endif
                                                 @if ($broadcast->parse_mode)
-                                                    <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-black text-[#71717A]">{{ $broadcast->parse_mode }}</span>
+                                                    <span class="rounded-full border border-[#27213D] bg-[#151225] px-2 py-0.5 text-[10px] font-black text-[#94A3B8]">{{ $broadcast->parse_mode }}</span>
                                                 @endif
                                             </div>
 
@@ -1597,7 +1597,7 @@
                                                     <p class="mt-2 text-[10px] font-bold text-[#38BDF8]">Image uploaded</p>
                                                 @endif
                                             @endif
-                                            <p class="mt-2 break-words text-sm leading-5 text-[#71717A]">{{ Str::limit($broadcast->message ?: ($broadcast->message_type === 'image' ? '(Image with no caption)' : '(No message)'), 160) }}</p>
+                                            <p class="mt-2 break-words text-sm leading-5 text-[#94A3B8]">{{ Str::limit($broadcast->message ?: ($broadcast->message_type === 'image' ? '(Image with no caption)' : '(No message)'), 160) }}</p>
 
                                             {{-- Meta row --}}
                                             <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-[#52525B]">
@@ -1623,7 +1623,7 @@
                                             {{-- Progress bar (non-draft) --}}
                                             @if (! $bIsDraft && ($broadcast->target_count ?? 0) > 0)
                                                 <div class="mt-3">
-                                                    <div class="flex items-center justify-between text-[10px] text-[#71717A]">
+                                                    <div class="flex items-center justify-between text-[10px] text-[#94A3B8]">
                                                         <span>
                                                             <span class="text-[#22C55E] font-bold">{{ number_format($broadcast->sent_count ?? 0) }} sent</span>
                                                             <span class="mx-1 text-[#3D3658]">·</span>
@@ -1731,7 +1731,7 @@
                                 </div>
                             @empty
                                 <div class="flex flex-col items-center gap-4 py-16 text-center">
-                                    <div class="grid h-14 w-14 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#71717A]">
+                                    <div class="grid h-14 w-14 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#94A3B8]">
                                         <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg>
                                     </div>
                                     <div>
@@ -1747,7 +1747,7 @@
                     <div class="overflow-hidden rounded-2xl border border-[#27213D] bg-[#0F0D1A]">
                         <div class="flex items-center gap-2.5 border-b border-[#1B172B] px-5 py-3.5">
                             <svg class="h-4 w-4 shrink-0 text-[#F59E0B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
-                            <p class="text-xs font-black uppercase tracking-widest text-[#71717A]">Broadcast Safety &amp; Plan Limits</p>
+                            <p class="text-xs font-black uppercase tracking-widest text-[#94A3B8]">Broadcast Safety &amp; Plan Limits</p>
                         </div>
                         <div class="grid gap-4 p-5 sm:grid-cols-2">
                             <div class="space-y-2">
@@ -1761,7 +1761,7 @@
                                         <span class="mt-0.5 h-2 w-2 shrink-0 rounded-full" style="background-color: {{ $planColor }}"></span>
                                         <div>
                                             <span class="text-xs font-black" style="color: {{ $planColor }}">{{ $planName }}</span>
-                                            <span class="text-xs text-[#71717A]"> — {{ $planDesc }}</span>
+                                            <span class="text-xs text-[#94A3B8]"> — {{ $planDesc }}</span>
                                         </div>
                                     </div>
                                 @endforeach
@@ -1777,7 +1777,7 @@
                                 ] as $tip)
                                     <div class="flex items-start gap-2">
                                         <svg class="mt-0.5 h-3 w-3 shrink-0 text-[#52525B]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                                        <p class="text-xs text-[#71717A]">{{ $tip }}</p>
+                                        <p class="text-xs text-[#94A3B8]">{{ $tip }}</p>
                                     </div>
                                 @endforeach
                             </div>
@@ -1788,33 +1788,33 @@
                 {{-- Bot Data --}}
                 <div x-show="adminTab === 'botData'">
                     <div class="flex flex-col items-center gap-3 rounded-2xl border border-[#27213D] bg-[#0F0D1A] py-14 text-center">
-                        <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#71717A]">
+                        <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#94A3B8]">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
                         </div>
                         <p class="text-sm font-black text-[#A1A1AA]">Bot Data Storage</p>
-                        <p class="text-xs text-[#71717A]">Coming soon — persistent key-value storage for your bot.</p>
+                        <p class="text-xs text-[#94A3B8]">Coming soon — persistent key-value storage for your bot.</p>
                     </div>
                 </div>
 
                 {{-- User Data --}}
                 <div x-show="adminTab === 'userData'">
                     <div class="flex flex-col items-center gap-3 rounded-2xl border border-[#27213D] bg-[#0F0D1A] py-14 text-center">
-                        <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#71717A]">
+                        <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#94A3B8]">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
                         </div>
                         <p class="text-sm font-black text-[#A1A1AA]">Per-User Data Storage</p>
-                        <p class="text-xs text-[#71717A]">Coming soon — browse and manage data stored per Telegram user.</p>
+                        <p class="text-xs text-[#94A3B8]">Coming soon — browse and manage data stored per Telegram user.</p>
                     </div>
                 </div>
 
                 {{-- Permissions --}}
                 <div x-show="adminTab === 'permissions'">
                     <div class="flex flex-col items-center gap-3 rounded-2xl border border-[#27213D] bg-[#0F0D1A] py-14 text-center">
-                        <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#71717A]">
+                        <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#27213D] bg-[#151225] text-[#94A3B8]">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         </div>
                         <p class="text-sm font-black text-[#A1A1AA]">Role Permissions</p>
-                        <p class="text-xs text-[#71717A]">Coming soon — fine-grained access control for bot collaborators.</p>
+                        <p class="text-xs text-[#94A3B8]">Coming soon — fine-grained access control for bot collaborators.</p>
                     </div>
                 </div>
             </section>
@@ -1824,17 +1824,17 @@
 
                 {{-- Bot ID --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Bot ID</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Bot ID</p>
                     <div class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3">
                         <span class="font-mono text-sm font-black text-[#F8FAFC]">{{ $bot->id }}</span>
-                        <button onclick="navigator.clipboard.writeText('{{ $bot->id }}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})" class="shrink-0 rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-1.5 text-xs font-black text-[#71717A] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8]">Copy</button>
+                        <button onclick="navigator.clipboard.writeText('{{ $bot->id }}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})" class="shrink-0 rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-1.5 text-xs font-black text-[#94A3B8] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8]">Copy</button>
                     </div>
                 </div>
 
                 {{-- Bot Name --}}
                 <form method="POST" action="{{ route('bots.settings.update', $bot) }}" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
                     @csrf @method('PATCH')
-                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Bot Name</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Bot Name</p>
                     <div class="mt-3 flex flex-wrap gap-3">
                         <input name="name" value="{{ old('name', $bot->name) }}" required maxlength="100" class="flex-1 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 transition">
                         <button class="shrink-0 rounded-xl border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 px-4 py-2.5 text-sm font-black text-[#8B5CF6] transition hover:bg-[#8B5CF6]/18">Update</button>
@@ -1844,20 +1844,20 @@
 
                 {{-- Bot Token --}}
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Bot Token</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Bot Token</p>
                     <div class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3">
                         <span class="min-w-0 flex-1 overflow-hidden break-all font-mono text-xs text-[#F8FAFC]" x-text="tokenVisible ? '{{ $bot->maskedToken() }}' : '••••••••••••••••••••••••••••••••••••••••'"></span>
                         <div class="flex shrink-0 items-center gap-1.5">
-                            <button onclick="navigator.clipboard.writeText('{{ $bot->maskedToken() }}')" class="rounded-lg border border-[#27213D] bg-[#0F0D1A] p-1.5 text-[#71717A] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8]">
+                            <button onclick="navigator.clipboard.writeText('{{ $bot->maskedToken() }}')" class="rounded-lg border border-[#27213D] bg-[#0F0D1A] p-1.5 text-[#94A3B8] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8]">
                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"/></svg>
                             </button>
-                            <button @click="tokenVisible = !tokenVisible" class="rounded-lg border border-[#27213D] bg-[#0F0D1A] p-1.5 text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]">
+                            <button @click="tokenVisible = !tokenVisible" class="rounded-lg border border-[#27213D] bg-[#0F0D1A] p-1.5 text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]">
                                 <svg x-show="!tokenVisible" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
                                 <svg x-show="tokenVisible" x-cloak class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
                             </button>
                         </div>
                     </div>
-                    <p class="mt-2 text-xs text-[#71717A]">Encrypted at rest. Masked in the UI. Never shared with third parties.</p>
+                    <p class="mt-2 text-xs text-[#94A3B8]">Encrypted at rest. Masked in the UI. Never shared with third parties.</p>
                 </div>
 
                 {{-- ════ CUSTOM WEBHOOK ════ --}}
@@ -1897,32 +1897,32 @@
                             {{-- Header --}}
                             <div class="flex flex-wrap items-start justify-between gap-3">
                                 <div>
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Custom Webhook</p>
-                                    <p class="mt-1 text-xs text-[#71717A]">Use this endpoint to receive POST callbacks from external platforms into this bot.</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Custom Webhook</p>
+                                    <p class="mt-1 text-xs text-[#94A3B8]">Use this endpoint to receive POST callbacks from external platforms into this bot.</p>
                                 </div>
                                 @if ($uwEnabled && $uwEndpoint)
                                     <span class="shrink-0 rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2.5 py-0.5 text-[10px] font-black text-[#22C55E]">Active</span>
                                 @else
-                                    <span class="shrink-0 rounded-full border border-[#71717A]/30 bg-[#71717A]/10 px-2.5 py-0.5 text-[10px] font-black text-[#71717A]">Inactive</span>
+                                    <span class="shrink-0 rounded-full border border-[#71717A]/30 bg-[#71717A]/10 px-2.5 py-0.5 text-[10px] font-black text-[#94A3B8]">Inactive</span>
                                 @endif
                             </div>
 
                             {{-- Endpoint label + URL --}}
                             <div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Incoming Webhook Endpoint</p>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Incoming Webhook Endpoint</p>
                                 @if ($uwEnabled && $uwEndpoint)
                                     <div class="mt-2 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3">
                                         <div class="flex items-start gap-2">
                                             <p class="min-w-0 flex-1 break-all font-mono text-xs leading-relaxed text-[#A1A1AA]">{{ $uwEndpoint }}</p>
                                             <button
                                                 onclick="navigator.clipboard.writeText('{{ $uwEndpoint }}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})"
-                                                class="mt-0.5 shrink-0 rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-1.5 text-xs font-black text-[#71717A] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8]"
+                                                class="mt-0.5 shrink-0 rounded-lg border border-[#27213D] bg-[#0F0D1A] px-3 py-1.5 text-xs font-black text-[#94A3B8] transition hover:border-[#38BDF8]/40 hover:text-[#38BDF8]"
                                             >Copy</button>
                                         </div>
                                     </div>
                                 @else
                                     <div class="mt-2 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3 text-xs text-[#52525B]">
-                                        No endpoint generated yet. Click <strong class="text-[#71717A]">Generate</strong> to create a unique URL.
+                                        No endpoint generated yet. Click <strong class="text-[#94A3B8]">Generate</strong> to create a unique URL.
                                     </div>
                                 @endif
                             </div>
@@ -1957,7 +1957,7 @@
                             {{-- Docs link --}}
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('docs.webhooks') }}" target="_blank"
-                                   class="inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#151225] px-3 py-1.5 text-xs font-black text-[#71717A] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]">
+                                   class="inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#151225] px-3 py-1.5 text-xs font-black text-[#94A3B8] transition hover:border-[#8B5CF6]/40 hover:text-[#8B5CF6]">
                                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
                                     Webhook Documentation
                                 </a>
@@ -1968,7 +1968,7 @@
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <p class="text-xs font-black text-[#A1A1AA]">Test Webhook</p>
-                                        <p class="mt-0.5 text-xs text-[#71717A]">Send a test payload to this bot's webhook endpoint.</p>
+                                        <p class="mt-0.5 text-xs text-[#94A3B8]">Send a test payload to this bot's webhook endpoint.</p>
                                     </div>
                                     <button
                                         type="button"
@@ -1984,7 +1984,7 @@
                                 <div x-show="testResult" x-cloak class="mt-3 flex items-center gap-2 rounded-lg border border-[#22C55E]/30 bg-[#22C55E]/8 px-3 py-2 text-xs">
                                     <svg class="h-3.5 w-3.5 shrink-0 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                                     <span class="font-black text-[#22C55E]">Received</span>
-                                    <span class="text-[#71717A]">— HTTP <span class="font-black text-[#A1A1AA]" x-text="testResult?.http_status"></span> · <span x-text="testResult?.duration_ms"></span>ms</span>
+                                    <span class="text-[#94A3B8]">— HTTP <span class="font-black text-[#A1A1AA]" x-text="testResult?.http_status"></span> · <span x-text="testResult?.duration_ms"></span>ms</span>
                                 </div>
                                 <div x-show="testError" x-cloak class="mt-3 flex items-start gap-2 rounded-lg border border-[#EF4444]/30 bg-[#EF4444]/8 px-3 py-2 text-xs">
                                     <svg class="mt-px h-3.5 w-3.5 shrink-0 text-[#EF4444]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>
@@ -1998,11 +1998,11 @@
                             @php $dlogs = $webhookDeliveryLogs ?? collect(); @endphp
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Delivery Logs</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Delivery Logs</p>
                                     <p class="mt-0.5 text-[11px] text-[#52525B]">Recent incoming webhook attempts for this bot.</p>
                                 </div>
                                 @if ($dlogs->isNotEmpty())
-                                    <span class="shrink-0 rounded-full border border-[#27213D] bg-[#151225] px-2.5 py-0.5 text-[10px] font-black text-[#71717A]">{{ $dlogs->count() }}</span>
+                                    <span class="shrink-0 rounded-full border border-[#27213D] bg-[#151225] px-2.5 py-0.5 text-[10px] font-black text-[#94A3B8]">{{ $dlogs->count() }}</span>
                                 @endif
                             </div>
 
@@ -2012,7 +2012,7 @@
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-black text-[#71717A]">No webhook deliveries yet</p>
+                                        <p class="text-sm font-black text-[#94A3B8]">No webhook deliveries yet</p>
                                         <p class="mt-0.5 text-xs text-[#52525B]">Incoming callbacks will appear here once your endpoint receives requests.</p>
                                     </div>
                                 </div>
@@ -2044,9 +2044,9 @@
                                                     <td class="px-4 py-2.5">
                                                         <span class="rounded-full border px-2 py-0.5 text-[10px] font-black {{ $dlogStyle }}">{{ ucfirst($dlog->status) }}</span>
                                                     </td>
-                                                    <td class="px-4 py-2.5 font-mono text-[#71717A]">{{ $dlog->http_status ?? '—' }}</td>
-                                                    <td class="px-4 py-2.5 text-[#71717A]">{{ $dlog->duration_ms !== null ? $dlog->duration_ms.'ms' : '—' }}</td>
-                                                    <td class="px-4 py-2.5 text-[#71717A]">{{ $dlog->created_at->diffForHumans() }}</td>
+                                                    <td class="px-4 py-2.5 font-mono text-[#94A3B8]">{{ $dlog->http_status ?? '—' }}</td>
+                                                    <td class="px-4 py-2.5 text-[#94A3B8]">{{ $dlog->duration_ms !== null ? $dlog->duration_ms.'ms' : '—' }}</td>
+                                                    <td class="px-4 py-2.5 text-[#94A3B8]">{{ $dlog->created_at->diffForHumans() }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -2060,22 +2060,22 @@
                 @else
                     {{-- ── LOCKED: Plan upgrade required ── --}}
                     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Custom Webhook</p>
-                        <p class="mt-1.5 text-xs text-[#71717A]">Receive POST callbacks from external platforms into this bot.</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Custom Webhook</p>
+                        <p class="mt-1.5 text-xs text-[#94A3B8]">Receive POST callbacks from external platforms into this bot.</p>
                         <div class="mt-4 flex items-start gap-3 rounded-xl border border-[#F59E0B]/20 bg-[#F59E0B]/8 px-4 py-3">
                             <svg class="h-4 w-4 shrink-0 text-[#F59E0B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                             <div>
                                 <p class="text-xs font-black text-[#F59E0B]">Plan upgrade required</p>
-                                <p class="mt-0.5 text-xs text-[#71717A]">Custom webhooks are available on Pro and higher plans.</p>
+                                <p class="mt-0.5 text-xs text-[#94A3B8]">Custom webhooks are available on Pro and higher plans.</p>
                             </div>
                         </div>
                         <div class="mt-4 space-y-3 opacity-50">
-                            <div class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3 text-xs text-[#3D3657]">
+                            <div class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-3 text-xs text-[#6B6890]">
                                 Incoming Webhook Endpoint — not available on your plan.
                             </div>
                             <div class="flex items-center justify-between rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5">
-                                <span class="text-xs text-[#3D3657]">Test Webhook</span>
-                                <button disabled class="cursor-not-allowed rounded-xl border border-[#27213D] bg-[#0B0918] px-3 py-1.5 text-xs font-black text-[#3D3657]">Test</button>
+                                <span class="text-xs text-[#6B6890]">Test Webhook</span>
+                                <button disabled class="cursor-not-allowed rounded-xl border border-[#27213D] bg-[#0B0918] px-3 py-1.5 text-xs font-black text-[#6B6890]">Test</button>
                             </div>
                         </div>
                         @if (\Illuminate\Support\Facades\Route::has('dashboard.upgrade'))
@@ -2089,8 +2089,8 @@
 
                 <form method="POST" action="{{ route('bots.settings.update', $bot) }}" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
                     @csrf @method('PATCH')
-                    <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Update Token</p>
-                    <p class="mt-1.5 text-xs text-[#71717A]">Replace the bot token stored for this workspace.</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Update Token</p>
+                    <p class="mt-1.5 text-xs text-[#94A3B8]">Replace the bot token stored for this workspace.</p>
                     <div class="mt-4 flex flex-wrap gap-3">
                         <input name="token" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" class="flex-1 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#8B5CF6]/60 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 transition" placeholder="New token from @BotFather">
                         <button class="shrink-0 rounded-xl border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 px-4 py-2.5 text-sm font-black text-[#8B5CF6] transition hover:bg-[#8B5CF6]/18">Update</button>

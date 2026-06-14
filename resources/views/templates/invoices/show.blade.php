@@ -1,4 +1,4 @@
-<x-dashboard-layout title="Crypto Invoice" :no-flash="true">
+﻿<x-dashboard-layout title="Crypto Invoice" :no-flash="true">
 <div class="mx-auto max-w-xl space-y-4">
 
     @php
@@ -12,7 +12,7 @@
             $isPaid   => 'border-[#22C55E]/30 bg-[#22C55E]/10 text-[#22C55E]',
             $isFailed => 'border-[#EF4444]/30 bg-[#EF4444]/10 text-[#EF4444]',
             $isActive => 'border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#F59E0B]',
-            default   => 'border-[#71717A]/30 bg-[#71717A]/10 text-[#71717A]',
+            default   => 'border-[#71717A]/30 bg-[#71717A]/10 text-[#94A3B8]',
         };
 
         $statusLabel = match($invoice->status) {
@@ -29,7 +29,7 @@
 
     {{-- Back --}}
     <a href="{{ route('dashboard.templates.show', $invoice->template) }}"
-       class="inline-flex items-center gap-1.5 text-sm text-[#71717A] transition hover:text-[#A1A1AA]">
+       class="inline-flex items-center gap-1.5 text-sm text-[#94A3B8] transition hover:text-[#A1A1AA]">
         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         Back to template
     </a>
@@ -53,7 +53,7 @@
         {{-- Header --}}
         <div class="flex items-center justify-between gap-3 border-b border-[#27213D] px-5 py-4">
             <div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Template Purchase</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Template Purchase</p>
                 <h1 class="mt-0.5 text-lg font-black leading-tight">{{ $invoice->template->name }}</h1>
             </div>
             <span class="rounded-full border px-3 py-1 text-xs font-black {{ $statusColour }}">{{ $statusLabel }}</span>
@@ -64,18 +64,18 @@
             {{-- Stats --}}
             <div class="grid grid-cols-2 gap-3">
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Amount Due</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Amount Due</p>
                     <p class="mt-0.5 text-xl font-black text-white">{{ $invoice->currency }} {{ number_format((float) $invoice->amount, 2) }}</p>
                 </div>
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Network</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Network</p>
                     <p class="mt-0.5 text-base font-black text-white">{{ $networkLabel ?? $invoice->pay_currency ?? $invoice->network ?? 'Crypto' }}</p>
                 </div>
             </div>
 
             @if ($invoice->expires_at && $isActive)
             <div class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
-                <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Expires In</p>
+                <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Expires In</p>
                 <p class="mt-0.5 text-base font-black text-[#F59E0B]" id="expiry-timer">{{ $invoice->expires_at->diffForHumans() }}</p>
             </div>
             @endif
@@ -88,7 +88,7 @@
                     </div>
                     <div>
                         <p class="text-xl font-black text-[#22C55E]">Payment Confirmed</p>
-                        <p class="mt-1 text-sm text-[#71717A]">Template unlocked and ready to import.</p>
+                        <p class="mt-1 text-sm text-[#94A3B8]">Template unlocked and ready to import.</p>
                     </div>
                     <div class="flex flex-wrap justify-center gap-2">
                         <a href="{{ route('dashboard.templates.show', $invoice->template) }}"
@@ -114,7 +114,7 @@
             @elseif ($isActive)
                 {{-- Address --}}
                 <div class="rounded-xl border border-[#27213D] bg-[#090713] p-4 space-y-3">
-                    <p class="text-[10px] font-black uppercase tracking-wide text-[#71717A]">Payment Address</p>
+                    <p class="text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">Payment Address</p>
                     <p class="text-xs text-[#A1A1AA]">Send <span class="font-black text-white">{{ $invoice->currency }} {{ number_format((float) $invoice->amount, 2) }}</span> worth of <span class="font-bold text-white">{{ $networkLabel ?? $invoice->pay_currency }}</span> in a single transaction.</p>
                     <div class="flex items-center gap-2 rounded-xl border border-[#8B5CF6]/20 bg-[#0F0D1A] px-3 py-2.5">
                         <code id="pay-address" class="flex-1 break-all font-mono text-sm font-bold leading-snug text-white">{{ $invoice->payment_address }}</code>
@@ -126,7 +126,7 @@
                     <p class="text-[11px] text-[#F59E0B]">Unique address — send in a single transaction.</p>
                     <p class="mt-1 text-[11px] leading-snug text-[#EF4444]">⚠ Only send <strong>{{ $networkLabel ?? $invoice->pay_currency }}</strong>. Payments sent in any other currency or network are permanently lost and cannot be refunded.</p>
                     @if ($invoice->track_id)
-                        <p class="text-[10px] text-[#4D4868]">Ref: <span class="font-mono">{{ $invoice->track_id }}</span></p>
+                        <p class="text-[10px] text-[#7E7AA0]">Ref: <span class="font-mono">{{ $invoice->track_id }}</span></p>
                     @endif
                 </div>
 
@@ -143,11 +143,11 @@
                         Return
                     </a>
                 </div>
-                <p class="text-xs text-[#4D4868]">After sending payment, click <strong class="text-[#71717A]">Check Payment Status</strong> to confirm.</p>
+                <p class="text-xs text-[#7E7AA0]">After sending payment, click <strong class="text-[#94A3B8]">Check Payment Status</strong> to confirm.</p>
 
             @else
                 {{-- Pending, not yet generated --}}
-                <div class="rounded-xl border border-[#27213D] bg-[#090713] px-4 py-3 text-sm text-[#71717A]">
+                <div class="rounded-xl border border-[#27213D] bg-[#090713] px-4 py-3 text-sm text-[#94A3B8]">
                     Invoice is pending. Start a new purchase from the template page to generate a payment address.
                 </div>
                 <a href="{{ route('dashboard.templates.show', $invoice->template) }}"

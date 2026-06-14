@@ -1,10 +1,10 @@
-<x-dashboard-layout title="Recycle Bin">
+﻿<x-dashboard-layout title="Recycle Bin">
 
 <div class="space-y-6">
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-xl font-black text-[#F8FAFC]">Recycle Bin</h1>
-            <p class="mt-1 text-sm text-[#71717A]">Restore deleted bots or permanently remove old items. Bots are kept for {{ $retentionDays }} days.</p>
+            <p class="mt-1 text-sm text-[#94A3B8]">Restore deleted bots or permanently remove old items. Bots are kept for {{ $retentionDays }} days.</p>
         </div>
         <a href="{{ route('bots.index') }}" class="rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#A1A1AA] transition hover:text-white">Back to Bots</a>
     </div>
@@ -21,7 +21,7 @@
                     <svg class="h-4 w-4" style="color:{{ $color }}" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $path }}"/></svg>
                 </div>
                 <p class="text-2xl font-black text-[#F8FAFC]">{{ $count }}</p>
-                <p class="mt-0.5 text-[11px] text-[#71717A]">{{ $label }}</p>
+                <p class="mt-0.5 text-[11px] text-[#94A3B8]">{{ $label }}</p>
             </div>
         @endforeach
     </div>
@@ -41,7 +41,7 @@
                     <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632A2.25 2.25 0 0 1 17.378 20.25H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5"/></svg>
                 </div>
                 <div>
-                    <p class="text-base font-black text-[#71717A]">Recycle Bin is empty</p>
+                    <p class="text-base font-black text-[#94A3B8]">Recycle Bin is empty</p>
                     <p class="mt-1 text-sm text-[#52525B]">Deleted bots will appear here for recovery before permanent removal.</p>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-black text-[#F8FAFC]">{{ $bot->name }}</p>
-                                <p class="mt-1 text-xs text-[#71717A]">{{ $bot->telegram_username ? '@'.$bot->telegram_username : 'No Telegram username' }}</p>
+                                <p class="mt-1 text-xs text-[#94A3B8]">{{ $bot->telegram_username ? '@'.$bot->telegram_username : 'No Telegram username' }}</p>
                                 <div class="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#A1A1AA]">
                                     <span class="rounded-lg border border-[#27213D] px-2.5 py-1">Deleted {{ $bot->deleted_days }} {{ Str::plural('day', $bot->deleted_days) }} ago</span>
                                     @if ($bot->days_remaining > 0)
@@ -82,7 +82,7 @@
     </div>
 
     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-        <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#71717A]">How the Recycle Bin Works</p>
+        <p class="mb-4 text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">How the Recycle Bin Works</p>
         <div class="grid gap-3 sm:grid-cols-3">
             @foreach([
                 ['Delete a Bot',          'When you delete a bot, it moves to the Recycle Bin instead of being permanently removed.', '#8B5CF6', 'M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0'],

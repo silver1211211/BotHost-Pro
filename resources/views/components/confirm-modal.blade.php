@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Global confirmation modal — powered by Alpine.store('confirm').
     Included once in each layout. Triggered via confirm.js data-confirm attributes.
 --}}
@@ -74,7 +74,7 @@
 
         {{-- Typed confirmation --}}
         <div x-show="$store.confirm.requireTyped" x-cloak class="mb-4">
-            <label class="block text-xs font-bold text-[#71717A] mb-1.5">
+            <label class="block text-xs font-bold text-[#94A3B8] mb-1.5">
                 Type <span class="font-black text-[#EF4444]" x-text="$store.confirm.typedWord"></span> to confirm
             </label>
             <input

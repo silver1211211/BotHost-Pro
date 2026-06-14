@@ -1,11 +1,11 @@
-<x-admin-layout title="Admin Logs">
+﻿<x-admin-layout title="Admin Logs">
     @php
         $categoryColors = [
             'security' => 'text-[#EF4444] bg-[#EF4444]/10 border-[#EF4444]/20',
             'bot'      => 'text-[#8B5CF6] bg-[#8B5CF6]/10 border-[#8B5CF6]/20',
             'payment'  => 'text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20',
             'template' => 'text-[#38BDF8] bg-[#38BDF8]/10 border-[#38BDF8]/20',
-            'system'   => 'text-[#71717A] bg-[#27213D]/60 border-[#27213D]',
+            'system'   => 'text-[#94A3B8] bg-[#27213D]/60 border-[#27213D]',
         ];
         $statusColors = [
             'success' => 'text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20',
@@ -36,7 +36,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-black tracking-tight text-[#F8FAFC]">Audit Logs</h1>
-                <p class="mt-1 text-sm text-[#71717A]">Platform-wide activity, security events, and system actions.</p>
+                <p class="mt-1 text-sm text-[#94A3B8]">Platform-wide activity, security events, and system actions.</p>
             </div>
         </div>
 
@@ -49,7 +49,7 @@
                     </div>
                     <div>
                         <p class="text-2xl font-black text-[#F8FAFC]">{{ number_format($summary['audit_logs_today']) }}</p>
-                        <p class="text-xs text-[#71717A]">Logs Today</p>
+                        <p class="text-xs text-[#94A3B8]">Logs Today</p>
                     </div>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div>
                         <p class="text-2xl font-black text-[#F8FAFC]">{{ number_format($summary['failed_login_24h']) }}</p>
-                        <p class="text-xs text-[#71717A]">Failed Logins (24h)</p>
+                        <p class="text-xs text-[#94A3B8]">Failed Logins (24h)</p>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div>
                         <p class="text-2xl font-black text-[#F8FAFC]">{{ number_format($summary['admin_users']) }}</p>
-                        <p class="text-xs text-[#71717A]">Admin Users</p>
+                        <p class="text-xs text-[#94A3B8]">Admin Users</p>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                     </div>
                     <div>
                         <p class="text-2xl font-black text-[#F8FAFC]">{{ number_format($summary['security_events']) }}</p>
-                        <p class="text-xs text-[#71717A]">Security Events</p>
+                        <p class="text-xs text-[#94A3B8]">Security Events</p>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
         <form method="GET" action="" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="relative lg:col-span-2">
-                    <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#71717A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     <input
                         type="text"
                         name="search"
@@ -105,7 +105,7 @@
                     <input type="hidden" name="status" :value="val">
                     <button type="button" @click="open = !open" class="flex w-full items-center justify-between rounded-xl border bg-[#151225] px-3 py-2.5 text-sm text-[#F8FAFC] transition focus:outline-none" :class="open ? 'border-[#8B5CF6]/50 ring-1 ring-[#8B5CF6]/50' : 'border-[#27213D]'">
                         <span x-text="label"></span>
-                        <svg class="ml-2 h-4 w-4 shrink-0 text-[#71717A] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                        <svg class="ml-2 h-4 w-4 shrink-0 text-[#94A3B8] transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                         class="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#27213D] bg-[#151225] shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
@@ -149,7 +149,7 @@
                     class="flex-shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition
                         {{ $isActive
                             ? 'bg-[#8B5CF6] text-white shadow-sm'
-                            : 'text-[#71717A] hover:bg-[#151225] hover:text-[#F8FAFC]' }}"
+                            : 'text-[#94A3B8] hover:bg-[#151225] hover:text-[#F8FAFC]' }}"
                 >{{ $label }}</a>
             @endforeach
         </div>
@@ -159,7 +159,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[900px] text-sm">
                     <thead class="border-b border-[#27213D]">
-                        <tr class="text-xs uppercase tracking-wide text-[#71717A]">
+                        <tr class="text-xs uppercase tracking-wide text-[#94A3B8]">
                             <th class="px-5 py-3.5 text-left">When</th>
                             <th class="px-5 py-3.5 text-left">Category</th>
                             <th class="px-5 py-3.5 text-left">Action</th>
@@ -173,7 +173,7 @@
                         @forelse ($logs as $log)
                             @php
                                 $catClass    = $categoryColors[$log->category] ?? $categoryColors['system'];
-                                $statusClass = $statusColors[$log->status] ?? 'text-[#71717A] bg-[#27213D]/60 border-[#27213D]';
+                                $statusClass = $statusColors[$log->status] ?? 'text-[#94A3B8] bg-[#27213D]/60 border-[#27213D]';
                                 $safeLog = [
                                     'action'      => $log->action,
                                     'category'    => $log->category,
@@ -188,7 +188,7 @@
                                 ];
                             @endphp
                             <tr class="transition hover:bg-[#151225]/60">
-                                <td class="whitespace-nowrap px-5 py-3.5 text-xs text-[#71717A]">
+                                <td class="whitespace-nowrap px-5 py-3.5 text-xs text-[#94A3B8]">
                                     {{ $log->created_at?->format('M j, Y') }}<br>
                                     <span class="text-[#4B4565]">{{ $log->created_at?->format('H:i:s') }}</span>
                                 </td>
@@ -212,7 +212,7 @@
                                 <td class="px-5 py-3.5 text-xs text-[#A1A1AA]">
                                     {{ $log->actor?->email ?? 'System' }}
                                 </td>
-                                <td class="px-5 py-3.5 font-mono text-xs text-[#71717A]">
+                                <td class="px-5 py-3.5 font-mono text-xs text-[#94A3B8]">
                                     {{ $log->ip_address ?? '—' }}
                                 </td>
                                 <td class="px-5 py-3.5">
@@ -230,7 +230,7 @@
                                     <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#151225] text-[#4B4565]">
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                     </div>
-                                    <p class="mt-3 text-sm text-[#71717A]">No logs match your filters.</p>
+                                    <p class="mt-3 text-sm text-[#94A3B8]">No logs match your filters.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -249,7 +249,7 @@
             @forelse ($logs as $log)
                 @php
                     $catClass    = $categoryColors[$log->category] ?? $categoryColors['system'];
-                    $statusClass = $statusColors[$log->status] ?? 'text-[#71717A] bg-[#27213D]/60 border-[#27213D]';
+                    $statusClass = $statusColors[$log->status] ?? 'text-[#94A3B8] bg-[#27213D]/60 border-[#27213D]';
                     $safeLog = [
                         'action'      => $log->action,
                         'category'    => $log->category,
@@ -278,7 +278,7 @@
                             </div>
                             <p class="mt-2 truncate font-mono text-xs text-[#F8FAFC]">{{ $log->action }}</p>
                             @if ($log->description)
-                                <p class="mt-1 line-clamp-2 text-xs text-[#71717A]">{{ $log->description }}</p>
+                                <p class="mt-1 line-clamp-2 text-xs text-[#94A3B8]">{{ $log->description }}</p>
                             @endif
                             <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#4B4565]">
                                 <span>{{ $log->created_at?->diffForHumans() }}</span>
@@ -298,7 +298,7 @@
                 </div>
             @empty
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] px-5 py-14 text-center">
-                    <p class="text-sm text-[#71717A]">No logs match your filters.</p>
+                    <p class="text-sm text-[#94A3B8]">No logs match your filters.</p>
                 </div>
             @endforelse
 
@@ -316,7 +316,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </div>
                 <div>
-                    <p class="text-xs text-[#71717A]">Platform Mode</p>
+                    <p class="text-xs text-[#94A3B8]">Platform Mode</p>
                     <p class="text-sm font-bold {{ $summary['maintenance_mode'] ? 'text-[#F59E0B]' : 'text-[#22C55E]' }}">
                         {{ $summary['maintenance_mode'] ? 'Maintenance' : 'Live' }}
                     </p>
@@ -327,7 +327,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                 </div>
                 <div>
-                    <p class="text-xs text-[#71717A]">Registrations</p>
+                    <p class="text-xs text-[#94A3B8]">Registrations</p>
                     <p class="text-sm font-bold {{ $summary['registration_enabled'] ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">
                         {{ $summary['registration_enabled'] ? 'Open' : 'Closed' }}
                     </p>
@@ -338,7 +338,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
                 <div>
-                    <p class="text-xs text-[#71717A]">Last Webhook Reset</p>
+                    <p class="text-xs text-[#94A3B8]">Last Webhook Reset</p>
                     <p class="text-sm font-bold text-[#A1A1AA]">
                         {{ $summary['last_webhook_reset']?->created_at?->diffForHumans() ?? 'Never' }}
                     </p>
@@ -372,46 +372,46 @@
             >
                 <div class="flex items-center justify-between border-b border-[#27213D] px-5 py-4">
                     <h3 class="text-sm font-bold text-[#F8FAFC]">Log Detail</h3>
-                    <button @click="closeDetail()" class="rounded-lg p-1 text-[#71717A] transition hover:bg-[#151225] hover:text-[#F8FAFC]">
+                    <button @click="closeDetail()" class="rounded-lg p-1 text-[#94A3B8] transition hover:bg-[#151225] hover:text-[#F8FAFC]">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="space-y-3 p-5" x-show="log">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="rounded-xl bg-[#151225] p-3">
-                            <p class="text-xs text-[#71717A]">Category</p>
+                            <p class="text-xs text-[#94A3B8]">Category</p>
                             <p class="mt-1 text-sm font-semibold text-[#F8FAFC]" x-text="log?.category ? log.category.charAt(0).toUpperCase() + log.category.slice(1) : '—'"></p>
                         </div>
                         <div class="rounded-xl bg-[#151225] p-3">
-                            <p class="text-xs text-[#71717A]">Status</p>
+                            <p class="text-xs text-[#94A3B8]">Status</p>
                             <p class="mt-1 text-sm font-semibold text-[#F8FAFC]" x-text="log?.status ? log.status.charAt(0).toUpperCase() + log.status.slice(1) : '—'"></p>
                         </div>
                     </div>
                     <div class="rounded-xl bg-[#151225] p-3">
-                        <p class="text-xs text-[#71717A]">Action</p>
+                        <p class="text-xs text-[#94A3B8]">Action</p>
                         <p class="mt-1 break-all font-mono text-xs text-[#F8FAFC]" x-text="log?.action ?? '—'"></p>
                     </div>
                     <div class="rounded-xl bg-[#151225] p-3">
-                        <p class="text-xs text-[#71717A]">Description</p>
+                        <p class="text-xs text-[#94A3B8]">Description</p>
                         <p class="mt-1 text-sm text-[#A1A1AA]" x-text="log?.description || '—'"></p>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="rounded-xl bg-[#151225] p-3">
-                            <p class="text-xs text-[#71717A]">Actor</p>
+                            <p class="text-xs text-[#94A3B8]">Actor</p>
                             <p class="mt-1 truncate text-sm text-[#F8FAFC]" x-text="log?.actor ?? '—'"></p>
                         </div>
                         <div class="rounded-xl bg-[#151225] p-3">
-                            <p class="text-xs text-[#71717A]">IP Address</p>
+                            <p class="text-xs text-[#94A3B8]">IP Address</p>
                             <p class="mt-1 font-mono text-sm text-[#F8FAFC]" x-text="log?.ip_address || '—'"></p>
                         </div>
                     </div>
                     <div class="rounded-xl bg-[#151225] p-3">
-                        <p class="text-xs text-[#71717A]">Timestamp</p>
+                        <p class="text-xs text-[#94A3B8]">Timestamp</p>
                         <p class="mt-1 text-sm text-[#F8FAFC]" x-text="log?.created_at ?? '—'"></p>
                     </div>
                     <div class="rounded-xl bg-[#151225] p-3">
-                        <p class="text-xs text-[#71717A]">User Agent</p>
-                        <p class="mt-1 break-all text-xs text-[#71717A]" x-text="log?.user_agent || '—'"></p>
+                        <p class="text-xs text-[#94A3B8]">User Agent</p>
+                        <p class="mt-1 break-all text-xs text-[#94A3B8]" x-text="log?.user_agent || '—'"></p>
                     </div>
                 </div>
                 <div class="border-t border-[#27213D] px-5 py-4">
