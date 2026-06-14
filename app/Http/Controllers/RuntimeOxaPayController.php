@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bot;
 use App\Services\FaucetPayService;
 use App\Services\OxaPayService;
+use App\Support\NodeRuntimeConfig;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class RuntimeOxaPayController extends Controller
 {
     public function __invoke(Request $request, OxaPayService $oxapay, FaucetPayService $faucetPay): JsonResponse
     {
-        $secret = (string) config('services.node_runtime.secret', '');
+        $secret = NodeRuntimeConfig::secret();
 
         if ($secret === '' || ! hash_equals($secret, (string) $request->header('X-Runtime-Secret', ''))) {
             return response()->json(['ok' => false, 'error' => 'Unauthorized runtime OxaPay request.'], 401);

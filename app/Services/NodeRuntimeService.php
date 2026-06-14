@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Support\NodeRuntimeConfig;
 use App\Support\PublicCallbackUrl;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -99,7 +100,7 @@ class NodeRuntimeService
 
         $requestTimeout = max(10, (int) ceil(((int) $runtimeSettings['command_timeout_ms']) / 1000) + 5);
         $request = Http::connectTimeout(1)->timeout($requestTimeout)->acceptJson();
-        $secret = config('services.node_runtime.secret');
+        $secret = NodeRuntimeConfig::secret();
 
         if (filled($secret)) {
             $request = $request->withHeaders(['X-Runtime-Secret' => $secret]);
@@ -227,9 +228,9 @@ class NodeRuntimeService
             $runtime['oxapay_bridge_url'] = $this->runtimeOxaPayBridgeUrl();
             $runtime['telegram_bridge_url'] = $this->runtimeTelegramBridgeUrl();
             $runtime['storage_bridge_url'] = $this->runtimeStorageBridgeUrl();
-            $runtime['oxapay_bridge_secret'] = (string) config('services.node_runtime.secret', '');
-            $runtime['telegram_bridge_secret'] = (string) config('services.node_runtime.secret', '');
-            $runtime['storage_bridge_secret'] = (string) config('services.node_runtime.secret', '');
+            $runtime['oxapay_bridge_secret'] = NodeRuntimeConfig::secret();
+            $runtime['telegram_bridge_secret'] = NodeRuntimeConfig::secret();
+            $runtime['storage_bridge_secret'] = NodeRuntimeConfig::secret();
             $runtime['secrets'] = $this->runtimeSecrets($bot);
         }
 
@@ -284,7 +285,7 @@ class NodeRuntimeService
 
     private function runtimeBridgeBaseUrl(): string
     {
-        $internal = rtrim(trim((string) config('services.node_runtime.internal_url', '')), '/');
+        $internal = NodeRuntimeConfig::internalUrl();
         if ($internal !== '') {
             return $internal;
         }

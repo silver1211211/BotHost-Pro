@@ -41,7 +41,14 @@ it('keeps FaucetPay global helpers available and fallback diagnostics off stdout
     $server = file_get_contents(base_path('runtime-node/server.js'));
     $fallback = file_get_contents(base_path('runtime-node/execute-once.js'));
 
-    foreach (['faucetPaySend', 'faucetPayWithdraw', 'faucetPayBalance', 'faucetPayGetBalance', 'faucetPayCheckAddress', 'faucetPayCheckEmail', 'faucetPayValidateKey', 'faucetPayGetCurrencies', 'findUserByData'] as $helper) {
+    foreach ([
+        'faucetPaySend', 'faucetPayWithdraw', 'faucetPayBalance', 'faucetPayGetBalance',
+        'faucetPayCheckAddress', 'faucetPayCheckEmail', 'faucetPayValidateKey', 'faucetPayGetCurrencies',
+        'findUserByData', 'findUserByDataInCurrentBot', 'findFirstUserByDataInCurrentBot',
+        'userDataExistsInCurrentBot', 'isUserDataTakenInCurrentBot', 'isUserDataTakenByOtherUserInCurrentBot',
+        'findUserByFaucetPayEmailInCurrentBot', 'faucetPayEmailExistsInCurrentBot', 'faucetPayEmailTakenByOtherUserInCurrentBot',
+        'findUserByWalletInCurrentBot', 'walletExistsInCurrentBot', 'walletTakenByOtherUserInCurrentBot',
+    ] as $helper) {
         expect($server)->toContain($helper)
             ->and($fallback)->toContain($helper);
     }
@@ -67,6 +74,7 @@ await reply([
   typeof faucetPaySend,
   typeof faucetPayGetCurrencies,
   typeof findUserByData,
+  typeof findUserByDataInCurrentBot,
   typeof getBotSecret,
   typeof setTimeout,
   typeof clearTimeout,
@@ -99,7 +107,7 @@ JS,
 
     $output = json_decode($process->getOutput(), true);
 
-    expect($output['replies'][0]['text'] ?? null)->toBe(str_repeat('function,', 18).'function');
+    expect($output['replies'][0]['text'] ?? null)->toBe(str_repeat('function,', 19).'function');
 });
 
 it('returns clean FaucetPay errors without a configured key or payment bridge', function (): void {
@@ -237,8 +245,9 @@ it('returns an explicit scoped object from findUserByData', function (): void {
             'type' => 'code',
             'code' => <<<'JS'
 const found = await findUserByData("fp_email", "linked@example.com");
+const foundInCurrentBot = await findUserByDataInCurrentBot("fp_email", "linked@example.com");
 const missing = await findUserByData("fp_email", "missing@example.com");
-await reply(JSON.stringify({ found, missing }));
+await reply(JSON.stringify({ found, foundInCurrentBot, missing }));
 JS,
         ],
         'telegram' => [
@@ -264,6 +273,74 @@ JS,
 
     expect($result['found'])
         ->toMatchArray(['ok' => true, 'found' => true, 'user_id' => '7701909986', 'value' => 'linked@example.com'])
+        ->and($result['foundInCurrentBot'])
+        ->toMatchArray(['ok' => true, 'found' => true, 'user_id' => '7701909986', 'value' => 'linked@example.com'])
         ->and($result['missing'])
         ->toMatchArray(['ok' => true, 'found' => false, 'user_id' => null, 'value' => null]);
+});
+
+it('exposes current-bot user data search helpers with correct return shapes', function (): void {
+    $payload = [
+        'bot' => ['id' => 123, 'name' => 'CurrentBot Helpers Test'],
+        'runtime' => [],
+        'command' => [
+            'id' => 1,
+            'name' => '/current-bot-helpers-test',
+            'trigger' => '/current-bot-helpers-test',
+            'type' => 'code',
+            'code' => <<<'JS'
+const uid = String(getUserId());
+const foundObj      = await findFirstUserByDataInCurrentBot("wallet", "TRXabc123");
+const exists        = await userDataExistsInCurrentBot("wallet", "TRXabc123");
+const taken         = await isUserDataTakenInCurrentBot("wallet", "TRXabc123");
+const takenByOther  = await isUserDataTakenByOtherUserInCurrentBot("wallet", "TRXabc123", uid);
+const takenByOther2 = await isUserDataTakenByOtherUserInCurrentBot("wallet", "TRXabc123", "999");
+const missingExists = await userDataExistsInCurrentBot("wallet", "nothere");
+const fpFound       = await findUserByFaucetPayEmailInCurrentBot("fp@example.com");
+const fpExists      = await faucetPayEmailExistsInCurrentBot("fp@example.com");
+const fpMissing     = await faucetPayEmailExistsInCurrentBot("other@example.com");
+const wFound        = await findUserByWalletInCurrentBot("TRXabc123");
+const wExists       = await walletExistsInCurrentBot("TRXabc123");
+const wTakenOther   = await walletTakenByOtherUserInCurrentBot("TRXabc123", "999");
+const wTakenSelf    = await walletTakenByOtherUserInCurrentBot("TRXabc123", uid);
+await reply(JSON.stringify({
+  foundObj, exists, taken, takenByOther, takenByOther2, missingExists,
+  fpFound, fpExists, fpMissing, wFound, wExists, wTakenOther, wTakenSelf,
+}));
+JS,
+        ],
+        'telegram' => [
+            'user_id' => 7701909986,
+            'chat_id' => 7701909986,
+            'message' => ['chat' => ['id' => 7701909986], 'from' => ['id' => 7701909986], 'text' => '/current-bot-helpers-test'],
+        ],
+        'storage' => [
+            'bot' => [],
+            'user' => ['wallet' => 'TRXabc123', 'faucetpay_email' => 'fp@example.com'],
+            'cross_users' => [],
+        ],
+        'settings' => ['command_timeout_ms' => 4000, 'max_delay_ms' => 1000],
+    ];
+
+    $process = new Process(['node', base_path('runtime-node/execute-once.js')], base_path(), null, json_encode($payload, JSON_UNESCAPED_SLASHES), 8);
+    $process->run();
+
+    expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
+
+    $output = json_decode($process->getOutput(), true);
+    $r = json_decode($output['replies'][0]['text'] ?? '', true);
+
+    expect($r['foundObj'])->toMatchArray(['ok' => true, 'found' => true, 'user_id' => '7701909986', 'value' => 'TRXabc123'])
+        ->and($r['exists'])->toBeTrue()
+        ->and($r['taken'])->toBeTrue()
+        ->and($r['takenByOther'])->toBeFalse()
+        ->and($r['takenByOther2'])->toBeTrue()
+        ->and($r['missingExists'])->toBeFalse()
+        ->and($r['fpFound'])->toMatchArray(['ok' => true, 'found' => true, 'user_id' => '7701909986', 'value' => 'fp@example.com'])
+        ->and($r['fpExists'])->toBeTrue()
+        ->and($r['fpMissing'])->toBeFalse()
+        ->and($r['wFound'])->toMatchArray(['ok' => true, 'found' => true, 'user_id' => '7701909986', 'value' => 'TRXabc123'])
+        ->and($r['wExists'])->toBeTrue()
+        ->and($r['wTakenOther'])->toBeTrue()
+        ->and($r['wTakenSelf'])->toBeFalse();
 });

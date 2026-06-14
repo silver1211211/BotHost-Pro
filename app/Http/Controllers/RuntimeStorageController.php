@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bot;
 use App\Models\BotRuntimeData;
 use App\Models\BotUserRuntimeData;
+use App\Support\NodeRuntimeConfig;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class RuntimeStorageController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        $secret = (string) config('services.node_runtime.secret', '');
+        $secret = NodeRuntimeConfig::secret();
 
         if ($secret === '' || ! hash_equals($secret, (string) $request->header('X-Runtime-Secret', ''))) {
             return response()->json(['ok' => false, 'error' => 'Unauthorized runtime storage request.'], 401);

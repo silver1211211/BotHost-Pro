@@ -246,6 +246,11 @@ Alpine.data('commandCodeEditor', (config) => ({
     browserBackArmed: false,
 
     async init() {
+        // Prevent the page from scrolling while the code editor is open.
+        // Without this, mobile browsers scroll the page (not the CM scroller)
+        // in response to scrollIntoView / focus(), pushing the header off-screen.
+        document.documentElement.style.overflowY = 'hidden';
+
         this.mountTextareaFallback();
         await this.loadInitialCode();
         this.armBrowserBackGuard();
@@ -742,6 +747,16 @@ Alpine.data('commandCodeEditor', (config) => ({
             return;
         }
         this.insertTextAtCursor(text);
+
+        // After paste, scroll to line 1 so the user sees the start of the pasted code,
+        // not the bottom (where the cursor lands after a full-replace paste on mobile).
+        this.$nextTick(() => requestAnimationFrame(() => {
+            if (this.editor && this.editor.scrollDOM) {
+                this.editor.scrollDOM.scrollTop = 0;
+            } else if (this.fallbackEditor) {
+                this.fallbackEditor.scrollTop = 0;
+            }
+        }));
     },
 
     formatCode() {
@@ -770,6 +785,15 @@ Alpine.data('commandCodeEditor', (config) => ({
 
     replaceAllCode(value) {
         this.setEditorCode(value);
+        // Scroll to line 1 after replacing all code — the previous cursor position
+        // is meaningless once the content has been fully replaced.
+        this.$nextTick(() => requestAnimationFrame(() => {
+            if (this.editor && this.editor.scrollDOM) {
+                this.editor.scrollDOM.scrollTop = 0;
+            } else if (this.fallbackEditor) {
+                this.fallbackEditor.scrollTop = 0;
+            }
+        }));
     },
 
     setEditorCode(value, { markSaved = false, resetHistory = false, preserveHistory = false } = {}) {
@@ -1148,6 +1172,7 @@ Alpine.data('commandCodeEditor', (config) => ({
         window.clearTimeout(this.copyFlashTimer);
         window.clearTimeout(this.copyResetTimer);
 
+        document.documentElement.style.overflowY = '';
         document.documentElement.classList.remove('overflow-hidden');
         this.editor?.destroy();
     },

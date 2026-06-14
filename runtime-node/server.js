@@ -1677,6 +1677,37 @@ function buildRuntimeHelpers(payload, actions) {
     }
   };
 
+  // ── CURRENT-BOT USER DATA SEARCH HELPERS ───────────────────────────────────
+  // All wrappers below delegate to findUserByData which already enforces bot_id
+  // scoping at the storage bridge level. These are convenience aliases only.
+
+  const findFirstUserByDataInCurrentBot = findUserByData;
+
+  const userDataExistsInCurrentBot = async (key, value) => {
+    const result = await findUserByData(key, value);
+    return !!(result && result.ok === true && result.found === true);
+  };
+
+  const isUserDataTakenInCurrentBot = userDataExistsInCurrentBot;
+
+  const isUserDataTakenByOtherUserInCurrentBot = async (key, value, currentUserId) => {
+    const result = await findUserByData(key, value);
+    if (!result || !result.ok || !result.found) return false;
+    const uid = currentUserId !== null && currentUserId !== undefined ? String(currentUserId) : String(safeUser.id);
+    return String(result.user_id) !== uid;
+  };
+
+  const findUserByFaucetPayEmailInCurrentBot = async (email) => findUserByData('faucetpay_email', email);
+  const faucetPayEmailExistsInCurrentBot = async (email) => userDataExistsInCurrentBot('faucetpay_email', email);
+  const faucetPayEmailTakenByOtherUserInCurrentBot = async (email, currentUserId) =>
+    isUserDataTakenByOtherUserInCurrentBot('faucetpay_email', email, currentUserId);
+
+  const findUserByWalletInCurrentBot = async (wallet) => findUserByData('wallet', wallet);
+  const walletExistsInCurrentBot = async (wallet) => userDataExistsInCurrentBot('wallet', wallet);
+  const walletTakenByOtherUserInCurrentBot = async (wallet, currentUserId) =>
+    isUserDataTakenByOtherUserInCurrentBot('wallet', wallet, currentUserId);
+  // ── END CURRENT-BOT USER DATA SEARCH HELPERS ───────────────────────────────
+
   const removeUserDataFor = async (telegramUserId, key) => {
     try {
       const uid = normalizeCrossUserId(telegramUserId, 'removeUserDataFor(userId, key)');
@@ -2474,6 +2505,17 @@ function buildRuntimeHelpers(payload, actions) {
       faucetPaySafeResponse: (response) => plainObject(response || {}),
       faucetPayErrorMessage: (response) => String((response && (response.error || response.message)) || 'FaucetPay request failed'),
       findUserByData,
+      findUserByDataInCurrentBot: findUserByData,
+      findFirstUserByDataInCurrentBot,
+      userDataExistsInCurrentBot,
+      isUserDataTakenInCurrentBot,
+      isUserDataTakenByOtherUserInCurrentBot,
+      findUserByFaucetPayEmailInCurrentBot,
+      faucetPayEmailExistsInCurrentBot,
+      faucetPayEmailTakenByOtherUserInCurrentBot,
+      findUserByWalletInCurrentBot,
+      walletExistsInCurrentBot,
+      walletTakenByOtherUserInCurrentBot,
       oxapayCreateInvoice,
       oxapayCreateWhiteLabel,
       oxapayCreateStaticAddress,

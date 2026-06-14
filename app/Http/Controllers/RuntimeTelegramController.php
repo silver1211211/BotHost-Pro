@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bot;
 use App\Services\TelegramBotService;
+use App\Support\NodeRuntimeConfig;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -14,7 +15,7 @@ class RuntimeTelegramController extends Controller
 {
     public function __invoke(Request $request, TelegramBotService $telegram): JsonResponse
     {
-        $secret = (string) config('services.node_runtime.secret', '');
+        $secret = NodeRuntimeConfig::secret();
 
         if ($secret === '' || ! hash_equals($secret, (string) $request->header('X-Runtime-Secret', ''))) {
             return response()->json(['ok' => false, 'error' => 'Unauthorized runtime Telegram request.'], 401);

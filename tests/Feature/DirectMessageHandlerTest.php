@@ -319,6 +319,86 @@ class DirectMessageHandlerTest extends TestCase
         ]);
     }
 
+    public function test_node_runtime_payload_includes_telegram_bridge_configuration(): void
+    {
+        config([
+            'app.public_url' => 'https://public.example.test',
+            'services.node_runtime.url' => 'http://127.0.0.1:8787',
+            'services.node_runtime.secret' => 'runtime-test-secret',
+            'services.node_runtime.internal_url' => 'http://bot.test',
+        ]);
+
+        Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response(['ok' => true]),
+            'http://127.0.0.1:8787/execute' => Http::response([
+                'ok' => true,
+                'replies' => [
+                    ['type' => 'text', 'text' => 'bridge payload ok'],
+                ],
+            ]),
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+
+        BotCommand::create([
+            'bot_id' => $bot->id,
+            'command_name' => '/bridge',
+            'display_name' => 'Bridge',
+            'trigger_type' => 'slash',
+            'code' => "await reply('bridge payload ok');",
+            'response_type' => 'code',
+            'status' => 'active',
+        ]);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->messageUpdate('/bridge'))
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '127.0.0.1:8787/execute')
+            && data_get($request->data(), 'runtime.telegram_bridge_url') === 'http://bot.test/runtime/telegram'
+            && data_get($request->data(), 'runtime.telegram_bridge_secret') === 'runtime-test-secret'
+            && data_get($request->data(), 'runtime.storage_bridge_url') === 'http://bot.test/runtime/storage'
+            && data_get($request->data(), 'runtime.storage_bridge_secret') === 'runtime-test-secret');
+    }
+
+    public function test_runtime_request_global_is_available_before_first_reply(): void
+    {
+        config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);
+
+        Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response([], 500),
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+
+        BotCommand::create([
+            'bot_id' => $bot->id,
+            'command_name' => '/test2',
+            'display_name' => 'Test 2',
+            'trigger_type' => 'slash',
+            'code' => <<<'JS'
+const CURRENT_USER_ID = user?.id || update?.message?.from?.id || request?.message?.from?.id || null;
+await reply("request user id: " + CURRENT_USER_ID);
+JS,
+            'response_type' => 'code',
+            'status' => 'active',
+        ]);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->messageUpdate('/test2'))
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['text'] === 'request user id: 222');
+
+        $this->assertDatabaseMissing('bot_command_logs', [
+            'bot_id' => $bot->id,
+            'status' => 'failed',
+        ]);
+    }
+
     public function test_command_flow_routes_next_text_to_same_command_before_direct_message_handler(): void
     {
         config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);
