@@ -241,6 +241,56 @@ it('does not expose template command names on marketplace details', function ():
         ->assertDontSee('Paid welcome');
 });
 
+it('does not show purchased unlocked import controls on marketplace details', function (): void {
+    $user = marketplaceUser();
+    $template = marketplaceTemplate([
+        'name' => 'Purchased Marketplace Template',
+        'description' => 'This template is already owned.',
+    ]);
+
+    $template->purchases()->create([
+        'user_id' => $user->id,
+        'amount' => '5.00',
+        'currency' => 'USD',
+        'status' => 'completed',
+        'purchased_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard.templates.show', $template))
+        ->assertOk()
+        ->assertSee('Purchased Marketplace Template')
+        ->assertDontSee('Purchased / Unlocked')
+        ->assertDontSee('Unlocked')
+        ->assertDontSee('Import into Bot')
+        ->assertDontSee('silver test bot');
+});
+
+it('does not allow importing from the global purchased templates page', function (): void {
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $template = marketplaceTemplate([
+        'name' => 'Library Only Template',
+        'description' => 'Purchased templates are details-only from the library.',
+    ]);
+
+    $template->purchases()->create([
+        'user_id' => $user->id,
+        'amount' => '5.00',
+        'currency' => 'USD',
+        'status' => 'completed',
+        'purchased_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard.templates.purchased'))
+        ->assertOk()
+        ->assertSee('Library Only Template')
+        ->assertSee('View Details')
+        ->assertDontSee('Import into Bot')
+        ->assertDontSee(route('bots.templates.import', [$bot, $template]), false);
+});
+
 it('unlocks paid templates from OxaPay webhook idempotently', function (): void {
     config(['oxapay.merchant_api_key' => 'test-key']);
     $user = marketplaceUser();

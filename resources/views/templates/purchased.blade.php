@@ -51,8 +51,8 @@
 
                     @if($purchase->template)
                         <a href="{{ route('dashboard.templates.show', $purchase->template) }}"
-                           class="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-[#8B5CF6] px-4 py-2 text-sm font-black text-white transition hover:bg-[#7C3AED]">
-                            Import into Bot
+                           class="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2 text-sm font-black text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-white">
+                            View Details
                         </a>
                     @endif
                 </div>
