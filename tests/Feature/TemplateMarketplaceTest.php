@@ -59,7 +59,7 @@ it('blocks direct import of locked paid templates and allows free imports', func
     $this->actingAs($user)
         ->post(route('bots.templates.import', [$bot, $paid]))
         ->assertRedirect()
-        ->assertSessionHasErrors('template');
+        ->assertSessionHasErrors(['template' => 'Please purchase this template before importing.']);
 
     $this->actingAs($user)
         ->post(route('dashboard.templates.unlock-free', $free))
@@ -180,6 +180,34 @@ it('marketplace purchase button posts directly to crypto invoice creation', func
         ->get(route('dashboard.templates.index'))
         ->assertOk()
         ->assertSee('Continue Payment');
+});
+
+it('uses about text on cards and safely formats details text', function (): void {
+    $user = marketplaceUser();
+    $template = marketplaceTemplate([
+        'name' => 'Formatted Template',
+        'short_description' => 'Build **fast** flows.',
+        'description' => "First **paragraph**.\n\nSecond paragraph <script>alert(1)</script>.",
+        'demo_url' => 'https://t.me/demo_bot',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard.templates.index'))
+        ->assertOk()
+        ->assertSee('<strong>fast</strong>', false)
+        ->assertSee('View Demo Bot')
+        ->assertSee('https://t.me/demo_bot', false)
+        ->assertDontSee('Second paragraph');
+
+    $this->actingAs($user)
+        ->get(route('dashboard.templates.show', $template))
+        ->assertOk()
+        ->assertSee('<strong>paragraph</strong>', false)
+        ->assertSee('<p>First <strong>paragraph</strong>.</p>', false)
+        ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
+        ->assertDontSee('<script>alert(1)</script>', false)
+        ->assertSee('View Demo Bot')
+        ->assertDontSee('Import into Bot');
 });
 
 it('allows admins to credit user wallets for testing', function (): void {

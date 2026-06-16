@@ -62,6 +62,7 @@ class TemplateMarketplaceController extends Controller
             'template' => $template,
             'bots' => $request->user()->bots()->latest()->get(),
             'purchased' => $template->isPurchasedBy($request->user()),
+            'canImport' => $template->canBeImportedBy($request->user()),
             'pendingInvoice' => $template->paymentInvoices()
                 ->where('user_id', $request->user()->id)
                 ->where('type', PaymentInvoice::TYPE_TEMPLATE_PURCHASE)

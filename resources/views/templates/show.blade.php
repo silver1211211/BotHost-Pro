@@ -16,9 +16,15 @@
                 @endif
             </div>
             <h1 class="text-2xl font-black">{{ $template->name }}</h1>
-            <p class="mt-2 text-sm font-bold text-[#A1A1AA]">{{ $template->short_description }}</p>
-            <p class="mt-2 text-sm text-[#A1A1AA]">{{ $template->description }}</p>
-            <div class="mt-3 flex flex-wrap gap-2 text-xs text-[#94A3B8]"><span>{{ $template->category ?: 'General' }}</span><span>{{ ucfirst($template->level) }}</span><span>{{ $template->commands_count }} commands</span><span>{{ $template->import_count }} imports</span>@if($template->includedPlanLabel())<span>{{ $template->includedPlanLabel() }}</span>@endif</div>
+            @if($template->short_description)
+                <p class="mt-2 text-sm font-bold text-[#D4D4D8]">{!! \App\Support\SafeTemplateText::inline($template->short_description) !!}</p>
+            @endif
+            @if($template->description)
+                <div class="mt-3 space-y-3 text-sm leading-6 text-[#A1A1AA] [&_strong]:font-bold [&_strong]:text-white">
+                    {!! \App\Support\SafeTemplateText::paragraphs($template->description) !!}
+                </div>
+            @endif
+            <div class="mt-3 flex flex-wrap gap-2 text-xs text-[#94A3B8]"><span>{{ $template->category ?: 'General' }}</span><span>{{ ucfirst($template->level) }}</span><span>{{ $template->commands_count }} commands</span>@if($template->includedPlanLabel())<span>{{ $template->includedPlanLabel() }}</span>@endif</div>
             <p class="mt-3 text-lg font-black">{{ $template->formatted_price }}</p>
             @if($template->demo_url)<a href="{{ $template->demo_url }}" class="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/10 px-4 py-2 text-sm font-bold text-[#38BDF8] transition hover:bg-[#38BDF8]/20 hover:text-white" rel="noopener noreferrer" target="_blank">
     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
@@ -46,7 +52,7 @@
                         <button class="rounded-xl bg-[#8B5CF6] px-5 py-3 text-sm font-black text-white">Purchase with Crypto</button>
                     </form>
                 @endif
-            @else
+            @elseif($canImport)
                 <p class="text-sm font-bold text-[#22C55E]">{{ $template->isFree() ? 'Unlocked' : 'Purchased / Unlocked' }}</p>
                 <form x-data="{ open: false, val: '{{ $bots->first()?->id }}', urls: @js($bots->mapWithKeys(fn($b) => [$b->id => route('bots.templates.import', [$b, $template])])->all()), labels: @js($bots->pluck('name', 'id')->all()), get label() { return this.labels[this.val] || 'Select bot' } }" :action="val && urls[val] ? urls[val] : '#'" method="POST" class="mt-3 grid gap-3 md:grid-cols-[1fr_auto]">
                     @csrf
@@ -70,6 +76,8 @@
                     </div>
                     <button @disabled($bots->isEmpty()) class="rounded-xl bg-[#8B5CF6] px-5 py-3 text-sm font-black text-white">Import into Bot</button>
                 </form>
+            @else
+                <p class="text-sm text-[#A1A1AA]">Please purchase this template before importing.</p>
             @endif
         </div>
 

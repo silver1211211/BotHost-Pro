@@ -54,6 +54,14 @@ function fakeRuntimeBundleGenerator(array $report): RuntimeHelperBundleGenerator
 
         public function publish(): array
         {
+            if ($this->fakeReport['ok'] ?? false) {
+                $path = $this->livePath();
+                if (! is_dir(dirname($path))) {
+                    mkdir(dirname($path), 0755, true);
+                }
+                file_put_contents($path, (string) ($this->fakeReport['content'] ?? "'use strict';"));
+            }
+
             return $this->fakeReport;
         }
 
@@ -288,6 +296,51 @@ test('publish bundle route runs publish and returns completed log', function () 
         ->and($log->status)->toBe('success')
         ->and($log->helpers_compiled)->toBe(1)
         ->and($helper->fresh()->requires_runtime_reload)->toBeFalse();
+});
+
+test('publish and apply publishes bundle then continues to docker refresh', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $owner = User::factory()->create();
+    $helper = runtimeReloadHelperFixture();
+    $docker = fakeDockerRuntimeService();
+
+    \App\Models\Bot::query()->create([
+        'user_id' => $owner->id,
+        'name' => 'Apply Bot',
+        'slug' => 'apply-bot',
+        'token_encrypted' => '123456:APPLYBOTTOKEN',
+        'status' => 'running',
+        'runtime_mode' => 'docker',
+        'container_name' => 'bothost-bot-apply',
+        'container_status' => 'running',
+        'runtime_http_port' => 45001,
+    ]);
+
+    app()->instance(RuntimeHelperBundleGenerator::class, fakeRuntimeBundleGenerator([
+        'ok' => true,
+        'helpers_total' => 1,
+        'helpers_compiled' => 1,
+        'helpers_skipped' => 0,
+        'compiled' => [['id' => $helper->id, 'name' => $helper->name]],
+        'skipped' => [],
+        'content' => "'use strict';",
+    ]));
+    app()->instance(DockerRuntimeService::class, $docker);
+
+    $this->actingAs($admin)->post(route('admin.runtime.reload.publish-and-apply'), [
+        'confirm_publish_apply' => 'PUBLISH_AND_APPLY_HELPERS',
+    ])->assertRedirect()
+        ->assertSessionHas('status', fn (string $message): bool => str_contains($message, 'Compiled 1 helper'));
+
+    $log = RuntimeReloadLog::query()->latest()->first();
+
+    expect($log)->not->toBeNull()
+        ->and($log->trigger_type)->toBe('manual_publish_and_apply')
+        ->and($log->status)->toBe('success')
+        ->and($log->helpers_compiled)->toBe(1)
+        ->and($log->error)->toBeNull()
+        ->and($log->output)->not->toContain('Could not activate generated runtime helper bundle')
+        ->and($docker->recreated)->toHaveCount(1);
 });
 
 test('failed publish service marks runtime reload log failed', function () {

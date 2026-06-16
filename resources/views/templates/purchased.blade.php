@@ -44,8 +44,8 @@
                              x-transition:leave="transition ease-in duration-100"
                              x-transition:leave-start="opacity-100 translate-y-0"
                              x-transition:leave-end="opacity-0 -translate-y-1"
-                             class="mt-3 rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3 text-sm text-[#A1A1AA]">
-                            {{ $purchase->template->short_description ?: $purchase->template->description }}
+                             class="mt-3 rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3 text-sm text-[#A1A1AA] [&_strong]:font-bold [&_strong]:text-white">
+                            {!! \App\Support\SafeTemplateText::inline($purchase->template->short_description ?: $purchase->template->description) !!}
                         </div>
                     @endif
 

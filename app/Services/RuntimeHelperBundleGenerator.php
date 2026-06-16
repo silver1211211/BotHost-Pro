@@ -146,9 +146,16 @@ class RuntimeHelperBundleGenerator
             mkdir($directory, 0755, true);
         }
 
-        if (! @rename($tempPath, $livePath)) {
-            throw new \RuntimeException('Could not activate generated runtime helper bundle.');
+        if (@rename($tempPath, $livePath)) {
+            return;
         }
+
+        if (@copy($tempPath, $livePath)) {
+            @unlink($tempPath);
+            return;
+        }
+
+        throw new \RuntimeException('Could not activate generated runtime helper bundle.');
     }
 
     public function generateToTemp(): array
@@ -161,6 +168,9 @@ class RuntimeHelperBundleGenerator
 
     public function publish(): array
     {
+        $report = [];
+        $tempPath = $this->tempPath();
+
         try {
             $report = $this->generateToTemp();
             $tempPath = (string) $report['temp_path'];
@@ -188,18 +198,18 @@ class RuntimeHelperBundleGenerator
                 'syntax' => $syntax,
             ];
         } catch (Throwable $exception) {
-            $tempPath = $this->tempPath();
             if (is_file($tempPath)) {
                 @unlink($tempPath);
             }
 
             return [
+                ...$report,
                 'ok' => false,
-                'helpers_total' => 0,
-                'helpers_compiled' => 0,
-                'helpers_skipped' => 0,
-                'skipped' => [],
-                'content' => null,
+                'helpers_total' => (int) ($report['helpers_total'] ?? 0),
+                'helpers_compiled' => (int) ($report['helpers_compiled'] ?? 0),
+                'helpers_skipped' => (int) ($report['helpers_skipped'] ?? 0),
+                'skipped' => $report['skipped'] ?? [],
+                'content' => $report['content'] ?? null,
                 'error' => $exception->getMessage(),
             ];
         }

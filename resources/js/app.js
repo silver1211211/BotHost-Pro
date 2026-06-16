@@ -774,12 +774,54 @@ Alpine.data('commandCodeEditor', (config) => ({
         this.focusEditor({ preventScroll: true });
     },
 
-    async pasteCode() {
+    async pasteReplaceCode() {
+        this.saveError = '';
+        this.saveStatus = '';
+
+        if (!navigator.clipboard?.readText) {
+            await this.showClipboardFallback('This browser does not allow BotHost Pro to read the clipboard from this button. Paste your copied code into the box on the next screen.');
+            return;
+        }
+
+        try {
+            const text = await navigator.clipboard.readText();
+
+            if (!text) {
+                await this.showClipboardFallback('Your clipboard looks empty or the browser did not return text. Paste your copied code into the box on the next screen.');
+                return;
+            }
+
+            this.replaceAllCode(text);
+            this.saveStatus = 'Pasted and replaced';
+            setTimeout(() => {
+                if (this.saveStatus === 'Pasted and replaced') this.saveStatus = '';
+            }, 1800);
+        } catch (error) {
+            const browserMessage = error?.message ? ` Browser reply: ${error.message}` : '';
+            await this.showClipboardFallback(`Clipboard permission was blocked.${browserMessage} Allow clipboard access in your browser/site settings if available, or paste your copied code into the box on the next screen.`);
+        }
+    },
+
+    async showClipboardFallback(message) {
+        const openManual = await this.askEditorConfirm({
+            type: 'warning',
+            title: 'Clipboard permission needed',
+            message,
+            confirmText: 'Open Paste Box',
+            cancelText: 'Cancel',
+        });
+
+        if (!openManual) return;
+
+        await this.openManualPasteModal();
+    },
+
+    async openManualPasteModal() {
         const confirmed = await this.askEditorConfirm({
             type: 'default',
-            title: 'Paste code?',
-            message: 'Paste your code into the box below using Ctrl+V / Cmd+V, then click Paste.',
-            confirmText: 'Paste',
+            title: 'Paste and replace code',
+            message: 'Paste the full code into the box below. This will replace everything currently in the editor.',
+            confirmText: 'Paste & Replace Code',
             cancelText: 'Cancel',
             pasteMode: true,
         });
@@ -802,10 +844,18 @@ Alpine.data('commandCodeEditor', (config) => ({
         }
 
         if (!text) {
-            this.saveError = 'Nothing pasted. Use the box and paste with Ctrl+V / Cmd+V, then click Paste.';
+            this.saveError = 'Nothing pasted. Use the box and paste with Ctrl+V / Cmd+V, then click Paste & Replace Code.';
             return;
         }
         this.replaceAllCode(text);
+        this.saveStatus = 'Pasted and replaced';
+        setTimeout(() => {
+            if (this.saveStatus === 'Pasted and replaced') this.saveStatus = '';
+        }, 1800);
+    },
+
+    async pasteCode() {
+        await this.pasteReplaceCode();
     },
 
     formatCode() {

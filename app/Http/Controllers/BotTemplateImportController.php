@@ -84,15 +84,7 @@ class BotTemplateImportController extends Controller
         abort_unless($template->status === 'published', 404);
 
         if (! $template->canBeImportedBy($request->user())) {
-            if ($template->isFree()) {
-                app(\App\Services\BotTemplatePurchaseService::class)->unlockFree($request->user(), $template);
-            } else {
-                return back()->withErrors(['template' => 'You need to purchase this template before importing it.']);
-            }
-        }
-
-        if (! $template->canBeImportedBy($request->user())) {
-            return back()->withErrors(['template' => 'You need to purchase this template before importing it.']);
+            return back()->withErrors(['template' => 'Please purchase this template before importing.']);
         }
 
         $data = $request->validate([

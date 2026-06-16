@@ -2138,8 +2138,7 @@
                         <button type="button" @click.prevent.stop="redo()" title="Redo" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"/></svg></button>
                         <span class="mx-1 h-5 w-px shrink-0 bg-[#3a3a3a]"></span>
                         <button type="button" @click.prevent.stop="copyCode()" title="Copy all code" class="editor-tool-btn" :style="copied ? 'background:#16A34A !important;color:#FFFFFF !important;box-shadow:0 0 0 2px rgba(34,197,94,0.45),0 0 26px rgba(34,197,94,0.62);' : ''"><svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 8h10v13H8zM6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg x-show="copied" x-cloak class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg></button>
-                        <button type="button" @click.prevent.stop="selectAllCode()" title="Select all code" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5h14v14H5zM8 9h8M8 12h8M8 15h5"/></svg></button>
-                        <button type="button" @click="pasteCode()" title="Paste" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5.25h6M9 3.75h6A1.5 1.5 0 0 1 16.5 5.25v.75h1.125A2.625 2.625 0 0 1 20.25 8.625v9A2.625 2.625 0 0 1 17.625 20.25H6.375A2.625 2.625 0 0 1 3.75 17.625v-9A2.625 2.625 0 0 1 6.375 6H7.5v-.75A1.5 1.5 0 0 1 9 3.75Z"/></svg></button>
+                        <button type="button" @click.prevent.stop="pasteReplaceCode()" title="Paste & Replace Code" class="editor-tool-btn min-w-max"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5.25h6M9 3.75h6A1.5 1.5 0 0 1 16.5 5.25v.75h1.125A2.625 2.625 0 0 1 20.25 8.625v9A2.625 2.625 0 0 1 17.625 20.25H6.375A2.625 2.625 0 0 1 3.75 17.625v-9A2.625 2.625 0 0 1 6.375 6H7.5v-.75A1.5 1.5 0 0 1 9 3.75Z"/></svg><span class="hidden text-xs font-bold sm:inline">Paste & Replace Code</span></button>
                         <button type="button" @click="findInEditor()" title="Search" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg></button>
                         <button type="button" @click="formatCode()" title="Format indentation" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h10M4 17h16m-4-7 3 2-3 2"/></svg></button>
                         <button type="button" @click="toggleFullscreen()" title="Fullscreen" class="editor-tool-btn"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -2178,8 +2177,8 @@
                         <textarea x-ref="codeInput" name="code"></textarea>
                     </form>
 
-                    <div x-show="editorDialogOpen" x-cloak class="fixed inset-0 z-[10000] flex items-end justify-center bg-black/70 p-4 sm:items-center">
-                        <div class="w-full max-w-md rounded-xl border bg-[#141414] p-5 shadow-2xl"
+                    <div x-show="editorDialogOpen" x-cloak class="fixed inset-x-0 bottom-0 top-0 z-[10000] flex items-start justify-center overflow-y-auto bg-black/70 p-3 sm:inset-0 sm:items-center sm:p-4" style="padding-top:max(1rem, env(safe-area-inset-top));">
+                        <div class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-xl border bg-[#141414] p-5 shadow-2xl"
                              :class="editorDialogType === 'warning' ? 'border-[#F59E0B]/35' : 'border-[#303030]'">
                             <div class="flex items-start gap-3">
                                 <div class="grid h-10 w-10 shrink-0 place-items-center rounded-lg"
@@ -2198,7 +2197,7 @@
                                 x-model="editorDialogPasteText"
                                 x-cloak
                                 rows="5"
-                                class="mt-4 w-full resize-none rounded-lg border border-[#303030] bg-black px-3 py-2 font-mono text-sm text-white outline-none focus:border-[#2f6fed]"
+                                class="mt-4 min-h-[160px] max-h-[45dvh] w-full resize-none overflow-y-auto rounded-lg border border-[#303030] bg-black px-3 py-2 font-mono text-sm text-white outline-none focus:border-[#2f6fed]"
                                 placeholder="Paste code here if clipboard permission is blocked..."
                             ></textarea>
                             <div class="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

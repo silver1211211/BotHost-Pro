@@ -102,12 +102,28 @@
                 <h2 class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Basic Information</h2>
             </div>
             <div class="space-y-3 p-4">
-                <input name="name" value="{{ old('name', $template->name) }}" placeholder="Template name *"
-                       class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">
-                <textarea name="description" rows="3" maxlength="3000" placeholder="Description"
-                          class="w-full resize-none rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">{{ old('description', $template->description) }}</textarea>
-                <input name="demo_url" value="{{ old('demo_url', $template->demo_url) }}" placeholder="Demo / sample bot URL"
-                       class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold text-[#E5E7EB]">Template name</label>
+                    <input name="name" value="{{ old('name', $template->name) }}" placeholder="Example: FaucetPay Starter"
+                           class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold text-[#E5E7EB]">About</label>
+                    <textarea name="short_description" rows="2" placeholder="Example: **Referral Bot**"
+                              class="w-full resize-none rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">{{ old('short_description', $template->short_description) }}</textarea>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Short marketplace card preview, max 20 visible characters. Supports safe **bold** text; ** markers do not count.</p>
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold text-[#E5E7EB]">Full description</label>
+                    <textarea name="description" rows="7" placeholder="Describe what this template includes and who it helps."
+                              class="w-full resize-y rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">{{ old('description', $template->description) }}</textarea>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Shown on the details page with paragraphs preserved, max 300 visible characters. Supports safe **bold** text; ** markers do not count.</p>
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold text-[#E5E7EB]">Demo bot URL</label>
+                    <input name="demo_url" value="{{ old('demo_url', $template->demo_url) }}" placeholder="https://t.me/example_bot"
+                           class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">
+                </div>
             </div>
         </div>
 
@@ -323,7 +339,7 @@
                 </div>
                 @php($summary = $template->metadata['zip_parse'] ?? null)
                 @if($summary)
-                    <span class="text-xs text-[#A1A1AA]">{{ $summary['imported'] ?? 0 }} imported · {{ $summary['skipped'] ?? 0 }} skipped</span>
+                    <span class="text-xs text-[#A1A1AA]">{{ $template->commands->count() }} commands · {{ $summary['skipped'] ?? 0 }} skipped</span>
                 @endif
             </div>
             <div class="divide-y divide-[#27213D] bg-[#0F0D1A]">

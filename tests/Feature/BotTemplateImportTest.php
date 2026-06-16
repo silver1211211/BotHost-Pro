@@ -142,7 +142,7 @@ it('allows admins to create publish and add template commands', function (): voi
             'name' => 'Admin Welcome',
             'template_zip' => templateZipUpload(),
             'description' => 'A useful welcome template',
-            'short_description' => 'Useful welcome commands',
+            'short_description' => 'Useful welcome',
             'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'draft',
@@ -157,7 +157,7 @@ it('allows admins to create publish and add template commands', function (): voi
         ->patch(route('admin.templates.update', $template), [
             'name' => 'Admin Welcome',
             'description' => 'A useful welcome template for new bot users.',
-            'short_description' => 'Useful welcome commands',
+            'short_description' => 'Useful welcome',
             'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'published',
@@ -208,6 +208,54 @@ it('allows admins to create templates from BotHost JSON export files', function 
         ->and($template->metadata['zip_parse']['source'] ?? null)->toBe('json');
 });
 
+it('counts every imported template command record including non slash handlers', function (): void {
+    $admin = templateImportUser(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.templates.store'), [
+            'name' => 'Mixed Trigger Bot',
+            'template_zip' => templateJsonUpload([
+                [
+                    'command_name' => '/start',
+                    'code' => "await reply('Start');",
+                    'status' => 'active',
+                ],
+                [
+                    'command_name' => '$balance',
+                    'response_text' => 'Your balance is ready.',
+                    'status' => 'active',
+                ],
+                [
+                    'trigger_type' => 'direct_message',
+                    'response_text' => 'Direct message handler.',
+                    'status' => 'active',
+                ],
+                [
+                    'command_name' => 'menu:settings',
+                    'response_text' => 'Settings menu.',
+                    'status' => 'active',
+                ],
+            ]),
+            'short_description' => 'Mixed triggers',
+            'description' => 'A useful mixed-trigger template.',
+            'category' => 'referral_bot',
+            'level' => 'beginner',
+            'status' => 'draft',
+            'access_type' => 'free',
+            'price' => 0,
+            'currency' => 'USD',
+            'marketplace_status' => 'unlisted',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $template = BotTemplate::query()->where('slug', 'mixed-trigger-bot')->firstOrFail();
+
+    expect($template->commands_count)->toBe(4)
+        ->and($template->commands()->pluck('command_name')->all())->toContain('/start', '$balance', 'direct_message', 'menu:settings')
+        ->and($template->metadata['zip_parse']['imported'] ?? null)->toBe(4);
+});
+
 it('rejects uploaded template files that are not valid ZIP or JSON exports', function (): void {
     $admin = templateImportUser(['role' => 'admin']);
 
@@ -227,6 +275,46 @@ it('rejects uploaded template files that are not valid ZIP or JSON exports', fun
         ->assertSessionHasErrors('template_zip');
 
     expect(BotTemplate::query()->where('slug', 'invalid-template')->exists())->toBeFalse();
+});
+
+it('validates template text limits by visible characters without counting bold markers', function (): void {
+    $admin = templateImportUser(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.templates.store'), [
+            'name' => 'Visible Text Template',
+            'template_zip' => templateJsonUpload(),
+            'short_description' => '**Referral Bot**',
+            'description' => str_repeat('a', 300),
+            'category' => 'referral_bot',
+            'level' => 'beginner',
+            'status' => 'draft',
+            'access_type' => 'free',
+            'price' => 0,
+            'currency' => 'USD',
+            'marketplace_status' => 'unlisted',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect(BotTemplate::query()->where('slug', 'visible-text-template')->firstOrFail()->short_description)
+        ->toBe('**Referral Bot**');
+
+    $this->actingAs($admin)
+        ->post(route('admin.templates.store'), [
+            'name' => 'Too Long Visible Text',
+            'template_zip' => templateJsonUpload(),
+            'short_description' => '**123456789012345678901**',
+            'description' => str_repeat('b', 301),
+            'category' => 'referral_bot',
+            'level' => 'beginner',
+            'status' => 'draft',
+            'access_type' => 'free',
+            'price' => 0,
+            'currency' => 'USD',
+            'marketplace_status' => 'unlisted',
+        ])
+        ->assertSessionHasErrors(['short_description', 'description']);
 });
 
 it('imports published templates into owned bots with skip and rename conflict strategies', function (): void {

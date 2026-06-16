@@ -131,16 +131,14 @@ class BotTemplateImporter
 
     public static function normalizeCommandName(?string $value): ?string
     {
-        $value = Str::lower(trim((string) $value));
-        $value = ltrim($value, '/');
+        $value = trim((string) $value);
+        $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
 
-        if ($value === '' || preg_match('/[^a-z0-9_]/', $value)) {
+        if ($value === '') {
             return null;
         }
 
-        $command = '/'.$value;
-
-        return strlen($command) <= 64 ? $command : null;
+        return mb_strlen($value) <= 64 ? $value : null;
     }
 
     private function commandExists(Bot $bot, string $commandName): bool

@@ -88,7 +88,7 @@
                     $pendingInvoice = $pendingInvoices->get($template->id);
                     $isFreeOrIncl   = $template->isFree() || $template->isIncludedFor(auth()->user());
                 @endphp
-                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4"
+                <div class="flex h-full min-w-0 flex-col rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4"
                      data-card="{{ $template->id }}">
 
                     <div class="relative mb-3 w-full overflow-hidden rounded-xl" style="aspect-ratio:16/9">
@@ -102,10 +102,10 @@
                         @endif
                     </div>
 
-                    <div class="flex items-start justify-between gap-2">
+                    <div class="flex min-h-[4.25rem] items-start justify-between gap-2">
                         <div class="min-w-0">
                             <h2 class="truncate text-base font-black">{{ $template->name }}</h2>
-                            <p class="mt-0.5 line-clamp-2 text-xs text-[#94A3B8]">{{ Str::limit($template->short_description ?: $template->description, 120) }}</p>
+                            <p class="mt-0.5 line-clamp-2 text-xs text-[#94A3B8]">{!! \App\Support\SafeTemplateText::inline(Str::limit($template->short_description ?? '', 120)) !!}</p>
                         </div>
                         <span class="shrink-0 rounded-full border border-[#27213D] px-2 py-0.5 text-[11px] font-bold">{{ $template->formatted_price }}</span>
                     </div>
@@ -114,8 +114,7 @@
                     <div class="mt-2 flex flex-wrap gap-1.5 text-[10px] text-[#94A3B8]">
                         <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ $template->category ?: 'General' }}</span>
                         <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ ucfirst($template->level) }}</span>
-                        <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ $template->commands_count }} cmds</span>
-                        <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ $template->import_count }} imports</span>
+                        <span class="rounded border border-[#27213D] bg-[#11101C] px-1.5 py-0.5">{{ $template->commands_count }} commands</span>
                         @if($template->includedPlanLabel())
                             <span class="rounded border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-1.5 py-0.5 text-[#8B5CF6]">{{ $template->includedPlanLabel() }}</span>
                         @endif
@@ -138,9 +137,9 @@
                     </div>
 
                     {{-- Action buttons — data attributes let JS rebuild without a reload --}}
-                    <div class="mt-3 flex items-center justify-between gap-2">
+                    <div class="mt-auto flex items-center justify-between gap-2 pt-3">
                         <span class="text-sm font-black">{{ $template->formatted_price }}</span>
-                        <div class="flex gap-2" id="actions-{{ $template->id }}"
+                        <div class="flex flex-wrap justify-end gap-2" id="actions-{{ $template->id }}"
                              data-template-id="{{ $template->id }}"
                              data-purchased="{{ $purchased ? '1' : '0' }}"
                              data-invoice-id="{{ $pendingInvoice?->id ?? '' }}"
@@ -151,33 +150,40 @@
                              data-purchase-url="{{ route('dashboard.templates.crypto-invoice', $template) }}"
                              data-csrf="{{ csrf_token() }}">
                             <a href="{{ route('dashboard.templates.show', $template) }}"
-                               class="rounded-xl border border-[#27213D] px-3 py-1.5 text-xs font-bold transition hover:border-[#3D3657] hover:text-white">
+                               class="shrink-0 rounded-xl border border-[#27213D] px-3 py-1.5 text-xs font-bold transition hover:border-[#3D3657] hover:text-white">
                                 View Details
                             </a>
+                            @if($template->demo_url)
+                                <a href="{{ $template->demo_url }}"
+                                   class="shrink-0 rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/10 px-3 py-1.5 text-xs font-bold text-[#38BDF8] transition hover:bg-[#38BDF8]/20 hover:text-white"
+                                   rel="noopener noreferrer" target="_blank">
+                                    View Demo Bot
+                                </a>
+                            @endif
                             <span id="action-btn-{{ $template->id }}">
                                 @if($purchased)
                                     <a href="{{ route('dashboard.templates.show', $template) }}"
-                                       class="rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-3 py-1.5 text-xs font-bold text-[#22C55E] transition hover:bg-[#22C55E]/20">
+                                       class="shrink-0 rounded-xl border border-[#22C55E]/30 bg-[#22C55E]/10 px-3 py-1.5 text-xs font-bold text-[#22C55E] transition hover:bg-[#22C55E]/20">
                                         Install
                                     </a>
                                 @elseif($isFreeOrIncl)
                                     <form method="POST" action="{{ route('dashboard.templates.unlock-free', $template) }}">
                                         @csrf
-                                        <button class="rounded-xl bg-[#8B5CF6] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#7C3AED]">
+                                        <button class="shrink-0 rounded-xl bg-[#8B5CF6] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#7C3AED]">
                                             Unlock Free
                                         </button>
                                     </form>
                                 @elseif($template->isPaid())
                                     @if($pendingInvoice)
                                         <a href="{{ route('dashboard.payments.show', $pendingInvoice) }}"
-                                           class="rounded-xl bg-[#8B5CF6] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#7C3AED]">
-                                            Continue Invoice
+                                           class="shrink-0 rounded-xl bg-[#8B5CF6] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#7C3AED]">
+                                            Continue Payment
                                         </a>
                                     @else
                                         <form method="POST" action="{{ route('dashboard.templates.crypto-invoice', $template) }}">
                                             @csrf
                                             <input type="hidden" name="payment_method" value="crypto">
-                                            <button class="rounded-xl bg-[#8B5CF6] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#7C3AED]">
+                                            <button class="shrink-0 rounded-xl bg-[#8B5CF6] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#7C3AED]">
                                                 Purchase
                                             </button>
                                         </form>
@@ -237,7 +243,7 @@
                      + '<button class="' + purp + '">Unlock Free</button></form>';
             }
             if (isPaid && invoiceUrl) {
-                return '<a href="' + invoiceUrl + '" class="' + purp + '">Continue Invoice</a>';
+                return '<a href="' + invoiceUrl + '" class="' + purp + '">Continue Payment</a>';
             }
             if (isPaid) {
                 return '<form method="POST" action="' + purchaseUrl + '">'

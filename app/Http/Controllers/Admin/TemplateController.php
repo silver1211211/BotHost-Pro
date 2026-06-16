@@ -170,7 +170,8 @@ class TemplateController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'description' => ['nullable', 'string', 'max:3000'],
+            'short_description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'max:100', Rule::in(array_merge([''], array_keys($this->templateCategories()), array_filter([$template?->category])))],
             'level' => ['required', Rule::in(BotTemplate::LEVELS)],
             'status' => ['required', Rule::in(BotTemplate::STATUSES)],
@@ -191,7 +192,21 @@ class TemplateController extends Controller
             throw ValidationException::withMessages(['image' => 'Template image is required before listing or publishing.']);
         }
 
-        if ($publishing && strlen(trim((string) ($data['description'] ?? ''))) < 20) {
+        $textErrors = [];
+
+        if ($this->visibleTextLength($data['description'] ?? null) > 300) {
+            $textErrors['description'] = 'Full description must be 300 visible characters or fewer. Bold markers do not count.';
+        }
+
+        if ($this->visibleTextLength($data['short_description'] ?? null) > 20) {
+            $textErrors['short_description'] = 'About must be 20 visible characters or fewer. Bold markers do not count.';
+        }
+
+        if ($textErrors !== []) {
+            throw ValidationException::withMessages($textErrors);
+        }
+
+        if ($publishing && $this->visibleTextLength($data['description'] ?? null) < 20) {
             throw ValidationException::withMessages(['description' => 'Template description must be at least 20 characters before listing or publishing.']);
         }
 
@@ -212,13 +227,20 @@ class TemplateController extends Controller
 
     private function shortDescFrom(array $data): ?string
     {
-        $source = trim(strip_tags((string) ($data['description'] ?? '')));
+        $source = trim(strip_tags((string) ($data['short_description'] ?? '')));
 
         if ($source === '') {
             return null;
         }
 
-        return Str::limit($source, 200, '');
+        return $source;
+    }
+
+    private function visibleTextLength(?string $value): int
+    {
+        $visible = str_replace('**', '', trim(strip_tags((string) $value)));
+
+        return mb_strlen($visible);
     }
 
     private function uniqueSlug(string $name, ?int $ignoreId = null): string
@@ -263,7 +285,7 @@ class TemplateController extends Controller
     private function isPublishable(BotTemplate $template): bool
     {
         return filled($template->thumbnail_path)
-            && strlen(trim((string) $template->description)) >= 20
+            && $this->visibleTextLength($template->description) >= 20
             && filled($template->template_zip_path)
             && ($template->isFree() || (float) $template->price > 0)
             && $template->commands()->exists();

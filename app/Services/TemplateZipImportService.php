@@ -250,7 +250,7 @@ class TemplateZipImportService
 
     private function normalizeCommand(array $definition, array $files, string $source = 'zip'): ?array
     {
-        $commandName = BotTemplateImporter::normalizeCommandName($definition['command_name'] ?? null);
+        $commandName = BotTemplateImporter::normalizeCommandName($this->commandNameFromDefinition($definition));
 
         if (! $commandName) {
             return null;
@@ -305,6 +305,24 @@ class TemplateZipImportService
             ->all();
 
         return $normalized === [] ? null : $normalized;
+    }
+
+    private function commandNameFromDefinition(array $definition): ?string
+    {
+        foreach (['command_name', 'trigger', 'callback_data', 'handler', 'name', 'display_name'] as $field) {
+            if (filled($definition[$field] ?? null)) {
+                return (string) $definition[$field];
+            }
+        }
+
+        $type = (string) ($definition['trigger_type'] ?? $definition['type'] ?? '');
+
+        return match ($type) {
+            'direct_message', 'message', 'dm' => 'direct_message',
+            'callback', 'callback_query' => filled($definition['callback'] ?? null) ? (string) $definition['callback'] : 'callback_query',
+            'menu' => filled($definition['menu_key'] ?? null) ? (string) $definition['menu_key'] : 'menu',
+            default => null,
+        };
     }
 
     private function decodeJson(string $content, string $name, string $context): array
