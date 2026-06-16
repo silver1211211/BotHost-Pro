@@ -4,6 +4,13 @@
         This publishes the generated helper bundle only. It does not restart runtime and does not make helpers live until runtime integration is enabled.
     </div>
 
+    @if(session('runtime_reload_log_id'))
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#38BDF8]/30 bg-[#38BDF8]/10 px-4 py-3 text-sm text-[#BAE6FD]">
+            <span>Latest publish log is ready for review.</span>
+            <a href="{{ route('admin.runtime.reload.show', session('runtime_reload_log_id')) }}" class="rounded-lg border border-[#38BDF8]/40 px-3 py-1.5 text-xs font-black text-[#BAE6FD] hover:bg-[#38BDF8]/10">View latest reload log</a>
+        </div>
+    @endif
+
     <div class="grid gap-4 md:grid-cols-4">
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
             <p class="text-xs text-[#94A3B8]">Publish Required</p>

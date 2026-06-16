@@ -14,7 +14,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 class RuntimeReloadController extends Controller
 {
@@ -71,13 +73,42 @@ class RuntimeReloadController extends Controller
             'steps_completed' => 0,
         ]);
 
-        $this->launcher->start($log, ['publish_bundle' => true]);
-
         $this->audit->log('runtime', 'runtime.reload.task_started', 'Runtime helper bundle publish started.', $this->auditMetadata($log), $request->user(), 'success', $log);
 
+        try {
+            $result = $this->reload->run($log, ['publish_bundle' => true]);
+        } catch (Throwable $exception) {
+            $log->forceFill([
+                'status' => 'failed',
+                'current_step' => 'Bundle publish failed',
+                'error' => Str::limit($exception->getMessage(), 2000, ''),
+                'completed_at' => now(),
+                'duration_ms' => $log->started_at ? $log->started_at->diffInMilliseconds(now()) : null,
+            ])->save();
+
+            $result = ['ok' => false, 'error' => $exception->getMessage()];
+
+            $this->audit->log('runtime', 'runtime.helper_bundle.publish_failed', 'Runtime helper bundle publish failed.', $this->auditMetadata($log), $request->user(), 'failed', $log);
+        }
+
+        $log->refresh();
+        $summary = $log->summaryCounts();
+        $compiled = (int) ($summary['helpers_compiled'] ?? $log->helpers_compiled ?? 0);
+        $skipped = (int) ($summary['helpers_skipped'] ?? 0);
+
+        if (($result['ok'] ?? false) && $log->status === 'success') {
+            return redirect()
+                ->route('admin.runtime.reload.index')
+                ->with('status', "Helper bundle published. Compiled {$compiled} helper(s), skipped {$skipped} helper(s).")
+                ->with('runtime_reload_log_id', $log->id);
+        }
+
+        $error = Str::limit((string) ($log->error ?: ($result['error'] ?? 'Helper bundle publish failed.')), 240, '');
+
         return redirect()
-            ->route('admin.runtime.reload.show', $log)
-            ->with('status', 'Runtime task started. Progress will update automatically.');
+            ->route('admin.runtime.reload.index')
+            ->with('error', "Helper bundle publish failed. Compiled {$compiled} helper(s), skipped {$skipped} helper(s). {$error}")
+            ->with('runtime_reload_log_id', $log->id);
     }
 
     public function dockerRefreshPlan(Request $request): RedirectResponse
