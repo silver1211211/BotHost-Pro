@@ -170,7 +170,7 @@ class TemplateController extends Controller
         ]);
 
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
+            'name' => ['required', 'string'],
             'short_description' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'max:100', Rule::in(array_merge([''], array_keys($this->templateCategories()), array_filter([$template?->category])))],
@@ -195,12 +195,16 @@ class TemplateController extends Controller
 
         $textErrors = [];
 
-        if ($this->visibleTextLength($data['description'] ?? null) > 300) {
-            $textErrors['description'] = 'Description may not be greater than 300 visible characters.';
+        if ($this->visibleTextLength($data['name'] ?? null) > 100) {
+            $textErrors['name'] = 'Template name may not be greater than 100 visible characters.';
         }
 
-        if ($this->visibleTextLength($data['short_description'] ?? null) > 20) {
-            $textErrors['short_description'] = 'About may not be greater than 20 visible characters.';
+        if ($this->visibleTextLength($data['description'] ?? null) > 4000) {
+            $textErrors['description'] = 'Description may not be greater than 4000 visible characters.';
+        }
+
+        if ($this->visibleTextLength($data['short_description'] ?? null) > 200) {
+            $textErrors['short_description'] = 'About may not be greater than 200 visible characters.';
         }
 
         if ($textErrors !== []) {

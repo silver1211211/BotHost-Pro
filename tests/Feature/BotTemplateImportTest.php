@@ -282,10 +282,10 @@ it('validates template text limits by visible characters without counting bold m
 
     $this->actingAs($admin)
         ->post(route('admin.templates.store'), [
-            'name' => 'Visible Text Template',
+            'name' => '**'.str_repeat('n', 100).'**',
             'template_zip' => templateJsonUpload(),
             'short_description' => '**Referral Bot**',
-            'description' => str_repeat('a', 143)."\n\n**Bold Text**\n".str_repeat('b', 146),
+            'description' => str_repeat('a', 1993)."\n\n**Bold Text**\n".str_repeat('b', 1996),
             'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'draft',
@@ -297,15 +297,15 @@ it('validates template text limits by visible characters without counting bold m
         ->assertRedirect()
         ->assertSessionHasNoErrors();
 
-    expect(BotTemplate::query()->where('slug', 'visible-text-template')->firstOrFail()->short_description)
+    expect(BotTemplate::query()->where('name', '**'.str_repeat('n', 100).'**')->firstOrFail()->short_description)
         ->toBe('**Referral Bot**');
 
     $this->actingAs($admin)
         ->post(route('admin.templates.store'), [
-            'name' => 'Too Long Visible Text',
+            'name' => '**'.str_repeat('x', 101).'**',
             'template_zip' => templateJsonUpload(),
-            'short_description' => '**123456789012345678901**',
-            'description' => str_repeat('b', 301),
+            'short_description' => '**'.str_repeat('a', 201).'**',
+            'description' => str_repeat('b', 4001),
             'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'draft',
@@ -315,8 +315,9 @@ it('validates template text limits by visible characters without counting bold m
             'marketplace_status' => 'unlisted',
         ])
         ->assertSessionHasErrors([
-            'short_description' => 'About may not be greater than 20 visible characters.',
-            'description' => 'Description may not be greater than 300 visible characters.',
+            'name' => 'Template name may not be greater than 100 visible characters.',
+            'short_description' => 'About may not be greater than 200 visible characters.',
+            'description' => 'Description may not be greater than 4000 visible characters.',
         ]);
 });
 

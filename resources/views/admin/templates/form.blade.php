@@ -102,28 +102,32 @@
                 <h2 class="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Basic Information</h2>
             </div>
             <div class="space-y-3 p-4">
-                <div>
-                    <label class="mb-1.5 block text-xs font-bold text-[#E5E7EB]">Template name</label>
-                    <input name="name" value="{{ old('name', $template->name) }}" placeholder="Example: FaucetPay Starter"
+                <div x-data="{ value: @js(old('name', $template->name)), visibleCount() { return (this.value || '').replace(/<[^>]*>/g, '').replaceAll('**', '').trim().replace(/\s+/g, ' ').length } }">
+                    <div class="mb-1.5 flex items-center justify-between gap-3">
+                        <label class="block text-xs font-bold text-[#E5E7EB]">Template name</label>
+                        <span class="text-[11px] font-bold" :class="visibleCount() > 100 ? 'text-[#FCA5A5]' : 'text-[#94A3B8]'" x-text="visibleCount() + '/100 visible characters'"></span>
+                    </div>
+                    <input name="name" x-model="value" placeholder="Example: **FaucetPay Starter**"
                            class="w-full rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">
+                    <p class="mt-1 text-xs text-[#94A3B8]">Marketplace title, max 100 visible characters. Supports safe **bold** text; ** markers do not count.</p>
                 </div>
                 <div x-data="{ value: @js(old('short_description', $template->short_description)), visibleCount() { return (this.value || '').replace(/<[^>]*>/g, '').replaceAll('**', '').trim().replace(/\s+/g, ' ').length } }">
                     <div class="mb-1.5 flex items-center justify-between gap-3">
                         <label class="block text-xs font-bold text-[#E5E7EB]">About</label>
-                        <span class="text-[11px] font-bold" :class="visibleCount() > 20 ? 'text-[#FCA5A5]' : 'text-[#94A3B8]'" x-text="visibleCount() + '/20 visible characters'"></span>
+                        <span class="text-[11px] font-bold" :class="visibleCount() > 200 ? 'text-[#FCA5A5]' : 'text-[#94A3B8]'" x-text="visibleCount() + '/200 visible characters'"></span>
                     </div>
                     <textarea name="short_description" rows="2" x-model="value" placeholder="Example: **Referral Bot**"
                               class="w-full resize-none rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">{{ old('short_description', $template->short_description) }}</textarea>
-                    <p class="mt-1 text-xs text-[#94A3B8]">Short marketplace card preview, max 20 visible characters. Supports safe **bold** text; ** markers do not count.</p>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Short marketplace card preview, max 200 visible characters. Supports safe **bold** text; ** markers do not count.</p>
                 </div>
                 <div x-data="{ value: @js(old('description', $template->description)), visibleCount() { return (this.value || '').replace(/<[^>]*>/g, '').replaceAll('**', '').trim().replace(/\s+/g, ' ').length } }">
                     <div class="mb-1.5 flex items-center justify-between gap-3">
                         <label class="block text-xs font-bold text-[#E5E7EB]">Full description</label>
-                        <span class="text-[11px] font-bold" :class="visibleCount() > 300 ? 'text-[#FCA5A5]' : 'text-[#94A3B8]'" x-text="visibleCount() + '/300 visible characters'"></span>
+                        <span class="text-[11px] font-bold" :class="visibleCount() > 4000 ? 'text-[#FCA5A5]' : 'text-[#94A3B8]'" x-text="visibleCount() + '/4000 visible characters'"></span>
                     </div>
                     <textarea name="description" rows="7" x-model="value" placeholder="Describe what this template includes and who it helps."
                               class="w-full resize-y rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2.5 text-sm text-white placeholder:text-[#4D4868] focus:border-[#8B5CF6]/50 focus:outline-none">{{ old('description', $template->description) }}</textarea>
-                    <p class="mt-1 text-xs text-[#94A3B8]">Shown on the details page with paragraphs preserved, max 300 visible characters. Supports safe **bold** text; ** markers do not count.</p>
+                    <p class="mt-1 text-xs text-[#94A3B8]">Shown on the details page with paragraphs preserved, max 4000 visible characters. Supports safe **bold** text; ** markers do not count.</p>
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs font-bold text-[#E5E7EB]">Demo bot URL</label>
