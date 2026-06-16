@@ -45,7 +45,7 @@ cp deploy/env.production.example .env
 nano .env
 ```
 
-Set the real HTTPS `APP_URL`, MySQL credentials, Redis password, mail settings, and a rotated `NODE_RUNTIME_SECRET`. Generate the Laravel app key after `.env` exists:
+Set the real HTTPS `APP_URL`, MySQL credentials, Redis password, mail settings, and a rotated `NODE_RUNTIME_SECRET`. If the server does not resolve Node.js as `node`, set `NODE_BINARY=/usr/bin/node` or the correct absolute path. Generate the Laravel app key after `.env` exists:
 
 ```bash
 php artisan key:generate --force
@@ -81,6 +81,7 @@ Run migrations only after the live `.env` points to the production database:
 
 ```bash
 php artisan migrate --force
+php artisan db:seed --class=RuntimeHelperCategorySeeder --force
 ```
 
 ## 6. Redis
@@ -154,12 +155,25 @@ npm ci
 npm run build
 cd runtime-node && npm ci --omit=dev && cd ..
 php artisan migrate --force
+php artisan db:seed --class=RuntimeHelperCategorySeeder --force
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan queue:restart
 sudo supervisorctl restart bothostpro-worker:*
 sudo supervisorctl restart bothostpro-runtime:*
+```
+
+After publishing an admin helper bundle, restart the Node runtime so non-Docker local runtimes load the new `runtime-node/admin-helpers-generated.js` file:
+
+```bash
+sudo supervisorctl restart bothostpro-runtime:*
+```
+
+For Docker runtimes, run the admin Docker refresh dry-run first, review the report for unknown containers, and run live refresh only with the exact confirmation text:
+
+```text
+YES_RECREATE_DOCKER_CONTAINERS
 ```
 
 ## 11. Webhook Verification

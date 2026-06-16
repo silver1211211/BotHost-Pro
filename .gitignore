@@ -15,10 +15,13 @@
 /auth.json
 /node_modules
 /runtime-node/node_modules
+/runtime-node/admin-helpers-generated.js
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
+/storage/runtime/*.js
+/storage/logs/runtime-reload-*.log
 /storage/*.key
 /storage/pail
 /vendor

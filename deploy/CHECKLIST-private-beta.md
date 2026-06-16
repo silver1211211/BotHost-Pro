@@ -8,8 +8,16 @@
 - [ ] `CACHE_STORE=redis`
 - [ ] `QUEUE_CONNECTION=redis`
 - [ ] `NODE_RUNTIME_SECRET` is rotated and not reused from local development
+- [ ] `NODE_BINARY` is set only if the VPS Node binary is not available as `node`
+- [ ] `php artisan migrate --force` has run
+- [ ] `php artisan db:seed --class=RuntimeHelperCategorySeeder --force` has run
+- [ ] `php artisan config:cache` has run
+- [ ] `php artisan route:cache` has run if route caching is supported
+- [ ] Frontend assets are built with `npm ci` and `npm run build`
 - [ ] Supervisor is running the Laravel queue worker
 - [ ] Supervisor is running the Node runtime
+- [ ] `storage/logs` is writable by the PHP and Supervisor users
+- [ ] `proc_open` is available for async runtime reload tasks
 - [ ] Cron `schedule:run` is installed
 - [ ] SSL certificate is active
 - [ ] Telegram webhook is set successfully
@@ -17,4 +25,6 @@
 - [ ] Support flow works
 - [ ] Callback button works
 - [ ] OxaPay secret is configured only if payments are enabled
+- [ ] Runtime helper Docker dry-run completed before any live refresh
+- [ ] Live Docker refresh uses exact confirmation `YES_RECREATE_DOCKER_CONTAINERS`
 - [ ] Backups are configured and restore has been tested
