@@ -102,6 +102,11 @@
                         ['label' => 'Plans',      'route' => 'admin.plans.index',      'icon' => 'deposits'],
                         ['label' => 'Broadcasts', 'route' => 'admin.broadcasts.index', 'icon' => 'broadcasts'],
                     ],
+                    'Runtime' => [
+                        ['label' => 'Helper Categories', 'route' => 'admin.runtime.helper-categories.index', 'icon' => 'settings'],
+                        ['label' => 'Runtime Helpers',   'route' => 'admin.runtime.helpers.index',           'icon' => 'templates'],
+                        ['label' => 'Helper Bundle',     'route' => 'admin.runtime.reload.index',            'icon' => 'logs'],
+                    ],
                     'System' => [
                         ['label' => 'Logs',     'route' => 'admin.logs.index',      'icon' => 'logs'],
                         ['label' => 'Security', 'route' => 'admin.security.index',  'icon' => 'security'],
