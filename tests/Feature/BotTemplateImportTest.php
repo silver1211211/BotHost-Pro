@@ -367,6 +367,72 @@ it('imports published templates into owned bots with skip and rename conflict st
         ->and($template->fresh()->import_count)->toBe(2);
 });
 
+it('shows only unlocked templates in the bot workspace template picker', function (): void {
+    $user = templateImportUser();
+    $bot = templateImportBot($user);
+    $unlocked = templateImportPublishedTemplate();
+    $unlocked->forceFill([
+        'name' => 'Unlocked Workspace Template',
+        'slug' => 'unlocked-workspace-template-'.str()->random(8),
+        'marketplace_status' => 'listed',
+        'short_description' => 'Ready to use',
+        'category' => 'workspace',
+    ])->save();
+    $unlocked->purchases()->create([
+        'user_id' => $user->id,
+        'amount' => 0,
+        'currency' => 'USD',
+        'status' => 'completed',
+        'purchased_at' => now(),
+    ]);
+
+    $locked = templateImportPublishedTemplate();
+    $locked->forceFill([
+        'name' => 'Locked Marketplace Template',
+        'slug' => 'locked-marketplace-template-'.str()->random(8),
+        'marketplace_status' => 'listed',
+        'category' => 'workspace',
+    ])->save();
+
+    $this->actingAs($user)
+        ->get(route('bots.templates.index', $bot))
+        ->assertOk()
+        ->assertSee('My Unlocked Templates')
+        ->assertSee('Unlocked Workspace Template')
+        ->assertSee('Import into this bot')
+        ->assertDontSee('Locked Marketplace Template');
+});
+
+it('shows an empty state when the bot workspace has no unlocked templates', function (): void {
+    $user = templateImportUser();
+    $bot = templateImportBot($user);
+
+    $this->actingAs($user)
+        ->get(route('bots.templates.index', $bot))
+        ->assertOk()
+        ->assertSee('No unlocked templates yet')
+        ->assertSee('Visit Marketplace to unlock templates first')
+        ->assertSee(route('dashboard.templates.index'), false);
+});
+
+it('blocks manual bot workspace imports for locked templates', function (): void {
+    $user = templateImportUser();
+    $bot = templateImportBot($user);
+    $locked = templateImportPublishedTemplate();
+    $locked->forceFill([
+        'marketplace_status' => 'listed',
+    ])->save();
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $locked]), [
+            'conflict_strategy' => 'skip',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasErrors(['template' => 'Please purchase this template before importing.']);
+
+    expect($bot->commands()->count())->toBe(0);
+});
+
 it('blocks imports for unowned bots and unpublished templates', function (): void {
     $owner = templateImportUser();
     $other = templateImportUser(['email' => 'other@example.com']);

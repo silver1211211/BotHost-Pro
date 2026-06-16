@@ -23,7 +23,29 @@ class BotTemplateImportController extends Controller
         $this->access->authorize($request, $bot);
 
         $user = $request->user();
-        $templates = BotTemplate::query()
+        $templates = $this->unlockedTemplatesQuery($user)
+            ->withCount('commands')
+            ->when($request->filled('search'), function ($query) use ($request): void {
+                $search = '%'.$request->string('search')->toString().'%';
+                $query->where(fn ($q) => $q->where('name', 'like', $search)->orWhere('description', 'like', $search));
+            })
+            ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
+            ->when($request->filled('level'), fn ($query) => $query->where('level', $request->string('level')))
+            ->orderByDesc('is_featured')
+            ->latest('published_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('bots.templates.index', [
+            'bot' => $bot,
+            'templates' => $templates,
+            'categories' => $this->unlockedTemplatesQuery($user)->whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
+        ]);
+    }
+
+    private function unlockedTemplatesQuery($user)
+    {
+        return BotTemplate::query()
             ->where('status', 'published')
             ->where(function ($query) use ($user): void {
                 if ($user?->isAdmin()) {
@@ -44,23 +66,7 @@ class BotTemplateImportController extends Controller
                         $includedQuery->whereIn('included_plan', $plans);
                     });
             })
-            ->withCount('commands')
-            ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = '%'.$request->string('search')->toString().'%';
-                $query->where(fn ($q) => $q->where('name', 'like', $search)->orWhere('description', 'like', $search));
-            })
-            ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
-            ->when($request->filled('level'), fn ($query) => $query->where('level', $request->string('level')))
-            ->orderByDesc('is_featured')
-            ->latest('published_at')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('bots.templates.index', [
-            'bot' => $bot,
-            'templates' => $templates,
-            'categories' => BotTemplate::query()->where('status', 'published')->whereNotNull('category')->distinct()->pluck('category'),
-        ]);
+            ->whereIn('marketplace_status', ['listed', 'featured']);
     }
 
     public function show(Request $request, Bot $bot, BotTemplate $template): View

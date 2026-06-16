@@ -268,7 +268,7 @@
                             <svg class="h-[15px] w-[15px] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                             New Command
                         </button>
-                        <a href="{{ route('dashboard.templates.purchased') }}" class="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[#27213D] bg-[#151225] px-3.5 py-2.5 text-[13px] font-black text-[#A1A1AA] transition hover:text-[#F8FAFC]">
+                        <a href="{{ route('bots.templates.index', $bot) }}" class="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[#27213D] bg-[#151225] px-3.5 py-2.5 text-[13px] font-black text-[#A1A1AA] transition hover:text-[#F8FAFC]">
                             Use Template
                         </a>
                     </div>
@@ -384,7 +384,7 @@
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                 Add First Command
                             </button>
-                            <a href="{{ route('dashboard.templates.purchased') }}" class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm font-black text-[#A1A1AA] transition hover:text-[#F8FAFC]">
+                            <a href="{{ route('bots.templates.index', $bot) }}" class="rounded-xl border border-[#27213D] bg-[#151225] px-4 py-2.5 text-sm font-black text-[#A1A1AA] transition hover:text-[#F8FAFC]">
                                 Use Template
                             </a>
                         </div>
@@ -745,7 +745,20 @@
                         </div>
 
                         {{-- Clone Bot --}}
-                        <div x-data="{ open: false }" class="rounded-2xl border border-[#27213D] bg-[#151225] p-5">
+                        <div x-data="{
+                            open: false,
+                            eName: '',
+                            validate(e) {
+                                this.eName = '';
+                                const v = e.target.querySelector('[name=clone_name]');
+                                if (!v || !v.value.trim()) {
+                                    this.eName = 'Enter a name for the cloned workspace.';
+                                    this.$nextTick(() => { if (v) v.focus(); });
+                                    return false;
+                                }
+                                return true;
+                            }
+                        }" class="rounded-2xl border border-[#27213D] bg-[#151225] p-5">
                             <div class="flex items-center gap-2.5">
                                 <div class="grid h-8 w-8 place-items-center rounded-lg border border-[#38BDF8]/30 bg-[#38BDF8]/10 text-[#38BDF8]">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"/></svg>
@@ -758,11 +771,29 @@
                                 Clone Bot
                             </button>
                             <div x-show="open" x-transition.opacity.duration.150ms x-cloak class="mt-4">
-                                <form method="POST" action="{{ route('bots.clone', $bot) }}" class="space-y-3">
+                                <form method="POST" action="{{ route('bots.clone', $bot) }}" novalidate @submit="if (!validate($event)) $event.preventDefault()" class="space-y-3">
                                     @csrf
                                     <div>
                                         <label class="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">New Workspace Name</label>
-                                        <input name="clone_name" type="text" required class="w-full rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:border-[#38BDF8]/60 focus:outline-none focus:ring-2 focus:ring-[#38BDF8]/20 transition" placeholder="{{ $bot->name }} (Clone)">
+                                        <input
+                                            name="clone_name"
+                                            type="text"
+                                            @input="eName = ''"
+                                            class="w-full rounded-xl border bg-[#0F0D1A] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#71717A] focus:outline-none focus:ring-2 transition"
+                                            :class="eName ? 'border-[#EF4444]/50 focus:border-[#EF4444]/70 focus:ring-[#EF4444]/10' : 'border-[#27213D] focus:border-[#38BDF8]/60 focus:ring-[#38BDF8]/20'"
+                                            placeholder="{{ $bot->name }} (Clone)"
+                                        >
+                                        <p
+                                            x-show="eName"
+                                            x-cloak
+                                            x-transition:enter="transition ease-out duration-150"
+                                            x-transition:enter-start="opacity-0 -translate-y-1"
+                                            x-transition:enter-end="opacity-100 translate-y-0"
+                                            class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#F87171]"
+                                        >
+                                            <svg class="h-3 w-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                                            <span x-text="eName"></span>
+                                        </p>
                                         @error('clone_name') <p class="mt-1 text-xs font-bold text-[#EF4444]">{{ $message }}</p> @enderror
                                     </div>
                                     <div>
