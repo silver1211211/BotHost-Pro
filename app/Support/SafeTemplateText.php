@@ -6,6 +6,15 @@ use Illuminate\Support\HtmlString;
 
 class SafeTemplateText
 {
+    public static function visibleLength(?string $text): int
+    {
+        $visible = strip_tags((string) $text);
+        $visible = str_replace('**', '', $visible);
+        $visible = trim(preg_replace('/\s+/u', ' ', $visible) ?? $visible);
+
+        return mb_strlen($visible);
+    }
+
     public static function inline(?string $text): HtmlString
     {
         $html = self::bold(e((string) $text));

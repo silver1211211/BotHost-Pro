@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BotTemplate;
 use App\Services\AuditLogService;
 use App\Services\TemplateZipImportService;
+use App\Support\SafeTemplateText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -195,11 +196,11 @@ class TemplateController extends Controller
         $textErrors = [];
 
         if ($this->visibleTextLength($data['description'] ?? null) > 300) {
-            $textErrors['description'] = 'Full description must be 300 visible characters or fewer. Bold markers do not count.';
+            $textErrors['description'] = 'Description may not be greater than 300 visible characters.';
         }
 
         if ($this->visibleTextLength($data['short_description'] ?? null) > 20) {
-            $textErrors['short_description'] = 'About must be 20 visible characters or fewer. Bold markers do not count.';
+            $textErrors['short_description'] = 'About may not be greater than 20 visible characters.';
         }
 
         if ($textErrors !== []) {
@@ -238,9 +239,7 @@ class TemplateController extends Controller
 
     private function visibleTextLength(?string $value): int
     {
-        $visible = str_replace('**', '', trim(strip_tags((string) $value)));
-
-        return mb_strlen($visible);
+        return SafeTemplateText::visibleLength($value);
     }
 
     private function uniqueSlug(string $name, ?int $ignoreId = null): string

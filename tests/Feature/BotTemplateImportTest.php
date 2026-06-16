@@ -285,7 +285,7 @@ it('validates template text limits by visible characters without counting bold m
             'name' => 'Visible Text Template',
             'template_zip' => templateJsonUpload(),
             'short_description' => '**Referral Bot**',
-            'description' => str_repeat('a', 300),
+            'description' => str_repeat('a', 143)."\n\n**Bold Text**\n".str_repeat('b', 146),
             'category' => 'referral_bot',
             'level' => 'beginner',
             'status' => 'draft',
@@ -314,7 +314,10 @@ it('validates template text limits by visible characters without counting bold m
             'currency' => 'USD',
             'marketplace_status' => 'unlisted',
         ])
-        ->assertSessionHasErrors(['short_description', 'description']);
+        ->assertSessionHasErrors([
+            'short_description' => 'About may not be greater than 20 visible characters.',
+            'description' => 'Description may not be greater than 300 visible characters.',
+        ]);
 });
 
 it('imports published templates into owned bots with skip and rename conflict strategies', function (): void {
