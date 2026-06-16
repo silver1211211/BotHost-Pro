@@ -47,7 +47,7 @@ class DockerRuntimeService
 
         $this->ensureNetwork();
 
-        $run = $this->runDocker([
+        $runArguments = [
             'run',
             '-d',
             '--name', $name,
@@ -61,6 +61,14 @@ class DockerRuntimeService
             '--tmpfs', '/tmp:rw,noexec,nosuid,size=16m',
             '--security-opt', 'no-new-privileges',
             '--cap-drop', 'ALL',
+        ];
+
+        if ($this->shouldMountAdminHelperBundle()) {
+            $runArguments[] = '-v';
+            $runArguments[] = $this->adminHelperBundleHostPath().':'.$this->adminHelperBundleContainerPath().':ro';
+        }
+
+        $runArguments = array_merge($runArguments, [
             '-e', 'NODE_ENV=production',
             '-e', 'HOST=0.0.0.0',
             '-e', 'PORT='.(string) config('runtime.docker.internal_port'),
@@ -71,7 +79,9 @@ class DockerRuntimeService
             '-p', '127.0.0.1:'.$port.':'.config('runtime.docker.internal_port'),
             '--network', (string) config('runtime.docker.network'),
             (string) config('runtime.docker.image'),
-        ], 30);
+        ]);
+
+        $run = $this->runDocker($runArguments, 30);
 
         if (! $run['ok']) {
             return $this->fail($bot, $run['error'], 'create_failed');
@@ -229,9 +239,14 @@ class DockerRuntimeService
         $timeout = max(2, (int) ceil($this->settings->integer('command_timeout_ms', (int) config('runtime.docker.timeout_ms')) / 1000) + 1);
 
         try {
-            $response = Http::timeout($timeout)
-                ->acceptJson()
-                ->post($this->baseUrl($bot).'/execute', $payload);
+            $request = Http::timeout($timeout)->acceptJson();
+            $secret = NodeRuntimeConfig::secret();
+
+            if (filled($secret)) {
+                $request = $request->withHeaders(['X-Runtime-Secret' => $secret]);
+            }
+
+            $response = $request->post($this->baseUrl($bot).'/execute', $payload);
         } catch (ConnectionException $exception) {
             $this->fail($bot, 'Runtime bridge unavailable.', 'execute_unavailable', $exception);
 
@@ -336,6 +351,133 @@ class DockerRuntimeService
         return ['available' => true, 'active' => $active, 'unhealthy' => $unhealthy, 'error' => null];
     }
 
+    public function recreateBotContainerForHelperBundle(Bot $bot): array
+    {
+        $containerName = (string) $bot->container_name;
+
+        if ($bot->runtime_mode !== 'docker' || ! filled($containerName)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName ?: null,
+                'action' => 'skipped',
+                'reason' => 'bot is not configured for Docker runtime',
+                'error' => 'Bot is not configured for Docker runtime.',
+            ];
+        }
+
+        if (! $this->shouldMountAdminHelperBundle()) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'skipped',
+                'reason' => 'bundle file missing',
+                'error' => 'Helper bundle file is missing or unreadable.',
+            ];
+        }
+
+        $mount = $this->hasAdminHelperBundleMount($containerName);
+
+        if (($mount['ok'] ?? false) && ($mount['mounted'] ?? false) && ($mount['read_only'] ?? false)) {
+            return [
+                'ok' => true,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'skipped',
+                'reason' => 'bundle mount already present',
+                'error' => null,
+            ];
+        }
+
+        if (($mount['ok'] ?? false) && ! ($mount['exists'] ?? false)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'skipped',
+                'reason' => 'container not found',
+                'error' => 'Container not found.',
+            ];
+        }
+
+        if (($mount['ok'] ?? false) && ! ($mount['running'] ?? false)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'skipped',
+                'reason' => 'container not running',
+                'error' => 'Container is not running.',
+            ];
+        }
+
+        if (! ($mount['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'failed',
+                'reason' => 'inspect failed',
+                'error' => $this->sanitize((string) ($mount['error'] ?? 'Docker inspect failed.')),
+            ];
+        }
+
+        $port = $this->hostPort($bot);
+        $stop = $this->stopBotContainer($bot);
+
+        if (! ($stop['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'failed',
+                'reason' => 'stop failed',
+                'error' => $this->sanitize((string) ($stop['error'] ?? 'Unable to stop container.')),
+            ];
+        }
+
+        $remove = $this->removeBotContainer($bot);
+
+        if (! ($remove['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'failed',
+                'reason' => 'remove failed',
+                'error' => $this->sanitize((string) ($remove['error'] ?? 'Unable to remove container.')),
+            ];
+        }
+
+        $bot->forceFill([
+            'runtime_mode' => 'docker',
+            'runtime_http_port' => $port,
+        ])->saveQuietly();
+
+        $start = $this->startBotContainer($bot->fresh() ?: $bot);
+
+        if (! ($start['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'bot_id' => $bot->id,
+                'container_name' => $containerName,
+                'action' => 'failed',
+                'reason' => 'start failed',
+                'error' => $this->sanitize((string) ($start['error'] ?? 'Unable to start recreated container.')),
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'bot_id' => $bot->id,
+            'container_name' => $containerName,
+            'action' => 'recreated',
+            'reason' => 'bundle mount added',
+            'error' => null,
+        ];
+    }
+
     private function waitForHealthy(Bot $bot, int $seconds): array
     {
         $deadline = microtime(true) + $seconds;
@@ -373,20 +515,126 @@ class DockerRuntimeService
         }
     }
 
-    private function inspectContainer(string $name): array
+    public function inspectContainer(string $containerName): array
     {
-        $result = $this->runDocker(['inspect', '--format', '{{.State.Running}}|{{.State.Status}}', $name], 8);
+        $result = $this->runDocker(['inspect', '--format', '{{json .State.Running}}'.PHP_EOL.'{{json .State.Status}}'.PHP_EOL.'{{json .Mounts}}', $containerName], 5);
 
         if (! ($result['ok'] ?? false)) {
-            return ['exists' => false, 'running' => false, 'status' => 'missing'];
+            $error = (string) ($result['error'] ?? '');
+
+            if (str_contains(strtolower($error), 'no such object') || str_contains(strtolower($error), 'no such container')) {
+                return [
+                    'ok' => true,
+                    'exists' => false,
+                    'running' => false,
+                    'status' => 'missing',
+                    'mounts' => [],
+                    'raw' => null,
+                    'error' => null,
+                ];
+            }
+
+            return [
+                'ok' => false,
+                'exists' => false,
+                'running' => false,
+                'status' => 'unknown',
+                'mounts' => [],
+                'raw' => null,
+                'error' => $this->sanitize($error ?: 'Docker inspect failed.'),
+            ];
         }
 
-        [$running, $status] = array_pad(explode('|', trim($result['output'] ?? ''), 2), 2, null);
+        [$runningJson, $statusJson, $mountsJson] = array_pad(preg_split('/\R/', trim($result['output'] ?? ''), 3), 3, null);
+        $running = json_decode((string) $runningJson, true) === true;
+        $status = json_decode((string) $statusJson, true);
+        $mounts = collect(json_decode((string) $mountsJson, true) ?: [])
+            ->map(fn (array $mount) => [
+                'source' => $mount['Source'] ?? null,
+                'destination' => $mount['Destination'] ?? null,
+                'mode' => $mount['Mode'] ?? null,
+                'rw' => $mount['RW'] ?? null,
+                'type' => $mount['Type'] ?? null,
+            ])
+            ->values()
+            ->all();
 
         return [
+            'ok' => true,
             'exists' => true,
-            'running' => $running === 'true',
-            'status' => $status ?: 'unknown',
+            'running' => $running,
+            'status' => is_string($status) && $status !== '' ? $status : 'unknown',
+            'mounts' => $mounts,
+            'raw' => null,
+            'error' => null,
+        ];
+    }
+
+    public function hasAdminHelperBundleMount(string $containerName): array
+    {
+        $inspect = $this->inspectContainer($containerName);
+
+        if (! ($inspect['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'exists' => false,
+                'running' => false,
+                'mounted' => false,
+                'read_only' => false,
+                'reason' => 'inspect failed',
+                'error' => $inspect['error'] ?? 'Docker inspect failed.',
+            ];
+        }
+
+        if (! ($inspect['exists'] ?? false)) {
+            return [
+                'ok' => true,
+                'exists' => false,
+                'running' => false,
+                'mounted' => false,
+                'read_only' => false,
+                'reason' => 'container not found',
+                'error' => null,
+            ];
+        }
+
+        if (! ($inspect['running'] ?? false)) {
+            return [
+                'ok' => true,
+                'exists' => true,
+                'running' => false,
+                'mounted' => false,
+                'read_only' => false,
+                'reason' => 'container not running',
+                'error' => null,
+            ];
+        }
+
+        $mount = collect($inspect['mounts'] ?? [])
+            ->first(fn (array $mount) => ($mount['destination'] ?? null) === $this->adminHelperBundleContainerPath());
+
+        if (! $mount) {
+            return [
+                'ok' => true,
+                'exists' => true,
+                'running' => true,
+                'mounted' => false,
+                'read_only' => false,
+                'reason' => 'bundle mount missing',
+                'error' => null,
+            ];
+        }
+
+        $readOnly = ($mount['rw'] ?? true) === false || str_contains((string) ($mount['mode'] ?? ''), 'ro');
+
+        return [
+            'ok' => true,
+            'exists' => true,
+            'running' => true,
+            'mounted' => true,
+            'read_only' => $readOnly,
+            'reason' => $readOnly ? 'bundle mount present' : 'bundle mounted but not read-only',
+            'error' => null,
         ];
     }
 
@@ -415,6 +663,34 @@ class DockerRuntimeService
         } catch (Throwable $exception) {
             return ['ok' => false, 'output' => '', 'error' => $this->sanitize($exception->getMessage())];
         }
+    }
+
+    private function adminHelperBundleHostPath(): string
+    {
+        return base_path('runtime-node/admin-helpers-generated.js');
+    }
+
+    private function adminHelperBundleContainerPath(): string
+    {
+        return '/app/admin-helpers-generated.js';
+    }
+
+    private function shouldMountAdminHelperBundle(): bool
+    {
+        $path = $this->adminHelperBundleHostPath();
+
+        if (! is_file($path) || ! is_readable($path)) {
+            return false;
+        }
+
+        $realPath = realpath($path);
+        $runtimeRoot = realpath(base_path('runtime-node'));
+
+        if ($realPath === false || $runtimeRoot === false) {
+            return false;
+        }
+
+        return str_starts_with($realPath, rtrim($runtimeRoot, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR);
     }
 
     private function fail(Bot $bot, string $message, string $reason, ?Throwable $exception = null): array

@@ -4,6 +4,11 @@ use App\Http\Controllers\Admin\BotController as AdminBotController;
 use App\Http\Controllers\Admin\BroadcastController as AdminBroadcastController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
+use App\Http\Controllers\Admin\RuntimeHelperCategoryController as AdminRuntimeHelperCategoryController;
+use App\Http\Controllers\Admin\RuntimeHelperController as AdminRuntimeHelperController;
+use App\Http\Controllers\Admin\RuntimeHelperTestController as AdminRuntimeHelperTestController;
+use App\Http\Controllers\Admin\RuntimeHelperVersionController as AdminRuntimeHelperVersionController;
+use App\Http\Controllers\Admin\RuntimeReloadController as AdminRuntimeReloadController;
 use App\Http\Controllers\Admin\SecurityController as AdminSecurityController;
 use App\Http\Controllers\Admin\TemplateCommandController as AdminTemplateCommandController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
@@ -271,6 +276,38 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::get('/logs', [AdminLogController::class, 'index'])->name('logs.index');
         Route::get('/logs/{auditLog}', [AdminLogController::class, 'show'])->name('logs.show');
         Route::get('/security', [AdminSecurityController::class, 'index'])->name('security.index');
+
+        Route::get('/runtime/helper-categories', [AdminRuntimeHelperCategoryController::class, 'index'])->name('runtime.helper-categories.index');
+        Route::get('/runtime/helper-categories/create', [AdminRuntimeHelperCategoryController::class, 'create'])->name('runtime.helper-categories.create');
+        Route::post('/runtime/helper-categories', [AdminRuntimeHelperCategoryController::class, 'store'])->name('runtime.helper-categories.store');
+        Route::get('/runtime/helper-categories/{category}/edit', [AdminRuntimeHelperCategoryController::class, 'edit'])->name('runtime.helper-categories.edit');
+        Route::patch('/runtime/helper-categories/{category}', [AdminRuntimeHelperCategoryController::class, 'update'])->name('runtime.helper-categories.update');
+        Route::patch('/runtime/helper-categories/{category}/toggle', [AdminRuntimeHelperCategoryController::class, 'toggle'])->name('runtime.helper-categories.toggle');
+        Route::delete('/runtime/helper-categories/{category}', [AdminRuntimeHelperCategoryController::class, 'destroy'])->name('runtime.helper-categories.destroy');
+
+        Route::get('/runtime/helpers', [AdminRuntimeHelperController::class, 'index'])->name('runtime.helpers.index');
+        Route::get('/runtime/helpers/create', [AdminRuntimeHelperController::class, 'create'])->name('runtime.helpers.create');
+        Route::post('/runtime/helpers', [AdminRuntimeHelperController::class, 'store'])->name('runtime.helpers.store');
+        Route::post('/runtime/helpers/test', [AdminRuntimeHelperTestController::class, 'run'])->name('runtime.helpers.test');
+        Route::get('/runtime/helpers/{helper}/edit', [AdminRuntimeHelperController::class, 'edit'])->name('runtime.helpers.edit');
+        Route::patch('/runtime/helpers/{helper}', [AdminRuntimeHelperController::class, 'update'])->name('runtime.helpers.update');
+        Route::delete('/runtime/helpers/{helper}', [AdminRuntimeHelperController::class, 'destroy'])->name('runtime.helpers.destroy');
+        Route::post('/runtime/helpers/{helper}/activate', [AdminRuntimeHelperController::class, 'activate'])->name('runtime.helpers.activate');
+        Route::post('/runtime/helpers/{helper}/deactivate', [AdminRuntimeHelperController::class, 'deactivate'])->name('runtime.helpers.deactivate');
+        Route::get('/runtime/helpers/{helper}/versions', [AdminRuntimeHelperVersionController::class, 'index'])->name('runtime.helpers.versions.index');
+        Route::post('/runtime/helpers/{helper}/versions/{version}/restore', [AdminRuntimeHelperVersionController::class, 'restore'])->name('runtime.helpers.versions.restore');
+
+        Route::get('/runtime/reload', [AdminRuntimeReloadController::class, 'index'])->name('runtime.reload.index');
+        Route::post('/runtime/reload/publish-bundle', [AdminRuntimeReloadController::class, 'publishBundle'])->name('runtime.reload.publish-bundle');
+        Route::post('/runtime/reload/docker-refresh-plan', [AdminRuntimeReloadController::class, 'dockerRefreshPlan'])->name('runtime.reload.docker-refresh-plan');
+        Route::post('/runtime/reload/docker-refresh-live', [AdminRuntimeReloadController::class, 'dockerRefreshLive'])->name('runtime.reload.docker-refresh-live');
+        Route::get('/runtime/reload/status/{log}', [AdminRuntimeReloadController::class, 'status'])->name('runtime.reload.status');
+        Route::get('/runtime/reload/logs', [AdminRuntimeReloadController::class, 'logs'])->name('runtime.reload.logs');
+        Route::get('/runtime/reload/logs/{log}/export-json', [AdminRuntimeReloadController::class, 'exportJson'])->name('runtime.reload.logs.export-json');
+        Route::get('/runtime/reload/logs/{log}/export-text', [AdminRuntimeReloadController::class, 'exportText'])->name('runtime.reload.logs.export-text');
+        Route::post('/runtime/reload/logs/{log}/cancel', [AdminRuntimeReloadController::class, 'cancel'])->name('runtime.reload.logs.cancel');
+        Route::post('/runtime/reload/logs/{log}/retry', [AdminRuntimeReloadController::class, 'retry'])->name('runtime.reload.logs.retry');
+        Route::get('/runtime/reload/logs/{log}', [AdminRuntimeReloadController::class, 'show'])->name('runtime.reload.show');
 
         // Settings — full platform settings center
         Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
