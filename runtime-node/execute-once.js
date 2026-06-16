@@ -1,32 +1,12 @@
 const dns = require('node:dns').promises;
-const fs = require('node:fs');
 const net = require('node:net');
-const path = require('node:path');
 const crypto = require('node:crypto');
 const vm = require('node:vm');
+const { createCommandSandbox } = require('./admin-helper-loader');
 
 try {
   require('dotenv').config();
 } catch (_) {}
-
-let adminHelperBundle = null;
-
-try {
-  const bundlePath = path.join(__dirname, 'admin-helpers-generated.js');
-  if (fs.existsSync(bundlePath)) {
-    const loaded = require(bundlePath);
-
-    if (loaded && typeof loaded.buildAdminHelpers === 'function') {
-      adminHelperBundle = loaded;
-      console.error('[BotHost] Admin helper bundle loaded.');
-    } else {
-      console.error('[BotHost] Admin helper bundle missing buildAdminHelpers export.');
-    }
-  }
-} catch (error) {
-  adminHelperBundle = null;
-  console.error('[BotHost] Failed to load admin helper bundle:', error && error.message ? error.message : error);
-}
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -54,8 +34,7 @@ process.stdin.on('end', async () => {
     const settings = normalizeRuntimeSettings(payload.settings || {});
     actions = [];
     helpers = buildHelpers(payload, actions, settings);
-    const adminHelpers = buildAdminHelpers(helpers);
-    const context = vm.createContext(Object.assign(Object.create(null), helpers, adminHelpers), {
+    const context = vm.createContext(createCommandSandbox(helpers), {
       name: 'bothost-command-runtime',
       codeGeneration: { strings: false, wasm: false },
     });
@@ -88,51 +67,6 @@ process.stdin.on('end', async () => {
     );
   }
 });
-
-function buildAdminHelpers(helpers) {
-  const adminHelpers = Object.create(null);
-
-  if (!adminHelperBundle) {
-    return adminHelpers;
-  }
-
-  try {
-    const builtAdminHelpers = adminHelperBundle.buildAdminHelpers(helpers);
-
-    if (!builtAdminHelpers || typeof builtAdminHelpers !== 'object') {
-      console.error('[BotHost] Admin helper bundle build did not return an object.');
-      return adminHelpers;
-    }
-
-    for (const [name, fn] of Object.entries(builtAdminHelpers)) {
-      if (Object.prototype.hasOwnProperty.call(helpers, name)) {
-        console.error('[BotHost] Admin helper skipped because it collides with system helper:', name);
-        continue;
-      }
-
-      if (!isSafeAdminHelperName(name)) {
-        console.error('[BotHost] Admin helper skipped because it has an unsafe name:', name);
-        continue;
-      }
-
-      if (typeof fn !== 'function') {
-        console.error('[BotHost] Admin helper skipped because it is not a function:', name);
-        continue;
-      }
-
-      adminHelpers[name] = fn;
-    }
-  } catch (error) {
-    console.error('[BotHost] Admin helper bundle build failed:', error && error.message ? error.message : error);
-  }
-
-  return adminHelpers;
-}
-
-function isSafeAdminHelperName(name) {
-  return /^[A-Za-z_$][A-Za-z0-9_$]{0,99}$/.test(String(name || ''))
-    && !['__proto__', 'prototype', 'constructor'].includes(name);
-}
 
 function buildHelpers(payload, actions, settings) {
   const telegram = payload.telegram || {};

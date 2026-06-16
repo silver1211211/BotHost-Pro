@@ -3,10 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const crypto = require('node:crypto');
 const dns = require('node:dns').promises;
-const fs = require('node:fs');
 const net = require('node:net');
-const path = require('node:path');
 const vm = require('node:vm');
+const { createCommandSandbox } = require('./admin-helper-loader');
 
 const app = express();
 const host = process.env.HOST || '127.0.0.1';
@@ -17,24 +16,6 @@ const maxDelayMs = Number(process.env.COMMAND_MAX_DELAY_MS || 10000);
 const requestTimeoutMs = Number(process.env.HTTPS_REQUEST_TIMEOUT_MS || 5000);
 const bridgeTimeoutMs = Number(process.env.BRIDGE_TIMEOUT_MS || 15000);
 const maxResponseBytes = Number(process.env.HTTPS_REQUEST_MAX_BYTES || 262144);
-let adminHelperBundle = null;
-
-try {
-  const bundlePath = path.join(__dirname, 'admin-helpers-generated.js');
-  if (fs.existsSync(bundlePath)) {
-    const loaded = require(bundlePath);
-
-    if (loaded && typeof loaded.buildAdminHelpers === 'function') {
-      adminHelperBundle = loaded;
-      console.log('[BotHost] Admin helper bundle loaded.');
-    } else {
-      console.error('[BotHost] Admin helper bundle missing buildAdminHelpers export.');
-    }
-  }
-} catch (error) {
-  adminHelperBundle = null;
-  console.error('[BotHost] Failed to load admin helper bundle:', error && error.message ? error.message : error);
-}
 
 process.on('uncaughtException', (error) => {
   console.error('Uncaught runtime exception:', safeErrorLog(error));
@@ -98,10 +79,7 @@ async function executeCommandHandler(req, res) {
     actions = [];
     runtime = buildRuntimeHelpers(payload, actions);
     const helpers = runtime.helpers;
-    const adminHelpers = buildAdminHelpers(helpers);
-    const sandbox = Object.create(null);
-
-    Object.assign(sandbox, helpers, adminHelpers);
+    const sandbox = createCommandSandbox(helpers);
 
     const context = vm.createContext(sandbox, {
       name: 'bothost-command-runtime',
@@ -170,51 +148,6 @@ app.use((error, req, res, next) => {
 app.listen(port, host, () => {
   console.log(`BotHost Pro Node Runtime listening on http://${host}:${port}`);
 });
-
-function buildAdminHelpers(helpers) {
-  const adminHelpers = Object.create(null);
-
-  if (!adminHelperBundle) {
-    return adminHelpers;
-  }
-
-  try {
-    const builtAdminHelpers = adminHelperBundle.buildAdminHelpers(helpers);
-
-    if (!builtAdminHelpers || typeof builtAdminHelpers !== 'object') {
-      console.error('[BotHost] Admin helper bundle build did not return an object.');
-      return adminHelpers;
-    }
-
-    for (const [name, fn] of Object.entries(builtAdminHelpers)) {
-      if (Object.prototype.hasOwnProperty.call(helpers, name)) {
-        console.error('[BotHost] Admin helper skipped because it collides with system helper:', name);
-        continue;
-      }
-
-      if (!isSafeAdminHelperName(name)) {
-        console.error('[BotHost] Admin helper skipped because it has an unsafe name:', name);
-        continue;
-      }
-
-      if (typeof fn !== 'function') {
-        console.error('[BotHost] Admin helper skipped because it is not a function:', name);
-        continue;
-      }
-
-      adminHelpers[name] = fn;
-    }
-  } catch (error) {
-    console.error('[BotHost] Admin helper bundle build failed:', error && error.message ? error.message : error);
-  }
-
-  return adminHelpers;
-}
-
-function isSafeAdminHelperName(name) {
-  return /^[A-Za-z_$][A-Za-z0-9_$]{0,99}$/.test(String(name || ''))
-    && !['__proto__', 'prototype', 'constructor'].includes(name);
-}
 
 function buildRuntimeHelpers(payload, actions) {
   const telegram = payload.telegram || {};
