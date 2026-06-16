@@ -2,6 +2,7 @@
 
 return [
     'mode' => env('RUNTIME_MODE', 'local'),
+    'node_binary' => env('NODE_BINARY', 'node'),
     'docker' => [
         'enabled' => filter_var(env('RUNTIME_DOCKER_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
         'image' => env('RUNTIME_DOCKER_IMAGE', 'bothost-node-runtime'),
