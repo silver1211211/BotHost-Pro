@@ -299,6 +299,7 @@ Route::middleware(['auth', 'active', 'admin'])
 
         Route::get('/runtime/reload', [AdminRuntimeReloadController::class, 'index'])->name('runtime.reload.index');
         Route::post('/runtime/reload/publish-bundle', [AdminRuntimeReloadController::class, 'publishBundle'])->name('runtime.reload.publish-bundle');
+        Route::post('/runtime/reload/publish-and-apply', [AdminRuntimeReloadController::class, 'publishAndApply'])->name('runtime.reload.publish-and-apply');
         Route::post('/runtime/reload/docker-refresh-plan', [AdminRuntimeReloadController::class, 'dockerRefreshPlan'])->name('runtime.reload.docker-refresh-plan');
         Route::post('/runtime/reload/docker-refresh-live', [AdminRuntimeReloadController::class, 'dockerRefreshLive'])->name('runtime.reload.docker-refresh-live');
         Route::get('/runtime/reload/status/{log}', [AdminRuntimeReloadController::class, 'status'])->name('runtime.reload.status');

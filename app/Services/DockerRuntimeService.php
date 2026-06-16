@@ -299,7 +299,14 @@ class DockerRuntimeService
 
         $context = base_path((string) config('runtime.docker.build_context'));
 
-        return $this->runDocker(['build', '-t', (string) config('runtime.docker.image'), $context], 180);
+        return $this->runDocker([
+            'build',
+            '--build-arg',
+            'BOTHOST_RUNTIME_SOURCE_HASH='.$this->runtimeSourceHash(),
+            '-t',
+            (string) config('runtime.docker.image'),
+            $context,
+        ], 180);
     }
 
     public function cleanupOrphans(): array
@@ -377,20 +384,20 @@ class DockerRuntimeService
             ];
         }
 
-        $mount = $this->hasAdminHelperBundleMount($containerName);
+        $support = $this->inspectAdminRuntimeSupport($containerName);
 
-        if (($mount['ok'] ?? false) && ($mount['mounted'] ?? false) && ($mount['read_only'] ?? false)) {
+        if (($support['ok'] ?? false) && ($support['ready'] ?? false)) {
             return [
                 'ok' => true,
                 'bot_id' => $bot->id,
                 'container_name' => $containerName,
                 'action' => 'skipped',
-                'reason' => 'bundle mount already present',
+                'reason' => 'runtime support already up to date',
                 'error' => null,
             ];
         }
 
-        if (($mount['ok'] ?? false) && ! ($mount['exists'] ?? false)) {
+        if (($support['ok'] ?? false) && ! ($support['exists'] ?? false)) {
             return [
                 'ok' => false,
                 'bot_id' => $bot->id,
@@ -401,7 +408,7 @@ class DockerRuntimeService
             ];
         }
 
-        if (($mount['ok'] ?? false) && ! ($mount['running'] ?? false)) {
+        if (($support['ok'] ?? false) && ! ($support['running'] ?? false)) {
             return [
                 'ok' => false,
                 'bot_id' => $bot->id,
@@ -412,14 +419,14 @@ class DockerRuntimeService
             ];
         }
 
-        if (! ($mount['ok'] ?? false)) {
+        if (! ($support['ok'] ?? false)) {
             return [
                 'ok' => false,
                 'bot_id' => $bot->id,
                 'container_name' => $containerName,
                 'action' => 'failed',
                 'reason' => 'inspect failed',
-                'error' => $this->sanitize((string) ($mount['error'] ?? 'Docker inspect failed.')),
+                'error' => $this->sanitize((string) ($support['error'] ?? 'Docker inspect failed.')),
             ];
         }
 
@@ -473,7 +480,7 @@ class DockerRuntimeService
             'bot_id' => $bot->id,
             'container_name' => $containerName,
             'action' => 'recreated',
-            'reason' => 'bundle mount added',
+            'reason' => $support['reason'] ?? 'runtime support updated',
             'error' => null,
         ];
     }
@@ -517,7 +524,7 @@ class DockerRuntimeService
 
     public function inspectContainer(string $containerName): array
     {
-        $result = $this->runDocker(['inspect', '--format', '{{json .State.Running}}'.PHP_EOL.'{{json .State.Status}}'.PHP_EOL.'{{json .Mounts}}', $containerName], 5);
+        $result = $this->runDocker(['inspect', '--format', '{{json .State.Running}}'.PHP_EOL.'{{json .State.Status}}'.PHP_EOL.'{{json .Mounts}}'.PHP_EOL.'{{json .Config.Labels}}'.PHP_EOL.'{{json .Config.Env}}'.PHP_EOL.'{{json .NetworkSettings.Ports}}', $containerName], 5);
 
         if (! ($result['ok'] ?? false)) {
             $error = (string) ($result['error'] ?? '');
@@ -529,6 +536,9 @@ class DockerRuntimeService
                     'running' => false,
                     'status' => 'missing',
                     'mounts' => [],
+                    'labels' => [],
+                    'env' => [],
+                    'ports' => [],
                     'raw' => null,
                     'error' => null,
                 ];
@@ -540,14 +550,20 @@ class DockerRuntimeService
                 'running' => false,
                 'status' => 'unknown',
                 'mounts' => [],
+                'labels' => [],
+                'env' => [],
+                'ports' => [],
                 'raw' => null,
                 'error' => $this->sanitize($error ?: 'Docker inspect failed.'),
             ];
         }
 
-        [$runningJson, $statusJson, $mountsJson] = array_pad(preg_split('/\R/', trim($result['output'] ?? ''), 3), 3, null);
+        [$runningJson, $statusJson, $mountsJson, $labelsJson, $envJson, $portsJson] = array_pad(preg_split('/\R/', trim($result['output'] ?? ''), 6), 6, null);
         $running = json_decode((string) $runningJson, true) === true;
         $status = json_decode((string) $statusJson, true);
+        $labels = json_decode((string) $labelsJson, true);
+        $env = json_decode((string) $envJson, true);
+        $ports = json_decode((string) $portsJson, true);
         $mounts = collect(json_decode((string) $mountsJson, true) ?: [])
             ->map(fn (array $mount) => [
                 'source' => $mount['Source'] ?? null,
@@ -565,6 +581,9 @@ class DockerRuntimeService
             'running' => $running,
             'status' => is_string($status) && $status !== '' ? $status : 'unknown',
             'mounts' => $mounts,
+            'labels' => is_array($labels) ? $labels : [],
+            'env' => is_array($env) ? $env : [],
+            'ports' => is_array($ports) ? $ports : [],
             'raw' => null,
             'error' => null,
         ];
@@ -638,6 +657,125 @@ class DockerRuntimeService
         ];
     }
 
+    public function inspectAdminRuntimeSupport(string $containerName): array
+    {
+        $inspect = $this->inspectContainer($containerName);
+
+        if (! ($inspect['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'exists' => false,
+                'running' => false,
+                'mounted' => false,
+                'read_only' => false,
+                'ready' => false,
+                'runtime_hash' => null,
+                'expected_runtime_hash' => $this->runtimeSourceHash(),
+                'runtime_hash_matches' => false,
+                'helper_loader_supported' => false,
+                'reason' => 'inspect failed',
+                'error' => $inspect['error'] ?? 'Docker inspect failed.',
+            ];
+        }
+
+        if (! ($inspect['exists'] ?? false)) {
+            return [
+                'ok' => true,
+                'exists' => false,
+                'running' => false,
+                'mounted' => false,
+                'read_only' => false,
+                'ready' => false,
+                'runtime_hash' => null,
+                'expected_runtime_hash' => $this->runtimeSourceHash(),
+                'runtime_hash_matches' => false,
+                'helper_loader_supported' => false,
+                'reason' => 'container not found',
+                'error' => null,
+            ];
+        }
+
+        if (! ($inspect['running'] ?? false)) {
+            return [
+                'ok' => true,
+                'exists' => true,
+                'running' => false,
+                'mounted' => false,
+                'read_only' => false,
+                'ready' => false,
+                'runtime_hash' => $this->containerRuntimeSourceHash($inspect),
+                'expected_runtime_hash' => $this->runtimeSourceHash(),
+                'runtime_hash_matches' => false,
+                'helper_loader_supported' => false,
+                'reason' => 'container not running',
+                'error' => null,
+            ];
+        }
+
+        $mount = collect($inspect['mounts'] ?? [])
+            ->first(fn (array $mount) => ($mount['destination'] ?? null) === $this->adminHelperBundleContainerPath());
+        $mounted = $mount !== null;
+        $readOnly = $mounted && (($mount['rw'] ?? true) === false || str_contains((string) ($mount['mode'] ?? ''), 'ro'));
+        $expectedHash = $this->runtimeSourceHash();
+        $containerHash = $this->containerRuntimeSourceHash($inspect);
+        $hashMatches = is_string($containerHash) && hash_equals($expectedHash, $containerHash);
+        $helperLoaderSupported = is_string($containerHash) && $containerHash !== '';
+        $localhostOnly = $this->hasLocalhostOnlyPortBinding($inspect);
+        $reason = 'runtime support already up to date';
+
+        if (! $mounted) {
+            $reason = 'bundle mount missing';
+        } elseif (! $readOnly) {
+            $reason = 'bundle mounted but not read-only';
+        } elseif (! $helperLoaderSupported) {
+            $reason = 'missing helper loader support';
+        } elseif (! $hashMatches) {
+            $reason = 'runtime source hash outdated';
+        } elseif (! $localhostOnly) {
+            $reason = 'port binding is not localhost-only';
+        }
+
+        return [
+            'ok' => true,
+            'exists' => true,
+            'running' => true,
+            'mounted' => $mounted,
+            'read_only' => $readOnly,
+            'ready' => $mounted && $readOnly && $helperLoaderSupported && $hashMatches && $localhostOnly,
+            'runtime_hash' => $containerHash,
+            'expected_runtime_hash' => $expectedHash,
+            'runtime_hash_matches' => $hashMatches,
+            'helper_loader_supported' => $helperLoaderSupported,
+            'localhost_only' => $localhostOnly,
+            'reason' => $reason,
+            'error' => null,
+        ];
+    }
+
+    public function runtimeSourceHash(): string
+    {
+        $hash = hash_init('sha256');
+
+        foreach ($this->runtimeSourceFiles() as $relativePath) {
+            $path = base_path($relativePath);
+            hash_update($hash, $relativePath."\n");
+            hash_update($hash, is_file($path) ? (string) file_get_contents($path) : "__missing__\n");
+        }
+
+        return hash_final($hash);
+    }
+
+    public function runtimeSourceFiles(): array
+    {
+        return [
+            'runtime-node/server.js',
+            'runtime-node/admin-helper-loader.js',
+            'runtime-node/package.json',
+            'runtime-node/package-lock.json',
+            'runtime-node/Dockerfile',
+        ];
+    }
+
     private function ensureNetwork(): void
     {
         $network = (string) config('runtime.docker.network');
@@ -647,6 +785,43 @@ class DockerRuntimeService
         }
 
         $this->runDocker(['network', 'create', $network], 10);
+    }
+
+    private function containerRuntimeSourceHash(array $inspect): ?string
+    {
+        $labels = $inspect['labels'] ?? [];
+        if (is_array($labels) && filled($labels['com.bothost.runtime_source_hash'] ?? null)) {
+            return (string) $labels['com.bothost.runtime_source_hash'];
+        }
+
+        foreach (($inspect['env'] ?? []) as $env) {
+            if (! is_string($env) || ! str_starts_with($env, 'BOTHOST_RUNTIME_SOURCE_HASH=')) {
+                continue;
+            }
+
+            return substr($env, strlen('BOTHOST_RUNTIME_SOURCE_HASH='));
+        }
+
+        return null;
+    }
+
+    private function hasLocalhostOnlyPortBinding(array $inspect): bool
+    {
+        $ports = $inspect['ports'] ?? [];
+        $internalPort = (string) config('runtime.docker.internal_port').'/tcp';
+        $bindings = is_array($ports) ? ($ports[$internalPort] ?? null) : null;
+
+        if (! is_array($bindings) || $bindings === []) {
+            return false;
+        }
+
+        foreach ($bindings as $binding) {
+            if (($binding['HostIp'] ?? null) !== '127.0.0.1') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function runDocker(array $arguments, int $timeout): array

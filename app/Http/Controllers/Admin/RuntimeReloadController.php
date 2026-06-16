@@ -111,6 +111,71 @@ class RuntimeReloadController extends Controller
             ->with('runtime_reload_log_id', $log->id);
     }
 
+    public function publishAndApply(Request $request): RedirectResponse
+    {
+        if ($this->hasActiveTask()) {
+            return back()->with('error', 'A runtime reload task is already running. Wait for it to finish before starting another one.');
+        }
+
+        if ($request->input('confirm_publish_apply') !== 'PUBLISH_AND_APPLY_HELPERS') {
+            return back()->with('error', 'Publish & Apply Helpers requires exact confirmation.');
+        }
+
+        $log = RuntimeReloadLog::query()->create([
+            'triggered_by' => $request->user()->id,
+            'trigger_type' => 'manual_publish_and_apply',
+            'status' => 'pending',
+            'mode' => 'docker',
+            'current_step' => 'Queued',
+            'steps_total' => 6,
+            'steps_completed' => 0,
+        ]);
+
+        $this->audit->log('runtime', 'runtime.reload.publish_and_apply_started', 'Runtime helper bundle publish and Docker apply started.', $this->auditMetadata($log), $request->user(), 'success', $log);
+
+        try {
+            $result = $this->reload->run($log, [
+                'publish_bundle' => true,
+                'docker_refresh' => true,
+                'dry_run' => false,
+                'confirm_live_refresh' => true,
+            ]);
+        } catch (Throwable $exception) {
+            $log->forceFill([
+                'status' => 'failed',
+                'current_step' => 'Publish and apply failed',
+                'error' => Str::limit($exception->getMessage(), 2000, ''),
+                'completed_at' => now(),
+                'duration_ms' => $log->started_at ? $log->started_at->diffInMilliseconds(now()) : null,
+            ])->save();
+
+            $result = ['ok' => false, 'error' => $exception->getMessage()];
+
+            $this->audit->log('runtime', 'runtime.reload.publish_and_apply_failed', 'Runtime helper bundle publish and Docker apply failed.', $this->auditMetadata($log), $request->user(), 'failed', $log);
+        }
+
+        $log->refresh();
+        $summary = $log->summaryCounts();
+        $compiled = (int) ($summary['helpers_compiled'] ?? $log->helpers_compiled ?? 0);
+        $recreated = (int) ($summary['recreated'] ?? 0);
+        $skipped = (int) ($summary['skipped'] ?? 0);
+        $failed = (int) ($summary['failed'] ?? 0);
+
+        if (($result['ok'] ?? false) && in_array($log->status, ['success', 'partial'], true)) {
+            return redirect()
+                ->route('admin.runtime.reload.index')
+                ->with('status', "Helpers published and applied. Compiled {$compiled} helper(s), recreated {$recreated} container(s), skipped {$skipped}, failed {$failed}.")
+                ->with('runtime_reload_log_id', $log->id);
+        }
+
+        $error = Str::limit((string) ($log->error ?: ($result['error'] ?? 'Publish and apply failed.')), 240, '');
+
+        return redirect()
+            ->route('admin.runtime.reload.index')
+            ->with('error', "Publish and apply failed. Compiled {$compiled} helper(s), recreated {$recreated} container(s), skipped {$skipped}, failed {$failed}. {$error}")
+            ->with('runtime_reload_log_id', $log->id);
+    }
+
     public function dockerRefreshPlan(Request $request): RedirectResponse
     {
         if ($this->hasActiveTask()) {

@@ -71,6 +71,33 @@ function fakeDockerRuntimeService(array $results = []): DockerRuntimeService
 
         public function __construct(private readonly array $results) {}
 
+        public function inspectAdminRuntimeSupport(string $containerName): array
+        {
+            $result = $this->results[$containerName] ?? [
+                'ok' => true,
+                'exists' => true,
+                'running' => true,
+                'mounted' => false,
+                'read_only' => false,
+                'reason' => 'bundle mount missing',
+                'error' => null,
+            ];
+
+            $mounted = (bool) ($result['mounted'] ?? false);
+            $readOnly = (bool) ($result['read_only'] ?? false);
+            $helperLoaderSupported = $result['helper_loader_supported'] ?? ($mounted && $readOnly);
+            $runtimeHashMatches = $result['runtime_hash_matches'] ?? ($mounted && $readOnly);
+
+            return $result + [
+                'ready' => $mounted && $readOnly && $helperLoaderSupported && $runtimeHashMatches && (bool) ($result['localhost_only'] ?? true),
+                'runtime_hash' => $runtimeHashMatches ? $this->runtimeSourceHash() : null,
+                'expected_runtime_hash' => $this->runtimeSourceHash(),
+                'runtime_hash_matches' => $runtimeHashMatches,
+                'helper_loader_supported' => $helperLoaderSupported,
+                'localhost_only' => true,
+            ];
+        }
+
         public function hasAdminHelperBundleMount(string $containerName): array
         {
             return $this->results[$containerName] ?? [
@@ -84,6 +111,16 @@ function fakeDockerRuntimeService(array $results = []): DockerRuntimeService
             ];
         }
 
+        public function runtimeSourceHash(): string
+        {
+            return 'expected-runtime-hash';
+        }
+
+        public function buildImage(): array
+        {
+            return ['ok' => true, 'output' => 'built', 'error' => ''];
+        }
+
         public function recreateBotContainerForHelperBundle(\App\Models\Bot $bot): array
         {
             $this->recreated[] = $bot->id;
@@ -93,7 +130,7 @@ function fakeDockerRuntimeService(array $results = []): DockerRuntimeService
                 'bot_id' => $bot->id,
                 'container_name' => $bot->container_name,
                 'action' => 'recreated',
-                'reason' => 'bundle mount added',
+                'reason' => 'runtime support updated',
                 'error' => null,
             ];
         }
@@ -112,10 +149,134 @@ function fakeRuntimeReloadProcessLauncher(): RuntimeReloadProcessLauncher
     };
 }
 
-test('publish bundle route queues async runtime reload log', function () {
+function fakeDockerRuntimeInspector(array $inspect): DockerRuntimeService
+{
+    return new class($inspect) extends DockerRuntimeService {
+        public function __construct(private readonly array $inspect) {}
+
+        public function inspectContainer(string $containerName): array
+        {
+            return $this->inspect;
+        }
+
+        public function runtimeSourceHash(): string
+        {
+            return 'expected-runtime-hash';
+        }
+    };
+}
+
+test('runtime Dockerfile includes admin helper loader', function () {
+    $dockerfile = file_get_contents(base_path('runtime-node/Dockerfile'));
+
+    expect($dockerfile)->toContain('server.js')
+        ->and($dockerfile)->toContain('admin-helper-loader.js')
+        ->and($dockerfile)->toContain('ARG BOTHOST_RUNTIME_SOURCE_HASH')
+        ->and($dockerfile)->toContain('LABEL com.bothost.runtime_source_hash');
+});
+
+test('docker runtime support detects old container missing runtime source hash', function () {
+    $docker = fakeDockerRuntimeInspector([
+        'ok' => true,
+        'exists' => true,
+        'running' => true,
+        'mounts' => [[
+            'destination' => '/app/admin-helpers-generated.js',
+            'mode' => 'ro',
+            'rw' => false,
+        ]],
+        'labels' => [],
+        'env' => [],
+        'ports' => ['8787/tcp' => [['HostIp' => '127.0.0.1', 'HostPort' => '41001']]],
+    ]);
+
+    $support = $docker->inspectAdminRuntimeSupport('bothost-bot-old');
+
+    expect($support['ready'])->toBeFalse()
+        ->and($support['helper_loader_supported'])->toBeFalse()
+        ->and($support['reason'])->toBe('missing helper loader support');
+});
+
+test('docker runtime support detects stale runtime source hash', function () {
+    $docker = fakeDockerRuntimeInspector([
+        'ok' => true,
+        'exists' => true,
+        'running' => true,
+        'mounts' => [[
+            'destination' => '/app/admin-helpers-generated.js',
+            'mode' => 'ro',
+            'rw' => false,
+        ]],
+        'labels' => ['com.bothost.runtime_source_hash' => 'old-runtime-hash'],
+        'env' => [],
+        'ports' => ['8787/tcp' => [['HostIp' => '127.0.0.1', 'HostPort' => '41001']]],
+    ]);
+
+    $support = $docker->inspectAdminRuntimeSupport('bothost-bot-stale');
+
+    expect($support['ready'])->toBeFalse()
+        ->and($support['helper_loader_supported'])->toBeTrue()
+        ->and($support['runtime_hash_matches'])->toBeFalse()
+        ->and($support['reason'])->toBe('runtime source hash outdated');
+});
+
+test('docker runtime support skips healthy up to date localhost-only container', function () {
+    $docker = fakeDockerRuntimeInspector([
+        'ok' => true,
+        'exists' => true,
+        'running' => true,
+        'mounts' => [[
+            'destination' => '/app/admin-helpers-generated.js',
+            'mode' => 'ro',
+            'rw' => false,
+        ]],
+        'labels' => ['com.bothost.runtime_source_hash' => 'expected-runtime-hash'],
+        'env' => [],
+        'ports' => ['8787/tcp' => [['HostIp' => '127.0.0.1', 'HostPort' => '41001']]],
+    ]);
+
+    $support = $docker->inspectAdminRuntimeSupport('bothost-bot-ready');
+
+    expect($support['ready'])->toBeTrue()
+        ->and($support['localhost_only'])->toBeTrue()
+        ->and($support['reason'])->toBe('runtime support already up to date');
+});
+
+test('docker runtime support flags non localhost port binding', function () {
+    $docker = fakeDockerRuntimeInspector([
+        'ok' => true,
+        'exists' => true,
+        'running' => true,
+        'mounts' => [[
+            'destination' => '/app/admin-helpers-generated.js',
+            'mode' => 'ro',
+            'rw' => false,
+        ]],
+        'labels' => ['com.bothost.runtime_source_hash' => 'expected-runtime-hash'],
+        'env' => [],
+        'ports' => ['8787/tcp' => [['HostIp' => '0.0.0.0', 'HostPort' => '41001']]],
+    ]);
+
+    $support = $docker->inspectAdminRuntimeSupport('bothost-bot-open');
+
+    expect($support['ready'])->toBeFalse()
+        ->and($support['localhost_only'])->toBeFalse()
+        ->and($support['reason'])->toBe('port binding is not localhost-only');
+});
+
+test('publish bundle route runs publish and returns completed log', function () {
     $admin = User::factory()->create(['role' => 'admin']);
-    $launcher = fakeRuntimeReloadProcessLauncher();
-    app()->instance(RuntimeReloadProcessLauncher::class, $launcher);
+    $helper = runtimeReloadHelperFixture();
+    app()->instance(RuntimeHelperBundleGenerator::class, fakeRuntimeBundleGenerator([
+        'ok' => true,
+        'helpers_total' => 1,
+        'helpers_compiled' => 1,
+        'helpers_skipped' => 0,
+        'compiled' => [['id' => $helper->id, 'name' => $helper->name]],
+        'skipped' => [],
+        'content' => "'use strict';",
+    ]));
+    app()->instance(DockerRuntimeService::class, fakeDockerRuntimeService());
 
     $this->actingAs($admin)->post(route('admin.runtime.reload.publish-bundle'))
         ->assertRedirect()
@@ -124,10 +285,9 @@ test('publish bundle route queues async runtime reload log', function () {
     $log = RuntimeReloadLog::query()->latest()->first();
 
     expect($log)->not->toBeNull()
-        ->and($log->status)->toBe('pending')
-        ->and($log->current_step)->toBe('Queued')
-        ->and($launcher->started)->toHaveCount(1)
-        ->and($launcher->started[0]['options']['publish_bundle'])->toBeTrue();
+        ->and($log->status)->toBe('success')
+        ->and($log->helpers_compiled)->toBe(1)
+        ->and($helper->fresh()->requires_runtime_reload)->toBeFalse();
 });
 
 test('failed publish service marks runtime reload log failed', function () {
@@ -382,7 +542,7 @@ test('runtime reload service docker refresh plan categorizes inspect results', f
         ->and($report['not_found'])->toHaveCount(1)
         ->and($report['unknown'])->toHaveCount(1)
         ->and($report['not_running'])->toHaveCount(0)
-        ->and($report['ready'][0]['reason'])->toBe('bundle mount already present')
+        ->and($report['ready'][0]['reason'])->toBe('runtime support already up to date')
         ->and($report['would_recreate'][0]['reason'])->toBe('bundle mount missing');
 });
 
@@ -689,7 +849,7 @@ test('log detail page renders docker refresh sections', function () {
             'dry_run' => true,
             'bundle_exists' => true,
             'bots_checked' => 2,
-            'ready' => [['bot_id' => 1, 'bot_name' => 'Ready Bot', 'container_name' => 'ready', 'reason' => 'bundle mount already present']],
+            'ready' => [['bot_id' => 1, 'bot_name' => 'Ready Bot', 'container_name' => 'ready', 'reason' => 'runtime support already up to date']],
             'would_recreate' => [['bot_id' => 2, 'bot_name' => 'Needs Bot', 'container_name' => 'needs', 'reason' => 'bundle mount missing']],
             'not_running' => [],
             'not_found' => [],

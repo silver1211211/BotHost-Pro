@@ -225,7 +225,7 @@ class RuntimeHelperController extends Controller
             'category_id' => $helper->category_id,
         ], $request->user(), 'success', $helper);
 
-        return back()->with('status', 'Helper activated. Runtime reload required before bots can use it.');
+        return back()->with('status', 'Helper activated. Publish & Apply Helpers to make it live in bot containers.');
     }
 
     public function deactivate(Request $request, RuntimeHelper $helper): RedirectResponse

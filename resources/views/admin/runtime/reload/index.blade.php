@@ -1,7 +1,7 @@
 <x-admin-layout title="Runtime Helper Bundle" subtitle="Controlled helper bundle publishing.">
 <div class="space-y-5">
     <div class="rounded-2xl border border-[#F59E0B]/30 bg-[#F59E0B]/10 px-4 py-3 text-sm text-[#F59E0B]">
-        This publishes the generated helper bundle only. It does not restart runtime and does not make helpers live until runtime integration is enabled.
+        Publish compiles active helpers into the generated bundle. Apply Runtime To Bots recreates Docker bot containers only when their helper mount or runtime image support is outdated.
     </div>
 
     @if(session('runtime_reload_log_id'))
@@ -68,7 +68,7 @@
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
             <div class="flex items-start justify-between gap-3">
                 <div>
-                    <h2 class="text-sm font-black text-white">Last Live Docker Refresh Result</h2>
+                    <h2 class="text-sm font-black text-white">Last Runtime Apply Result</h2>
                     <p class="mt-1 text-xs text-[#94A3B8]">{{ $lastLiveLog?->created_at?->diffForHumans() ?? 'No live refresh yet' }}</p>
                 </div>
                 @if($lastLiveLog)
@@ -121,11 +121,26 @@
         </div>
     </div>
 
+    <div class="rounded-2xl border border-[#22C55E]/30 bg-[#22C55E]/10 p-4">
+        <div class="grid gap-4 lg:grid-cols-2">
+            <div>
+                <h2 class="text-sm font-black text-[#BBF7D0]">Publish & Apply Helpers</h2>
+                <p class="mt-2 text-sm text-[#86EFAC]">Use this after activating a helper. It publishes the bundle, then recreates only Docker bot containers that need the new runtime helper support.</p>
+            </div>
+            <form method="POST" action="{{ route('admin.runtime.reload.publish-and-apply') }}" class="space-y-3">
+                @csrf
+                <label class="block text-xs font-bold text-[#BBF7D0]" for="confirm_publish_apply">Type PUBLISH_AND_APPLY_HELPERS to confirm</label>
+                <input id="confirm_publish_apply" name="confirm_publish_apply" autocomplete="off" class="w-full rounded-xl border border-[#22C55E]/40 bg-[#090713] px-3 py-2 font-mono text-sm text-white placeholder:text-[#166534]" placeholder="PUBLISH_AND_APPLY_HELPERS">
+                <button class="rounded-xl bg-[#16A34A] px-5 py-2.5 text-sm font-black text-white hover:bg-[#15803D]">Publish & Apply Helpers</button>
+            </form>
+        </div>
+    </div>
+
     <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-3xl">
-                <h2 class="text-sm font-black text-white">Docker Container Refresh Planning</h2>
-                <p class="mt-2 text-sm text-[#A1A1AA]">Existing Docker containers must be recreated once before they can receive the helper bundle bind mount. This dry-run only shows what would happen. It does not stop, remove, or restart any container.</p>
+                <h2 class="text-sm font-black text-white">Runtime Container Refresh Planning</h2>
+                <p class="mt-2 text-sm text-[#A1A1AA]">Dry-run checks bundle mount, helper-loader support, and runtime source hash. It does not stop, remove, or restart any container.</p>
                 @if($lastDryRunLog)
                     <div class="mt-4 rounded-xl border border-[#27213D] bg-[#090713] p-3">
                         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -138,7 +153,7 @@
             </div>
             <form method="POST" action="{{ route('admin.runtime.reload.docker-refresh-plan') }}">
                 @csrf
-                <button class="rounded-xl border border-[#38BDF8]/40 px-5 py-2.5 text-sm font-black text-[#7DD3FC] hover:bg-[#38BDF8]/10">Run Docker Refresh Dry Run</button>
+                <button class="rounded-xl border border-[#38BDF8]/40 px-5 py-2.5 text-sm font-black text-[#7DD3FC] hover:bg-[#38BDF8]/10">Check Runtime Apply Plan</button>
             </form>
         </div>
     </div>
@@ -147,15 +162,15 @@
         <div class="rounded-2xl border border-[#EF4444]/40 bg-[#EF4444]/10 p-4">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="max-w-3xl">
-                    <h2 class="text-sm font-black text-[#FCA5A5]">Live Docker Refresh</h2>
-                    <p class="mt-2 text-sm text-[#FCA5A5]">This will recreate Docker runtime containers that are missing the helper bundle mount. It may cause short downtime for those bots. Run dry-run first.</p>
+                    <h2 class="text-sm font-black text-[#FCA5A5]">Apply Runtime To Bots</h2>
+                    <p class="mt-2 text-sm text-[#FCA5A5]">This recreates Docker runtime containers that are missing the helper bundle mount, missing helper-loader support, or running an old runtime source hash. It may cause short downtime for those bots. Run dry-run first.</p>
                     <p class="mt-2 text-xs font-bold text-[#FECACA]">Latest dry run found {{ $lastDryRunWouldRecreateCount }} container{{ $lastDryRunWouldRecreateCount === 1 ? '' : 's' }} that would be recreated.</p>
                 </div>
                 <form method="POST" action="{{ route('admin.runtime.reload.docker-refresh-live') }}" class="w-full max-w-xl space-y-3">
                     @csrf
                     <label class="block text-xs font-bold text-[#FECACA]" for="confirm_live_refresh">Type YES_RECREATE_DOCKER_CONTAINERS to confirm</label>
                     <input id="confirm_live_refresh" name="confirm_live_refresh" autocomplete="off" class="w-full rounded-xl border border-[#EF4444]/50 bg-[#090713] px-3 py-2 font-mono text-sm text-white placeholder:text-[#7F1D1D]" placeholder="YES_RECREATE_DOCKER_CONTAINERS">
-                    <button class="rounded-xl bg-[#DC2626] px-5 py-2.5 text-sm font-black text-white hover:bg-[#B91C1C]">Run Live Docker Refresh</button>
+                    <button class="rounded-xl bg-[#DC2626] px-5 py-2.5 text-sm font-black text-white hover:bg-[#B91C1C]">Apply Runtime To Bots</button>
                 </form>
             </div>
         </div>

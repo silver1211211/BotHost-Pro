@@ -1,15 +1,20 @@
 FROM node:20-alpine
 
+ARG BOTHOST_RUNTIME_SOURCE_HASH=unknown
+
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
-    PORT=8787
+    PORT=8787 \
+    BOTHOST_RUNTIME_SOURCE_HASH=${BOTHOST_RUNTIME_SOURCE_HASH}
+
+LABEL com.bothost.runtime_source_hash=${BOTHOST_RUNTIME_SOURCE_HASH}
 
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
-COPY server.js ./
+COPY server.js admin-helper-loader.js ./
 
 RUN addgroup -S bothost && adduser -S bothost -G bothost
 USER bothost

@@ -125,39 +125,55 @@ class RuntimeReloadService
                     return;
                 }
 
-                $mount = $this->dockerRuntime->hasAdminHelperBundleMount((string) $bot->container_name);
+                $support = $this->dockerRuntime->inspectAdminRuntimeSupport((string) $bot->container_name);
 
-                if (! ($mount['ok'] ?? false)) {
-                    $unknown[] = $entry + ['status' => 'unknown', 'action' => 'manual_check', 'reason' => 'inspect failed'];
-                    $planned[] = $entry + ['status' => 'unknown', 'action' => 'manual_check', 'reason' => 'inspect failed'];
+                if (! ($support['ok'] ?? false)) {
+                    $unknown[] = $entry + [
+                        'status' => 'unknown',
+                        'action' => 'manual_check',
+                        'reason' => 'inspect failed',
+                        'error' => $support['error'] ?? null,
+                    ];
+                    $planned[] = $entry + [
+                        'status' => 'unknown',
+                        'action' => 'manual_check',
+                        'reason' => 'inspect failed',
+                        'error' => $support['error'] ?? null,
+                    ];
 
                     return;
                 }
 
-                if (! ($mount['exists'] ?? false)) {
+                if (! ($support['exists'] ?? false)) {
                     $notFound[] = $entry + ['status' => 'not_found', 'action' => 'none', 'reason' => 'container not found'];
                     $planned[] = $entry + ['status' => 'not_found', 'action' => 'none', 'reason' => 'container not found'];
 
                     return;
                 }
 
-                if (! ($mount['running'] ?? false)) {
+                if (! ($support['running'] ?? false)) {
                     $notRunning[] = $entry + ['status' => 'not_running', 'action' => 'none', 'reason' => 'container not running'];
                     $planned[] = $entry + ['status' => 'not_running', 'action' => 'none', 'reason' => 'container not running'];
 
                     return;
                 }
 
-                if (($mount['mounted'] ?? false) && ($mount['read_only'] ?? false)) {
-                    $ready[] = $entry + ['status' => 'ready', 'action' => 'none', 'reason' => 'bundle mount already present'];
-                    $planned[] = $entry + ['status' => 'ready', 'action' => 'none', 'reason' => 'bundle mount already present'];
+                $supportContext = [
+                    'runtime_hash_matches' => (bool) ($support['runtime_hash_matches'] ?? false),
+                    'helper_loader_supported' => (bool) ($support['helper_loader_supported'] ?? false),
+                    'localhost_only' => (bool) ($support['localhost_only'] ?? false),
+                ];
+
+                if ($support['ready'] ?? false) {
+                    $ready[] = $entry + $supportContext + ['status' => 'ready', 'action' => 'none', 'reason' => 'runtime support already up to date'];
+                    $planned[] = $entry + $supportContext + ['status' => 'ready', 'action' => 'none', 'reason' => 'runtime support already up to date'];
 
                     return;
                 }
 
-                $reason = ($mount['mounted'] ?? false) ? 'bundle mounted but not read-only' : 'bundle mount missing';
-                $wouldRecreate[] = $entry + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
-                $planned[] = $entry + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
+                $reason = (string) ($support['reason'] ?? 'runtime support outdated');
+                $wouldRecreate[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
+                $planned[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
             });
 
         return [
@@ -165,6 +181,7 @@ class RuntimeReloadService
             'type' => 'docker_refresh',
             'dry_run' => true,
             'bundle_exists' => $bundleExists,
+            'expected_runtime_source_hash' => $this->dockerRuntime->runtimeSourceHash(),
             'bots_checked' => count($planned),
             'ready' => $ready,
             'would_recreate' => $wouldRecreate,
@@ -199,6 +216,53 @@ class RuntimeReloadService
                 ...($plan['unknown'] ?? []),
                 ...($plan['skipped'] ?? []),
             ])->values()->all();
+
+            if ($targets->isNotEmpty()) {
+                $log->forceFill([
+                    'current_step' => 'Building runtime Docker image',
+                    'steps_total' => 6,
+                    'steps_completed' => 3,
+                ])->save();
+
+                $imageBuild = $this->dockerRuntime->buildImage();
+
+                if (! ($imageBuild['ok'] ?? false)) {
+                    $report = [
+                        'ok' => false,
+                        'type' => 'docker_refresh',
+                        'status' => 'failed',
+                        'dry_run' => false,
+                        'bundle_exists' => true,
+                        'expected_runtime_source_hash' => $plan['expected_runtime_source_hash'] ?? null,
+                        'bots_checked' => $plan['bots_checked'] ?? 0,
+                        'recreated' => [],
+                        'failed' => $targets->map(fn (array $target) => $target + [
+                            'action' => 'failed',
+                            'reason' => 'runtime image build failed',
+                            'error' => $imageBuild['error'] ?? 'Runtime image build failed.',
+                        ])->values()->all(),
+                        'skipped' => $skipped,
+                        'ready' => $plan['ready'] ?? [],
+                        'not_running' => $plan['not_running'] ?? [],
+                        'not_found' => $plan['not_found'] ?? [],
+                        'unknown' => $plan['unknown'] ?? [],
+                    ];
+
+                    $log->forceFill([
+                        'status' => 'failed',
+                        'current_step' => 'Runtime image build failed',
+                        'containers_affected' => 0,
+                        'containers_ok' => 0,
+                        'containers_failed' => count($report['failed']),
+                        'output' => $this->jsonSummary($report),
+                        'error' => $imageBuild['error'] ?? 'Runtime image build failed.',
+                        'completed_at' => now(),
+                        'duration_ms' => $log->started_at ? $log->started_at->diffInMilliseconds(now()) : null,
+                    ])->save();
+
+                    return $report;
+                }
+            }
 
             $log->forceFill([
                 'current_step' => 'Recreating required containers',
