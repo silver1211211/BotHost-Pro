@@ -64,7 +64,7 @@ it('blocks direct import of locked paid templates and allows free imports', func
     $this->actingAs($user)
         ->post(route('bots.templates.import', [$bot, $paid]))
         ->assertRedirect()
-        ->assertSessionHasErrors(['template' => 'Please purchase this template before importing.']);
+        ->assertSessionHasErrors(['template' => 'You must unlock or purchase this template before importing.']);
 
     $this->actingAs($user)
         ->post(route('dashboard.templates.unlock-free', $free))
@@ -153,6 +153,45 @@ it('shows only unlocked templates in bot workspace picker with formatted about t
         ->assertDontSee('**bold**');
 });
 
+it('workspace picker matches the completed purchased library instead of all visible templates', function (): void {
+    $user = marketplaceUser(['role' => 'admin']);
+    $bot = marketplaceBot($user);
+    $owned = marketplaceTemplate([
+        'name' => 'Owned Library Template',
+        'slug' => 'owned-library-'.str()->random(8),
+    ]);
+    $visibleButUnowned = marketplaceTemplate([
+        'name' => 'Visible But Not Owned Template',
+        'slug' => 'visible-but-not-owned-'.str()->random(8),
+    ]);
+
+    $owned->purchases()->create([
+        'user_id' => $user->id,
+        'amount' => '5.00',
+        'currency' => 'USD',
+        'status' => 'completed',
+        'purchased_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard.templates.purchased'))
+        ->assertOk()
+        ->assertSee('Owned Library Template')
+        ->assertDontSee('Visible But Not Owned Template');
+
+    $this->actingAs($user)
+        ->get(route('bots.templates.index', $bot))
+        ->assertOk()
+        ->assertSee('Owned Library Template')
+        ->assertSee('Downloaded')
+        ->assertDontSee('Visible But Not Owned Template');
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $visibleButUnowned]), ['conflict_strategy' => 'skip'])
+        ->assertRedirect()
+        ->assertSessionHasErrors(['template' => 'You must unlock or purchase this template before importing.']);
+});
+
 it('does not show plan included templates in bot workspace picker until they are downloaded', function (): void {
     $user = marketplaceUser(['subscription_plan' => 'business']);
     $bot = marketplaceBot($user);
@@ -191,7 +230,7 @@ it('queues purchase recheck and still blocks imports without completed library o
     $this->actingAs($user)
         ->post(route('bots.templates.import', [$bot, $template]))
         ->assertRedirect()
-        ->assertSessionHasErrors(['template' => 'Please purchase this template before importing.']);
+        ->assertSessionHasErrors(['template' => 'You must unlock or purchase this template before importing.']);
 
     Queue::assertPushed(RecheckBotTemplatePurchase::class, fn (RecheckBotTemplatePurchase $job) => $job->userId === $user->id
         && $job->templateId === $template->id);

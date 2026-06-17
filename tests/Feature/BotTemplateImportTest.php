@@ -509,7 +509,7 @@ it('blocks manual bot workspace imports for locked templates', function (): void
             'conflict_strategy' => 'skip',
         ])
         ->assertRedirect()
-        ->assertSessionHasErrors(['template' => 'Please purchase this template before importing.']);
+        ->assertSessionHasErrors(['template' => 'You must unlock or purchase this template before importing.']);
 
     expect($bot->commands()->count())->toBe(0);
 });

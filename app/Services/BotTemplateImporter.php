@@ -35,7 +35,7 @@ class BotTemplateImporter
     {
         if (! $template->canBeImportedBy($user)) {
             throw ValidationException::withMessages([
-                'template' => 'Please purchase this template before importing.',
+                'template' => 'You must unlock or purchase this template before importing.',
             ]);
         }
 

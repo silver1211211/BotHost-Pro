@@ -46,17 +46,13 @@ class BotTemplateImportController extends Controller
 
     private function unlockedTemplatesQuery($user)
     {
+        $ownedTemplateIds = $user->templatePurchases()
+            ->where('status', 'completed')
+            ->select('bot_template_id');
+
         return BotTemplate::query()
             ->where('status', 'published')
-            ->where(function ($query) use ($user): void {
-                if ($user?->isAdmin()) {
-                    return;
-                }
-
-                $query->whereHas('purchases', fn ($purchaseQuery) => $purchaseQuery
-                    ->where('user_id', $user->id)
-                    ->where('status', 'completed'));
-            })
+            ->whereIn('id', $ownedTemplateIds)
             ->whereIn('marketplace_status', ['listed', 'featured']);
     }
 
@@ -83,7 +79,7 @@ class BotTemplateImportController extends Controller
         RecheckBotTemplatePurchase::dispatch($request->user()->id, $template->id);
 
         if (! $template->canBeImportedBy($request->user())) {
-            return back()->withErrors(['template' => 'Please purchase this template before importing.']);
+            return back()->withErrors(['template' => 'You must unlock or purchase this template before importing.']);
         }
 
         $data = $request->validate([

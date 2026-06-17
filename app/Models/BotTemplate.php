@@ -121,8 +121,7 @@ class BotTemplate extends Model
             return false;
         }
 
-        return $user?->isAdmin()
-            || $this->isPurchasedBy($user);
+        return $this->isPurchasedBy($user);
     }
 
     public function isIncludedFor(?User $user): bool
