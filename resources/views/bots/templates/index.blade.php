@@ -3,12 +3,12 @@
         <a href="{{ route('bots.show', ['bot' => $bot, 'tab' => 'commands']) }}" class="text-sm text-[#A1A1AA]">Back to {{ $bot->name }}</a>
 
         <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-            <h1 class="text-2xl font-black text-[#F8FAFC]">Use Template</h1>
-            <p class="mt-1 text-sm text-[#94A3B8]">Choose a template you already own and import it into {{ $bot->name }}.</p>
+            <h1 class="text-2xl font-black text-[#F8FAFC]">My Downloaded Templates</h1>
+            <p class="mt-1 text-sm text-[#94A3B8]">Only templates already unlocked or purchased in your library can be imported into {{ $bot->name }}.</p>
         </div>
 
         <form method="GET" class="grid gap-3 rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4 md:grid-cols-4">
-            <input name="search" value="{{ request('search') }}" placeholder="Search unlocked templates" class="rounded-xl border border-[#27213D] bg-[#11101C] p-3 text-sm text-white placeholder:text-[#4D4868]">
+            <input name="search" value="{{ request('search') }}" placeholder="Search downloaded templates" class="rounded-xl border border-[#27213D] bg-[#11101C] p-3 text-sm text-white placeholder:text-[#4D4868]">
             <select name="category" class="rounded-xl border border-[#27213D] bg-[#11101C] p-3 text-sm text-[#A1A1AA]">
                 <option value="">All categories</option>
                 @foreach ($categories as $category)
@@ -26,6 +26,7 @@
 
         <div class="grid gap-4 md:grid-cols-2">
             @forelse ($templates as $template)
+                @php($about = $template->short_description ?: $template->description)
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-4" x-data="{ open: false }">
                     <div class="relative mb-3 w-full overflow-hidden rounded-xl" style="aspect-ratio:16/9">
                         @if($template->thumbnail_url)
@@ -43,12 +44,15 @@
                             <h2 class="text-base font-black text-[#F8FAFC]">{{ $template->name }}</h2>
                             <p class="mt-1 text-xs text-[#94A3B8]">{{ $template->commands_count }} commands · {{ $template->category ?: 'General' }} · {{ ucfirst($template->level) }}</p>
                         </div>
-                        <span class="shrink-0 rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2 py-1 text-[10px] font-black text-[#22C55E]">Unlocked</span>
+                        <span class="shrink-0 rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2 py-1 text-[10px] font-black text-[#22C55E]">Downloaded</span>
                     </div>
 
-                    @if($template->short_description || $template->description)
-                        <div class="mt-3 rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3 text-sm text-[#A1A1AA] [&_strong]:font-bold [&_strong]:text-white">
-                            {!! \App\Support\SafeTemplateText::inline($template->short_description ?: $template->description) !!}
+                    @if($about)
+                        <div class="mt-3 rounded-xl border border-[#27213D] bg-[#090713] px-3 py-3">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[#7E7AA0]">About</p>
+                            <div class="mt-2 text-sm leading-6 text-[#A1A1AA] [&_strong]:font-bold [&_strong]:text-white">
+                                {!! \App\Support\SafeTemplateText::inline($about) !!}
+                            </div>
                         </div>
                     @endif
 
@@ -78,8 +82,8 @@
                 </div>
             @empty
                 <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-8 text-center md:col-span-2">
-                    <p class="text-lg font-black text-[#F8FAFC]">No unlocked templates yet</p>
-                    <p class="mt-2 text-sm text-[#94A3B8]">Visit Marketplace to unlock templates first.</p>
+                    <p class="text-lg font-black text-[#F8FAFC]">No downloaded templates yet</p>
+                    <p class="mt-2 text-sm text-[#94A3B8]">Visit Marketplace to unlock or purchase templates first.</p>
                     <a href="{{ route('dashboard.templates.index') }}" class="mt-4 inline-flex rounded-xl bg-[#8B5CF6] px-5 py-3 text-sm font-black text-white transition hover:bg-[#7C3AED]">Visit Marketplace</a>
                 </div>
             @endforelse

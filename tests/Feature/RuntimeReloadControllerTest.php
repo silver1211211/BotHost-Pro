@@ -94,7 +94,7 @@ function fakeDockerRuntimeService(array $results = []): DockerRuntimeService
                 'running' => true,
                 'mounted' => false,
                 'read_only' => false,
-                'reason' => 'bundle mount missing',
+                'reason' => 'helper bundle mount missing',
                 'error' => null,
             ];
 
@@ -106,7 +106,7 @@ function fakeDockerRuntimeService(array $results = []): DockerRuntimeService
             $helperBundleHashMatches = $result['helper_bundle_hash_matches'] ?? ($helperBundleHash === 'expected-helper-hash');
 
             return $result + [
-                'ready' => $mounted && $readOnly && $helperLoaderSupported && $runtimeHashMatches && (! is_string($helperBundleHash) || $helperBundleHashMatches) && (bool) ($result['localhost_only'] ?? true),
+                'ready' => $mounted && $readOnly && $helperLoaderSupported && $runtimeHashMatches && is_string($helperBundleHash) && $helperBundleHashMatches && (bool) ($result['localhost_only'] ?? true),
                 'runtime_hash' => $runtimeHashMatches ? $this->runtimeSourceHash() : null,
                 'expected_runtime_hash' => $this->runtimeSourceHash(),
                 'runtime_hash_matches' => $runtimeHashMatches,
@@ -126,7 +126,7 @@ function fakeDockerRuntimeService(array $results = []): DockerRuntimeService
                 'running' => true,
                 'mounted' => false,
                 'read_only' => false,
-                'reason' => 'bundle mount missing',
+                'reason' => 'helper bundle mount missing',
                 'error' => null,
             ];
         }
@@ -224,7 +224,7 @@ test('docker runtime support detects old container missing runtime source hash',
 
     expect($support['ready'])->toBeFalse()
         ->and($support['helper_loader_supported'])->toBeFalse()
-        ->and($support['reason'])->toBe('missing helper loader support');
+        ->and($support['reason'])->toBe('helper loader missing');
 });
 
 test('docker runtime support detects stale runtime source hash', function () {
@@ -247,7 +247,7 @@ test('docker runtime support detects stale runtime source hash', function () {
     expect($support['ready'])->toBeFalse()
         ->and($support['helper_loader_supported'])->toBeTrue()
         ->and($support['runtime_hash_matches'])->toBeFalse()
-        ->and($support['reason'])->toBe('runtime source hash outdated');
+        ->and($support['reason'])->toBe('runtime source hash mismatch');
 });
 
 test('docker runtime support detects stale helper bundle hash', function () {
@@ -272,7 +272,30 @@ test('docker runtime support detects stale helper bundle hash', function () {
 
     expect($support['ready'])->toBeFalse()
         ->and($support['helper_bundle_hash_matches'])->toBeFalse()
-        ->and($support['reason'])->toBe('helper bundle hash outdated');
+        ->and($support['reason'])->toBe('helper bundle hash mismatch');
+});
+
+test('docker runtime support detects missing helper bundle hash metadata', function () {
+    $docker = fakeDockerRuntimeInspector([
+        'ok' => true,
+        'exists' => true,
+        'running' => true,
+        'mounts' => [[
+            'destination' => '/app/admin-helpers-generated.js',
+            'mode' => 'ro',
+            'rw' => false,
+        ]],
+        'labels' => ['com.bothost.runtime_source_hash' => 'expected-runtime-hash'],
+        'env' => [],
+        'ports' => ['8787/tcp' => [['HostIp' => '127.0.0.1', 'HostPort' => '41001']]],
+    ]);
+
+    $support = $docker->inspectAdminRuntimeSupport('bothost-bot-missing-helper-hash');
+
+    expect($support['ready'])->toBeFalse()
+        ->and($support['helper_bundle_hash'])->toBeNull()
+        ->and($support['helper_bundle_hash_matches'])->toBeFalse()
+        ->and($support['reason'])->toBe('helper bundle hash missing');
 });
 
 test('docker runtime support skips healthy up to date localhost-only container', function () {
@@ -285,7 +308,10 @@ test('docker runtime support skips healthy up to date localhost-only container',
             'mode' => 'ro',
             'rw' => false,
         ]],
-        'labels' => ['com.bothost.runtime_source_hash' => 'expected-runtime-hash'],
+        'labels' => [
+            'com.bothost.runtime_source_hash' => 'expected-runtime-hash',
+            'com.bothost.helper_bundle_hash' => 'expected-helper-hash',
+        ],
         'env' => ['BOTHOST_HELPER_BUNDLE_HASH=expected-helper-hash'],
         'ports' => ['8787/tcp' => [['HostIp' => '127.0.0.1', 'HostPort' => '41001']]],
     ]);
@@ -354,7 +380,7 @@ test('helper bundle hash change causes docker refresh to recreate affected conta
     expect($report['ok'])->toBeTrue()
         ->and($report['helper_bundle_changed'])->toBeTrue()
         ->and($report['recreated'])->toHaveCount(1)
-        ->and($report['recreated'][0]['reason'])->toBe('helper bundle hash outdated')
+        ->and($report['recreated'][0]['reason'])->toBe('helper bundle hash mismatch')
         ->and($docker->recreated)->toHaveCount(1);
 });
 
@@ -419,6 +445,195 @@ test('unchanged helper bundle does not recreate hash-metadata-only ready contain
         ->and($docker->recreated)->toBe([]);
 });
 
+test('container with null helper bundle hash is planned for recreate even when bundle is unchanged', function () {
+    $user = User::factory()->create();
+    $bundlePath = storage_path('framework/testing/admin-helpers-generated.js');
+    if (! is_dir(dirname($bundlePath))) {
+        mkdir(dirname($bundlePath), 0755, true);
+    }
+    file_put_contents($bundlePath, "'use strict';");
+
+    \App\Models\Bot::query()->create([
+        'user_id' => $user->id,
+        'name' => 'Missing Helper Hash Bot',
+        'slug' => 'missing-helper-hash-bot',
+        'token_encrypted' => '123456:MISSINGHASH',
+        'status' => 'running',
+        'runtime_mode' => 'docker',
+        'container_name' => 'bothost-bot-missing-helper-hash',
+        'container_status' => 'running',
+        'runtime_http_port' => 45103,
+    ]);
+
+    $service = new RuntimeReloadService(fakeRuntimeBundleGenerator([
+        'ok' => true,
+        'helpers_total' => 0,
+        'helpers_compiled' => 0,
+        'helpers_skipped' => 0,
+        'compiled' => [],
+        'skipped' => [],
+    ]), fakeDockerRuntimeService([
+        'bothost-bot-missing-helper-hash' => [
+            'ok' => true,
+            'exists' => true,
+            'running' => true,
+            'mounted' => true,
+            'read_only' => true,
+            'runtime_hash_matches' => true,
+            'helper_loader_supported' => true,
+            'localhost_only' => true,
+            'helper_bundle_hash' => null,
+            'helper_bundle_hash_matches' => false,
+            'ready' => true,
+            'reason' => 'runtime support already up to date',
+            'error' => null,
+        ],
+    ]));
+
+    $log = RuntimeReloadLog::query()->create([
+        'trigger_type' => 'docker_refresh_dry_run',
+        'status' => 'running',
+        'mode' => 'docker',
+    ]);
+
+    $report = $service->planDockerRefresh($log, false, 'expected-helper-hash');
+
+    expect($report['ready'])->toHaveCount(0)
+        ->and($report['would_recreate'])->toHaveCount(1)
+        ->and($report['would_recreate'][0]['helper_bundle_hash'])->toBeNull()
+        ->and($report['would_recreate'][0]['helper_bundle_hash_matches'])->toBeFalse()
+        ->and($report['would_recreate'][0]['action'])->toBe('would_recreate')
+        ->and($report['would_recreate'][0]['reason'])->toBe('helper bundle hash missing');
+
+    expect(collect($report['planned'])->contains(fn (array $row) => ($row['helper_bundle_hash_matches'] ?? null) === false
+        && ($row['action'] ?? null) === 'none'
+        && ($row['reason'] ?? null) === 'runtime support already up to date'))->toBeFalse();
+});
+
+test('container with mismatched helper bundle hash is planned for recreate even when bundle is unchanged', function () {
+    $user = User::factory()->create();
+    $bundlePath = storage_path('framework/testing/admin-helpers-generated.js');
+    if (! is_dir(dirname($bundlePath))) {
+        mkdir(dirname($bundlePath), 0755, true);
+    }
+    file_put_contents($bundlePath, "'use strict';");
+
+    \App\Models\Bot::query()->create([
+        'user_id' => $user->id,
+        'name' => 'Mismatch Helper Hash Bot',
+        'slug' => 'mismatch-helper-hash-bot',
+        'token_encrypted' => '123456:MISMATCHHASH',
+        'status' => 'running',
+        'runtime_mode' => 'docker',
+        'container_name' => 'bothost-bot-mismatch-helper-hash',
+        'container_status' => 'running',
+        'runtime_http_port' => 45104,
+    ]);
+
+    $service = new RuntimeReloadService(fakeRuntimeBundleGenerator([
+        'ok' => true,
+        'helpers_total' => 0,
+        'helpers_compiled' => 0,
+        'helpers_skipped' => 0,
+        'compiled' => [],
+        'skipped' => [],
+    ]), fakeDockerRuntimeService([
+        'bothost-bot-mismatch-helper-hash' => [
+            'ok' => true,
+            'exists' => true,
+            'running' => true,
+            'mounted' => true,
+            'read_only' => true,
+            'runtime_hash_matches' => true,
+            'helper_loader_supported' => true,
+            'localhost_only' => true,
+            'helper_bundle_hash' => 'old-helper-hash',
+            'helper_bundle_hash_matches' => false,
+            'ready' => true,
+            'reason' => 'runtime support already up to date',
+            'error' => null,
+        ],
+    ]));
+
+    $log = RuntimeReloadLog::query()->create([
+        'trigger_type' => 'docker_refresh_dry_run',
+        'status' => 'running',
+        'mode' => 'docker',
+    ]);
+
+    $report = $service->planDockerRefresh($log, false, 'expected-helper-hash');
+
+    expect($report['ready'])->toHaveCount(0)
+        ->and($report['would_recreate'])->toHaveCount(1)
+        ->and($report['would_recreate'][0]['helper_bundle_hash'])->toBe('old-helper-hash')
+        ->and($report['would_recreate'][0]['helper_bundle_hash_matches'])->toBeFalse()
+        ->and($report['would_recreate'][0]['action'])->toBe('would_recreate')
+        ->and($report['would_recreate'][0]['reason'])->toBe('helper bundle hash mismatch');
+
+    expect(collect($report['planned'])->contains(fn (array $row) => ($row['helper_bundle_hash_matches'] ?? null) === false
+        && ($row['action'] ?? null) === 'none'
+        && ($row['reason'] ?? null) === 'runtime support already up to date'))->toBeFalse();
+});
+
+test('container with matching helper bundle hash is ready and does not recreate', function () {
+    $user = User::factory()->create();
+    $bundlePath = storage_path('framework/testing/admin-helpers-generated.js');
+    if (! is_dir(dirname($bundlePath))) {
+        mkdir(dirname($bundlePath), 0755, true);
+    }
+    file_put_contents($bundlePath, "'use strict';");
+
+    \App\Models\Bot::query()->create([
+        'user_id' => $user->id,
+        'name' => 'Matching Helper Hash Bot',
+        'slug' => 'matching-helper-hash-bot',
+        'token_encrypted' => '123456:MATCHINGHASH',
+        'status' => 'running',
+        'runtime_mode' => 'docker',
+        'container_name' => 'bothost-bot-matching-helper-hash',
+        'container_status' => 'running',
+        'runtime_http_port' => 45105,
+    ]);
+
+    $service = new RuntimeReloadService(fakeRuntimeBundleGenerator([
+        'ok' => true,
+        'helpers_total' => 0,
+        'helpers_compiled' => 0,
+        'helpers_skipped' => 0,
+        'compiled' => [],
+        'skipped' => [],
+    ]), fakeDockerRuntimeService([
+        'bothost-bot-matching-helper-hash' => [
+            'ok' => true,
+            'exists' => true,
+            'running' => true,
+            'mounted' => true,
+            'read_only' => true,
+            'runtime_hash_matches' => true,
+            'helper_loader_supported' => true,
+            'localhost_only' => true,
+            'helper_bundle_hash' => 'expected-helper-hash',
+            'helper_bundle_hash_matches' => true,
+            'reason' => 'runtime support already up to date',
+            'error' => null,
+        ],
+    ]));
+
+    $log = RuntimeReloadLog::query()->create([
+        'trigger_type' => 'docker_refresh_dry_run',
+        'status' => 'running',
+        'mode' => 'docker',
+    ]);
+
+    $report = $service->planDockerRefresh($log, false, 'expected-helper-hash');
+
+    expect($report['ready'])->toHaveCount(1)
+        ->and($report['would_recreate'])->toHaveCount(0)
+        ->and($report['ready'][0]['helper_bundle_hash_matches'])->toBeTrue()
+        ->and($report['ready'][0]['action'])->toBe('none')
+        ->and($report['ready'][0]['reason'])->toBe('runtime support already up to date');
+});
+
 test('docker runtime support flags non localhost port binding', function () {
     $docker = fakeDockerRuntimeInspector([
         'ok' => true,
@@ -429,7 +644,10 @@ test('docker runtime support flags non localhost port binding', function () {
             'mode' => 'ro',
             'rw' => false,
         ]],
-        'labels' => ['com.bothost.runtime_source_hash' => 'expected-runtime-hash'],
+        'labels' => [
+            'com.bothost.runtime_source_hash' => 'expected-runtime-hash',
+            'com.bothost.helper_bundle_hash' => 'expected-helper-hash',
+        ],
         'env' => [],
         'ports' => ['8787/tcp' => [['HostIp' => '0.0.0.0', 'HostPort' => '41001']]],
     ]);
@@ -438,7 +656,7 @@ test('docker runtime support flags non localhost port binding', function () {
 
     expect($support['ready'])->toBeFalse()
         ->and($support['localhost_only'])->toBeFalse()
-        ->and($support['reason'])->toBe('port binding is not localhost-only');
+        ->and($support['reason'])->toBe('unsafe/public port binding');
 });
 
 test('publish bundle route runs publish and returns completed log', function () {
@@ -725,6 +943,8 @@ test('runtime reload service docker refresh plan categorizes inspect results', f
             'running' => true,
             'mounted' => true,
             'read_only' => true,
+            'helper_bundle_hash' => 'expected-helper-hash',
+            'helper_bundle_hash_matches' => true,
             'reason' => 'bundle mount present',
             'error' => null,
         ],
@@ -734,7 +954,7 @@ test('runtime reload service docker refresh plan categorizes inspect results', f
             'running' => true,
             'mounted' => false,
             'read_only' => false,
-            'reason' => 'bundle mount missing',
+            'reason' => 'helper bundle mount missing',
             'error' => null,
         ],
         'bothost-bot-gone' => [
@@ -757,7 +977,7 @@ test('runtime reload service docker refresh plan categorizes inspect results', f
         ],
     ]));
 
-    $report = $service->planDockerRefresh($log);
+    $report = $service->planDockerRefresh($log, false, 'expected-helper-hash');
 
     expect($report['ready'])->toHaveCount(1)
         ->and($report['would_recreate'])->toHaveCount(1)
@@ -765,7 +985,7 @@ test('runtime reload service docker refresh plan categorizes inspect results', f
         ->and($report['unknown'])->toHaveCount(1)
         ->and($report['not_running'])->toHaveCount(0)
         ->and($report['ready'][0]['reason'])->toBe('runtime support already up to date')
-        ->and($report['would_recreate'][0]['reason'])->toBe('bundle mount missing');
+        ->and($report['would_recreate'][0]['reason'])->toBe('helper bundle mount missing');
 });
 
 test('runtime reload service docker refresh plan categorizes not running containers', function () {
@@ -919,6 +1139,8 @@ test('runtime reload service live refresh recreates only planned containers', fu
             'running' => true,
             'mounted' => true,
             'read_only' => true,
+            'helper_bundle_hash' => 'expected-helper-hash',
+            'helper_bundle_hash_matches' => true,
             'reason' => 'bundle mount present',
             'error' => null,
         ],
@@ -928,7 +1150,7 @@ test('runtime reload service live refresh recreates only planned containers', fu
             'running' => true,
             'mounted' => false,
             'read_only' => false,
-            'reason' => 'bundle mount missing',
+            'reason' => 'helper bundle mount missing',
             'error' => null,
         ],
         'bothost-live-stopped' => [
@@ -975,7 +1197,7 @@ test('runtime reload service live refresh recreates only planned containers', fu
         'started_at' => now(),
     ]);
 
-    $report = $service->refreshDockerContainers($log, false, true);
+    $report = $service->refreshDockerContainers($log, false, true, false, 'expected-helper-hash');
 
     expect($report['ok'])->toBeTrue()
         ->and($report['type'])->toBe('docker_refresh')
@@ -1072,7 +1294,7 @@ test('log detail page renders docker refresh sections', function () {
             'bundle_exists' => true,
             'bots_checked' => 2,
             'ready' => [['bot_id' => 1, 'bot_name' => 'Ready Bot', 'container_name' => 'ready', 'reason' => 'runtime support already up to date']],
-            'would_recreate' => [['bot_id' => 2, 'bot_name' => 'Needs Bot', 'container_name' => 'needs', 'reason' => 'bundle mount missing']],
+            'would_recreate' => [['bot_id' => 2, 'bot_name' => 'Needs Bot', 'container_name' => 'needs', 'reason' => 'helper bundle mount missing']],
             'not_running' => [],
             'not_found' => [],
             'unknown' => [],
@@ -1182,7 +1404,7 @@ test('export text returns downloadable safe report', function () {
         'output' => json_encode([
             'type' => 'docker_refresh',
             'dry_run' => true,
-            'would_recreate' => [['bot_id' => 4, 'bot_name' => 'Bot Four', 'container_name' => 'bothost-bot-4', 'reason' => 'bundle mount missing']],
+            'would_recreate' => [['bot_id' => 4, 'bot_name' => 'Bot Four', 'container_name' => 'bothost-bot-4', 'reason' => 'helper bundle mount missing']],
         ]),
     ]);
 

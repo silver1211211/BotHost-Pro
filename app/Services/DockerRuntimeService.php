@@ -737,20 +737,26 @@ class DockerRuntimeService
             && hash_equals($expectedHelperHash, $containerHelperHash);
         $helperLoaderSupported = is_string($containerHash) && $containerHash !== '';
         $localhostOnly = $this->hasLocalhostOnlyPortBinding($inspect);
+        $helperHashMissing = is_string($expectedHelperHash) && ! is_string($containerHelperHash);
+        $helperHashMismatch = is_string($expectedHelperHash)
+            && is_string($containerHelperHash)
+            && ! $helperHashMatches;
         $reason = 'runtime support already up to date';
 
         if (! $mounted) {
-            $reason = 'bundle mount missing';
+            $reason = 'helper bundle mount missing';
         } elseif (! $readOnly) {
-            $reason = 'bundle mounted but not read-only';
+            $reason = 'helper bundle mount not read-only';
         } elseif (! $helperLoaderSupported) {
-            $reason = 'missing helper loader support';
+            $reason = 'helper loader missing';
         } elseif (! $hashMatches) {
-            $reason = 'runtime source hash outdated';
-        } elseif (is_string($containerHelperHash) && ! $helperHashMatches) {
-            $reason = 'helper bundle hash outdated';
+            $reason = 'runtime source hash mismatch';
+        } elseif ($helperHashMissing) {
+            $reason = 'helper bundle hash missing';
+        } elseif ($helperHashMismatch) {
+            $reason = 'helper bundle hash mismatch';
         } elseif (! $localhostOnly) {
-            $reason = 'port binding is not localhost-only';
+            $reason = 'unsafe/public port binding';
         }
 
         return [
@@ -763,7 +769,8 @@ class DockerRuntimeService
                 && $readOnly
                 && $helperLoaderSupported
                 && $hashMatches
-                && (! is_string($containerHelperHash) || $helperHashMatches)
+                && ! $helperHashMissing
+                && ! $helperHashMismatch
                 && $localhostOnly,
             'runtime_hash' => $containerHash,
             'expected_runtime_hash' => $expectedHash,

@@ -526,11 +526,11 @@
         {{-- Footer --}}
         <footer class="shrink-0 border-t border-[#1B172B]/60 px-4 py-4 sm:px-6">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <p class="text-[11px] text-[#6B6890]">{{ $branding['footer_text'] }}</p>
-                <div class="flex items-center gap-4 text-[11px] text-[#6B6890]">
-                    <a href="{{ route('legal.privacy') }}" class="transition hover:text-[#94A3B8]">Privacy</a>
-                    <a href="{{ route('legal.terms') }}" class="transition hover:text-[#94A3B8]">Terms</a>
-                    <a href="{{ route('support.index') }}" class="transition hover:text-[#94A3B8]">Support</a>
+                <p class="text-[11px] text-[#8D89B0]">{{ $branding['footer_text'] }}</p>
+                <div class="flex items-center gap-4 text-[11px] text-[#B4AFDB]">
+                    <a href="{{ route('legal.privacy') }}" class="transition-colors duration-200 hover:text-[#C4B5FD]">Privacy</a>
+                    <a href="{{ route('legal.terms') }}" class="transition-colors duration-200 hover:text-[#C4B5FD]">Terms</a>
+                    <a href="{{ route('support.index') }}" class="transition-colors duration-200 hover:text-[#C4B5FD]">Support</a>
                 </div>
             </div>
         </footer>

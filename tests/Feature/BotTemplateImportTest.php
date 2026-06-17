@@ -397,7 +397,7 @@ it('shows only unlocked templates in the bot workspace template picker', functio
     $this->actingAs($user)
         ->get(route('bots.templates.index', $bot))
         ->assertOk()
-        ->assertSee('My Unlocked Templates')
+        ->assertSee('My Downloaded Templates')
         ->assertSee('Unlocked Workspace Template')
         ->assertSee('Import into this bot')
         ->assertDontSee('Locked Marketplace Template');
@@ -410,8 +410,8 @@ it('shows an empty state when the bot workspace has no unlocked templates', func
     $this->actingAs($user)
         ->get(route('bots.templates.index', $bot))
         ->assertOk()
-        ->assertSee('No unlocked templates yet')
-        ->assertSee('Visit Marketplace to unlock templates first')
+        ->assertSee('No downloaded templates yet')
+        ->assertSee('Visit Marketplace to unlock or purchase templates first')
         ->assertSee(route('dashboard.templates.index'), false);
 });
 

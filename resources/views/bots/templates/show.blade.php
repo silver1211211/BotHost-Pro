@@ -9,19 +9,48 @@
             <div class="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/10 p-3 text-sm text-[#F59E0B]">{{ session('status') }}</div>
         @endif
 
-        <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
-            @if($template->thumbnail_url)<img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="mb-5 max-h-72 w-full rounded-xl object-cover">@else<div class="mb-5 flex h-60 w-full items-center justify-center rounded-xl border border-[#27213D] bg-[#11101C] text-sm text-[#94A3B8]">No image</div>@endif
-            <h1 class="text-2xl font-black text-[#F8FAFC]">{{ $template->name }}</h1>
-            <p class="mt-2 text-sm font-bold text-[#A1A1AA]">{{ $template->short_description }}</p>
-            <p class="mt-2 text-sm text-[#A1A1AA]">{{ $template->description }}</p>
-            <div class="mt-3 flex flex-wrap gap-2 text-xs text-[#94A3B8]">
-                <span>{{ $template->category ?: 'General' }}</span>
-                <span>{{ ucfirst($template->level) }}</span>
-                <span>{{ $template->commands_count }} commands</span>
-                <span>{{ $template->formatted_price }}</span>
-                @if($template->includedPlanLabel())<span>{{ $template->includedPlanLabel() }}</span>@endif
+        <div class="overflow-hidden rounded-2xl border border-[#27213D] bg-[#0F0D1A]">
+            <div class="relative w-full overflow-hidden" style="aspect-ratio:16/7">
+                @if($template->thumbnail_url)
+                    <img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="absolute inset-0 h-full w-full object-cover"
+                         onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    <div class="absolute inset-0 items-center justify-center bg-[#11101C] text-sm text-[#94A3B8]" style="display:none">No image</div>
+                @else
+                    <div class="flex h-full w-full items-center justify-center bg-[#11101C] text-sm text-[#94A3B8]">No image</div>
+                @endif
             </div>
-            @if($template->demo_url)<a href="{{ $template->demo_url }}" class="mt-3 inline-block rounded-xl border border-[#27213D] px-4 py-2 text-sm font-bold" rel="noopener">View Demo Bot</a>@endif
+            <div class="space-y-5 p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <h1 class="text-2xl font-black text-[#F8FAFC]">{{ $template->name }}</h1>
+                        @if($template->short_description)
+                            <p class="mt-2 max-w-3xl text-sm font-bold leading-6 text-[#D4D4D8]">{!! \App\Support\SafeTemplateText::inline($template->short_description) !!}</p>
+                        @endif
+                    </div>
+                    <span class="rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-3 py-1 text-xs font-black text-[#22C55E]">Downloaded</span>
+                </div>
+
+                @if($template->description)
+                    <div class="rounded-xl border border-[#27213D] bg-[#090713] p-4">
+                        <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[#7E7AA0]">About</p>
+                        <div class="mt-3 space-y-3 text-sm leading-7 text-[#A1A1AA] [&_strong]:font-bold [&_strong]:text-white">
+                            {!! \App\Support\SafeTemplateText::paragraphs($template->description) !!}
+                        </div>
+                    </div>
+                @endif
+
+                <div class="flex flex-wrap gap-2 text-xs font-bold text-[#94A3B8]">
+                    <span class="rounded-lg border border-[#27213D] bg-[#151225] px-2.5 py-1.5">{{ $template->category ?: 'General' }}</span>
+                    <span class="rounded-lg border border-[#27213D] bg-[#151225] px-2.5 py-1.5">{{ ucfirst($template->level) }}</span>
+                    <span class="rounded-lg border border-[#27213D] bg-[#151225] px-2.5 py-1.5">{{ $template->commands_count }} commands</span>
+                    @if($template->isPaid())<span class="rounded-lg border border-[#27213D] bg-[#151225] px-2.5 py-1.5">{{ $template->formatted_price }}</span>@endif
+                    @if($template->includedPlanLabel())<span class="rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-2.5 py-1.5 text-[#C4B5FD]">{{ $template->includedPlanLabel() }}</span>@endif
+                </div>
+
+                @if($template->demo_url)
+                    <a href="{{ $template->demo_url }}" class="inline-flex rounded-xl border border-[#27213D] px-4 py-2 text-sm font-bold text-[#A1A1AA] transition hover:text-white" rel="noopener noreferrer" target="_blank">View Demo Bot</a>
+                @endif
+            </div>
         </div>
 
         @if($conflicts !== [])

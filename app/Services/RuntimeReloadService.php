@@ -166,18 +166,38 @@ class RuntimeReloadService
                     'helper_bundle_hash_matches' => (bool) ($support['helper_bundle_hash_matches'] ?? false),
                     'helper_loader_supported' => (bool) ($support['helper_loader_supported'] ?? false),
                     'localhost_only' => (bool) ($support['localhost_only'] ?? false),
+                    'mounted' => (bool) ($support['mounted'] ?? false),
+                    'read_only' => (bool) ($support['read_only'] ?? false),
                 ];
 
                 $containerHelperHash = $support['helper_bundle_hash'] ?? null;
+                $helperHashMissing = is_string($expectedHelperBundleHash) && ! is_string($containerHelperHash);
                 $helperHashMismatch = is_string($expectedHelperBundleHash)
                     && is_string($containerHelperHash)
                     && ! hash_equals($expectedHelperBundleHash, $containerHelperHash);
-                $helperHashMissingAfterChange = $helperBundleChanged === true && is_string($expectedHelperBundleHash) && ! is_string($containerHelperHash);
+                $recreateReason = null;
 
-                if ($helperHashMismatch || $helperHashMissingAfterChange) {
-                    $reason = $helperHashMismatch ? 'helper bundle hash outdated' : 'helper bundle hash metadata missing after bundle change';
-                    $wouldRecreate[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
-                    $planned[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
+                if (! ($support['mounted'] ?? false)) {
+                    $recreateReason = 'helper bundle mount missing';
+                } elseif (! ($support['read_only'] ?? false)) {
+                    $recreateReason = 'helper bundle mount not read-only';
+                } elseif (! ($support['helper_loader_supported'] ?? false)) {
+                    $recreateReason = 'helper loader missing';
+                } elseif (! ($support['runtime_hash_matches'] ?? false)) {
+                    $recreateReason = 'runtime source hash mismatch';
+                } elseif ($helperHashMissing) {
+                    $recreateReason = 'helper bundle hash missing';
+                } elseif ($helperHashMismatch) {
+                    $recreateReason = 'helper bundle hash mismatch';
+                } elseif (! ($support['localhost_only'] ?? false)) {
+                    $recreateReason = 'unsafe/public port binding';
+                } elseif (! ($support['ready'] ?? false)) {
+                    $recreateReason = (string) ($support['reason'] ?? 'runtime support outdated');
+                }
+
+                if (is_string($recreateReason)) {
+                    $wouldRecreate[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $recreateReason];
+                    $planned[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $recreateReason];
 
                     return;
                 }
@@ -188,10 +208,6 @@ class RuntimeReloadService
 
                     return;
                 }
-
-                $reason = (string) ($support['reason'] ?? 'runtime support outdated');
-                $wouldRecreate[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
-                $planned[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
             });
 
         return [

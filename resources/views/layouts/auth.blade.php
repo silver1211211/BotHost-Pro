@@ -62,18 +62,18 @@
 
             {{-- Policy footer --}}
             <footer class="mt-8 space-y-3 text-center">
-                <nav class="flex flex-wrap items-center justify-center gap-y-2 text-[11px] text-[#3D3759]">
-                    <a href="{{ route('legal.privacy') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Privacy Policy</a>
-                    <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.terms') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Terms of Service</a>
-                    <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.cookies') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Cookie Policy</a>
-                    <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.refunds') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Refund Policy</a>
-                    <span class="text-[#27213D]">·</span>
-                    <a href="{{ route('legal.acceptable-use') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition hover:text-[#94A3B8]">Acceptable Use</a>
+                <nav class="flex flex-wrap items-center justify-center gap-y-2 text-[11px] text-[#B4AFDB]">
+                    <a href="{{ route('legal.privacy') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Privacy Policy</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.terms') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Terms of Service</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.cookies') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Cookie Policy</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.refunds') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Refund Policy</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.acceptable-use') }}" target="_blank" rel="noopener noreferrer" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Acceptable Use</a>
                 </nav>
-                <p class="text-[10px] text-[#2A2640]">{{ $branding['footer_text'] }}</p>
+                <p class="text-[10px] text-[#8D89B0]">{{ $branding['footer_text'] }}</p>
             </footer>
 
         </div>

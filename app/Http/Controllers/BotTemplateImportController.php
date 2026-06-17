@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RecheckBotTemplatePurchase;
 use App\Models\Bot;
 use App\Models\BotTemplate;
 use App\Services\BotAccessService;
@@ -54,17 +55,7 @@ class BotTemplateImportController extends Controller
 
                 $query->whereHas('purchases', fn ($purchaseQuery) => $purchaseQuery
                     ->where('user_id', $user->id)
-                    ->where('status', 'completed'))
-                    ->orWhere(function ($includedQuery) use ($user): void {
-                        $plan = $user->subscription_plan ?? 'free';
-                        $plans = match ($plan) {
-                            'business' => ['free', 'pro', 'business'],
-                            'pro' => ['free', 'pro'],
-                            default => ['free'],
-                        };
-
-                        $includedQuery->whereIn('included_plan', $plans);
-                    });
+                    ->where('status', 'completed'));
             })
             ->whereIn('marketplace_status', ['listed', 'featured']);
     }
@@ -88,6 +79,8 @@ class BotTemplateImportController extends Controller
     {
         $this->access->authorize($request, $bot);
         abort_unless($template->status === 'published', 404);
+
+        RecheckBotTemplatePurchase::dispatch($request->user()->id, $template->id);
 
         if (! $template->canBeImportedBy($request->user())) {
             return back()->withErrors(['template' => 'Please purchase this template before importing.']);

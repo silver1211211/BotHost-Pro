@@ -18,8 +18,12 @@ class TemplatePaymentController extends Controller
     {
         abort_unless($template->status === 'published' && $template->isPaid(), 404);
 
-        if ($template->isPurchasedBy($request->user()) || $template->isIncludedFor($request->user())) {
+        if ($template->isPurchasedBy($request->user())) {
             return back()->with('status', 'Template already unlocked.');
+        }
+
+        if ($template->isIncludedFor($request->user())) {
+            return back()->with('status', 'This template is included in your plan. Unlock it first, then import it from your bot workspace.');
         }
 
         $existing = PaymentInvoice::where('user_id', $request->user()->id)

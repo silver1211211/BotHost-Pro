@@ -2,9 +2,12 @@
 
 use App\Models\Bot;
 use App\Models\BotTemplate;
+use App\Models\PaymentInvoice;
 use App\Models\User;
 use App\Models\WalletTransaction;
+use App\Jobs\RecheckBotTemplatePurchase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 
 function marketplaceUser(array $attributes = []): User
 {
@@ -145,6 +148,79 @@ it('shows only unlocked templates in bot workspace picker with formatted about t
         ->assertSee('Import into this bot')
         ->assertDontSee('Locked Picker Template')
         ->assertDontSee('**bold**');
+});
+
+it('does not show plan included templates in bot workspace picker until they are downloaded', function (): void {
+    $user = marketplaceUser(['subscription_plan' => 'business']);
+    $bot = marketplaceBot($user);
+    $included = marketplaceTemplate([
+        'name' => 'Included But Not Downloaded',
+        'slug' => 'included-not-downloaded-'.str()->random(8),
+        'access_type' => 'paid',
+        'price' => '9.00',
+        'included_plan' => 'business',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('bots.templates.index', $bot))
+        ->assertOk()
+        ->assertDontSee('Included But Not Downloaded');
+
+    $this->actingAs($user)
+        ->post(route('dashboard.templates.unlock-free', $included))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($user)
+        ->get(route('bots.templates.index', $bot))
+        ->assertOk()
+        ->assertSee('Included But Not Downloaded')
+        ->assertSee('Downloaded');
+});
+
+it('queues purchase recheck and still blocks imports without completed library ownership', function (): void {
+    Queue::fake();
+
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $template = marketplaceTemplate(['name' => 'Recheck Locked Template']);
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $template]))
+        ->assertRedirect()
+        ->assertSessionHasErrors(['template' => 'Please purchase this template before importing.']);
+
+    Queue::assertPushed(RecheckBotTemplatePurchase::class, fn (RecheckBotTemplatePurchase $job) => $job->userId === $user->id
+        && $job->templateId === $template->id);
+});
+
+it('background purchase rechecker repairs paid invoice ownership before import', function (): void {
+    config(['queue.default' => 'sync']);
+
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $template = marketplaceTemplate(['name' => 'Paid Invoice Recheck Template']);
+
+    PaymentInvoice::query()->create([
+        'user_id' => $user->id,
+        'type' => PaymentInvoice::TYPE_TEMPLATE_PURCHASE,
+        'reference_type' => BotTemplate::class,
+        'reference_id' => $template->id,
+        'provider' => 'oxapay',
+        'order_id' => 'paid-recheck-'.str()->random(8),
+        'amount' => $template->price,
+        'currency' => $template->currency,
+        'status' => 'paid',
+        'paid_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $template]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($user->templatePurchases()->where('bot_template_id', $template->id)->where('status', 'completed')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', '/start')->exists())->toBeTrue();
 });
 
 it('template import skips commands that conflict with recycle bin commands', function (): void {

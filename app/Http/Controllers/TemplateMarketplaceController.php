@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RecheckBotTemplatePurchase;
 use App\Models\BotTemplate;
 use App\Models\PaymentInvoice;
 use App\Services\BotTemplatePurchaseService;
@@ -112,6 +113,10 @@ class TemplateMarketplaceController extends Controller
         }
 
         $user = $request->user();
+
+        foreach ($ids as $id) {
+            RecheckBotTemplatePurchase::dispatch($user->id, $id);
+        }
 
         $purchasedIds = $user->templatePurchases()
             ->where('status', 'completed')

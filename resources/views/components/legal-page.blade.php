@@ -187,24 +187,24 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="m4.75 12 14.5-7.25-3.2 14.5-4.12-4.18-3.08 3.18.45-4.55L4.75 12Z"/>
                         </svg>
                     </span>
-                    <span class="text-sm font-bold text-[#4B4565]">BotHost Pro</span>
+                    <span class="text-sm font-bold text-[#9490B8]">BotHost Pro</span>
                 </a>
 
                 {{-- Legal nav --}}
-                <nav class="flex flex-wrap items-center justify-center gap-y-2 text-[11px] text-[#3D3759]">
-                    <a href="{{ route('legal.privacy') }}" class="px-2 transition hover:text-[#94A3B8]">Privacy Policy</a>
-                    <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.terms') }}" class="px-2 transition hover:text-[#94A3B8]">Terms of Service</a>
-                    <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.cookies') }}" class="px-2 transition hover:text-[#94A3B8]">Cookie Policy</a>
-                    <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.refunds') }}" class="px-2 transition hover:text-[#94A3B8]">Refund Policy</a>
-                    <span class="text-[#1C1830]">·</span>
-                    <a href="{{ route('legal.acceptable-use') }}" class="px-2 transition hover:text-[#94A3B8]">Acceptable Use</a>
+                <nav class="flex flex-wrap items-center justify-center gap-y-2 text-[11px] text-[#B4AFDB]">
+                    <a href="{{ route('legal.privacy') }}" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Privacy Policy</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.terms') }}" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Terms of Service</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.cookies') }}" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Cookie Policy</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.refunds') }}" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Refund Policy</a>
+                    <span class="text-[#4B4565]">·</span>
+                    <a href="{{ route('legal.acceptable-use') }}" class="px-2 transition-colors duration-200 hover:text-[#C4B5FD]">Acceptable Use</a>
                 </nav>
 
                 {{-- Copyright --}}
-                <p class="text-[11px] text-[#2A2640]">{{ $branding['footer_text'] }}</p>
+                <p class="text-[11px] text-[#8D89B0]">{{ $branding['footer_text'] }}</p>
 
             </div>
         </div>

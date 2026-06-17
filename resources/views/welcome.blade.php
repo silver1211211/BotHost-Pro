@@ -635,12 +635,12 @@ $faqs = [
                         <span class="text-base font-black text-[#F8FAFC]">BotHost<span class="bg-gradient-to-r from-[#38BDF8] to-[#8B5CF6] bg-clip-text text-transparent"> Pro</span></span>
                     @endif
                 </div>
-                <p class="mt-4 max-w-xs text-sm leading-6 text-[#7E7AA0]">Create, manage, and grow Telegram bot workspaces with commands, templates, broadcasts, transfers, and webhooks.</p>
+                <p class="mt-4 max-w-xs text-sm leading-6 text-[#9490B8]">Create, manage, and grow Telegram bot workspaces with commands, templates, broadcasts, transfers, and webhooks.</p>
                 <div class="mt-6 flex flex-wrap gap-2">
                     <a href="{{ route('register') }}" class="rounded-xl bg-[#8B5CF6]/12 px-4 py-2 text-xs font-black text-[#8B5CF6] transition hover:bg-[#8B5CF6]/20">Get Started Free</a>
-                    <a href="{{ route('login') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-bold text-[#7E7AA0] transition hover:text-[#A1A1AA]">Log in</a>
+                    <a href="{{ route('login') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-bold text-[#9490B8] transition-colors duration-200 hover:text-[#C4B5FD]">Log in</a>
                 </div>
-                <p class="mt-6 text-xs text-[#2A2540]">{{ $branding['footer_text'] }}</p>
+                <p class="mt-6 text-xs text-[#8D89B0]">{{ $branding['footer_text'] }}</p>
             </div>
 
             @php
@@ -668,10 +668,10 @@ $faqs = [
             @endphp
             @foreach ($footerLinks as $heading => $links)
                 <div>
-                    <p class="mb-5 text-[10px] font-black uppercase tracking-widest text-[#6B6890]">{{ $heading }}</p>
-                    <div class="space-y-3 text-sm text-[#7E7AA0]">
+                    <p class="mb-5 text-[10px] font-black uppercase tracking-widest text-[#8682AC]">{{ $heading }}</p>
+                    <div class="space-y-3 text-sm text-[#B4AFDB]">
                         @foreach ($links as [$label, $url])
-                            <a href="{{ $url }}" class="block transition hover:text-[#A1A1AA]">{{ $label }}</a>
+                            <a href="{{ $url }}" class="block transition-colors duration-200 hover:text-[#C4B5FD]">{{ $label }}</a>
                         @endforeach
                     </div>
                 </div>
