@@ -14,7 +14,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class BotExportImportController extends Controller
 {
@@ -212,23 +215,41 @@ class BotExportImportController extends Controller
             return back()->withErrors(['import_file' => self::IMPORT_FILE_ERROR]);
         }
 
-        foreach ($data['commands'] as $cmdData) {
-            $bot->commands()->updateOrCreate(
-                $this->commandImportIdentity($bot, $cmdData),
-                $this->commandImportPayload($bot, $cmdData)
-            );
+        try {
+            $summary = DB::transaction(function () use ($bot, $data): array {
+                $summary = ['created' => 0, 'updated' => 0];
+
+                foreach ($data['commands'] as $cmdData) {
+                    $result = $this->importCommandIntoBot($bot, $cmdData);
+                    $summary[$result]++;
+                }
+
+                if (isset($data['settings']) && is_array($data['settings'])) {
+                    $bot->setting()->updateOrCreate(['bot_id' => $bot->id], $this->safeSettingsFromImport($data['settings']));
+                }
+
+                return $summary;
+            });
+        } catch (Throwable $e) {
+            Log::warning('Bot Tools command import failed.', [
+                'bot_id' => $bot->id,
+                'user_id' => $request->user()?->id,
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors(['import_file' => 'Import failed. Please check the export file and try again.']);
         }
 
         $this->audit->log('bot', 'bot_imported_into_workspace', 'Commands imported into bot.', [
             'bot_id' => $bot->id,
             'commands_count' => count($data['commands']),
+            'commands_created' => $summary['created'],
+            'commands_updated' => $summary['updated'],
         ], $request->user(), 'success', Bot::class, $bot->id);
 
-        if (isset($data['settings']) && is_array($data['settings'])) {
-            $bot->setting()->updateOrCreate(['bot_id' => $bot->id], $this->safeSettingsFromImport($data['settings']));
-        }
-
-        return redirect()->route('bots.show', ['bot' => $bot, 'tab' => 'manage'])->with('status', 'Commands imported successfully.');
+        return redirect()->route('bots.show', ['bot' => $bot, 'tab' => 'manage'])
+            ->with('status', sprintf('Imported successfully: %d commands created, %d commands updated.', $summary['created'], $summary['updated']));
     }
 
     public function import(Request $request, TelegramBotService $telegram): RedirectResponse
@@ -324,21 +345,13 @@ class BotExportImportController extends Controller
         return $payload;
     }
 
-    private function commandImportIdentity(Bot $bot, array $cmdData): array
-    {
-        if ($this->commandTriggerType($cmdData) === 'direct_message') {
-            return ['trigger_type' => 'direct_message'];
-        }
-
-        return ['command_name' => $cmdData['command_name']];
-    }
-
     private function commandImportPayload(Bot $bot, array $cmdData): array
     {
         $triggerType = $this->commandTriggerType($cmdData);
         $commandName = $triggerType === 'direct_message'
             ? $this->directMessageCommandName($bot)
             : $cmdData['command_name'];
+        $triggerType ??= str_starts_with((string) $commandName, '/') ? 'slash' : 'text';
 
         return [
             'command_name'  => $commandName,
@@ -358,6 +371,68 @@ class BotExportImportController extends Controller
             'license_locked' => false,
             'duplicate_count_used' => 0,
         ];
+    }
+
+    private function importCommandIntoBot(Bot $bot, array $cmdData): string
+    {
+        if ($this->commandTriggerType($cmdData) === 'direct_message') {
+            return $this->importDirectMessageHandler($bot, $cmdData);
+        }
+
+        $commandName = (string) $cmdData['command_name'];
+        $payload = $this->commandImportPayload($bot, $cmdData);
+
+        $command = BotCommand::withTrashed()
+            ->where('bot_id', $bot->id)
+            ->where('command_name', $commandName)
+            ->first();
+
+        if ($command) {
+            if ($command->trashed()) {
+                $command->restore();
+            }
+
+            $command->forceFill($payload)->save();
+
+            return 'updated';
+        }
+
+        BotCommand::query()->create(['bot_id' => $bot->id] + $payload);
+
+        return 'created';
+    }
+
+    private function importDirectMessageHandler(Bot $bot, array $cmdData): string
+    {
+        $command = BotCommand::withTrashed()
+            ->where('bot_id', $bot->id)
+            ->where(function ($query): void {
+                $query->where('trigger_type', 'direct_message')
+                    ->orWhere('command_name', 'like', BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.'%')
+                    ->orWhere('command_name', '_*direct_message_handler**')
+                    ->orWhere('command_name', 'direct_message');
+            })
+            ->first();
+
+        $payload = $this->commandImportPayload($bot, $cmdData);
+
+        if ($command) {
+            if ($command->trashed()) {
+                $command->restore();
+            }
+
+            if (str_starts_with((string) $command->command_name, BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX)) {
+                $payload['command_name'] = $command->command_name;
+            }
+
+            $command->forceFill($payload)->save();
+
+            return 'updated';
+        }
+
+        BotCommand::query()->create(['bot_id' => $bot->id] + $payload);
+
+        return 'created';
     }
 
     private function commandTriggerType(array $cmdData): ?string

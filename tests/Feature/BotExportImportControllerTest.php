@@ -102,6 +102,133 @@ it('imports a valid BotHost export JSON into the users own bot without template 
         ->and($bot->setting()->where('timezone', 'Africa/Lagos')->exists())->toBeTrue();
 });
 
+it('updates existing commands with the same exact command name instead of creating duplicates', function (): void {
+    $user = botExportImportUser();
+    $bot = botExportImportBot($user);
+    $existing = $bot->commands()->create([
+        'command_name' => '? Referral Contest',
+        'display_name' => '? Referral Contest',
+        'trigger_type' => 'text',
+        'response_text' => 'Old response',
+        'response_type' => 'text',
+        'status' => 'inactive',
+        'source' => 'marketplace',
+        'license_locked' => true,
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('bots.import.current', $bot), [
+            'import_file' => botExportImportUpload('backup.json', botExportImportPayload([
+                [
+                    'command_name' => '? Referral Contest',
+                    'display_name' => '? Referral Contest Updated',
+                    'trigger_type' => 'text',
+                    'code' => "await reply('updated');",
+                    'response_text' => 'Updated response',
+                    'response_type' => 'code',
+                    'status' => 'active',
+                ],
+            ])),
+        ])
+        ->assertRedirect(route('bots.show', ['bot' => $bot, 'tab' => 'manage']))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('status', 'Imported successfully: 0 commands created, 1 commands updated.');
+
+    $existing->refresh();
+
+    expect($bot->commands()->where('command_name', '? Referral Contest')->count())->toBe(1)
+        ->and($existing->id)->toBe($bot->commands()->where('command_name', '? Referral Contest')->first()->id)
+        ->and($existing->response_text)->toBe('Updated response')
+        ->and($existing->response_type)->toBe('code')
+        ->and($existing->status)->toBe('active')
+        ->and($existing->source)->toBeNull()
+        ->and($existing->license_locked)->toBeFalse();
+});
+
+it('restores and updates a trashed duplicate command instead of throwing a unique constraint error', function (): void {
+    $user = botExportImportUser();
+    $bot = botExportImportBot($user);
+    $trashed = $bot->commands()->create([
+        'command_name' => '/start',
+        'display_name' => '/start',
+        'trigger_type' => 'slash',
+        'response_text' => 'Deleted old response',
+        'response_type' => 'text',
+        'status' => 'inactive',
+    ]);
+    $trashed->delete();
+
+    $this->actingAs($user)
+        ->post(route('bots.import.current', $bot), [
+            'import_file' => botExportImportUpload('backup.json', botExportImportPayload([
+                [
+                    'command_name' => '/start',
+                    'trigger_type' => 'slash',
+                    'response_text' => 'Restored import response',
+                    'response_type' => 'text',
+                    'status' => 'active',
+                ],
+            ])),
+        ])
+        ->assertRedirect(route('bots.show', ['bot' => $bot, 'tab' => 'manage']))
+        ->assertSessionHasNoErrors();
+
+    $trashed->refresh();
+
+    expect($trashed->deleted_at)->toBeNull()
+        ->and($trashed->response_text)->toBe('Restored import response')
+        ->and($bot->commands()->where('command_name', '/start')->count())->toBe(1);
+});
+
+it('preserves slash non slash emoji and spacing when importing and updating commands', function (): void {
+    $user = botExportImportUser();
+    $bot = botExportImportBot($user);
+    $bot->commands()->create([
+        'command_name' => 'Admin  Menu',
+        'display_name' => 'Admin  Menu',
+        'trigger_type' => 'text',
+        'response_text' => 'old',
+        'response_type' => 'text',
+        'status' => 'inactive',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('bots.import.current', $bot), [
+            'import_file' => botExportImportUpload('backup.json', botExportImportPayload([
+                [
+                    'command_name' => '/start',
+                    'trigger_type' => 'slash',
+                    'response_text' => 'Slash exact',
+                    'status' => 'active',
+                ],
+                [
+                    'command_name' => 'Admin  Menu',
+                    'trigger_type' => 'text',
+                    'response_text' => 'Spacing exact updated',
+                    'status' => 'active',
+                ],
+                [
+                    'command_name' => '💰  Balance',
+                    'trigger_type' => 'text',
+                    'response_text' => 'Emoji exact',
+                    'status' => 'active',
+                ],
+                [
+                    'command_name' => 'plain keyword',
+                    'response_text' => 'No slash exact',
+                    'status' => 'active',
+                ],
+            ])),
+        ])
+        ->assertRedirect(route('bots.show', ['bot' => $bot, 'tab' => 'manage']))
+        ->assertSessionHasNoErrors();
+
+    expect($bot->commands()->where('command_name', '/start')->where('trigger_type', 'slash')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', 'Admin  Menu')->where('response_text', 'Spacing exact updated')->count())->toBe(1)
+        ->and($bot->commands()->where('command_name', '💰  Balance')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', 'plain keyword')->where('trigger_type', 'text')->exists())->toBeTrue();
+});
+
 it('keeps locked marketplace restrictions separate from Bot Tools JSON import', function (): void {
     $user = botExportImportUser();
     $bot = botExportImportBot($user);
@@ -205,5 +332,42 @@ it('imports direct message handlers as handlers including legacy markers', funct
     expect($handler)->not->toBeNull()
         ->and($handler->displayName())->toBe('Direct Message Handler')
         ->and($handler->command_name)->not->toBe('_*direct_message_handler**')
+        ->and($bot->commands()->where('command_name', '_*direct_message_handler**')->exists())->toBeFalse();
+});
+
+it('updates an existing direct message handler during Bot Tools import', function (): void {
+    $user = botExportImportUser();
+    $bot = botExportImportBot($user);
+    $existing = $bot->commands()->create([
+        'command_name' => \App\Models\BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.'existing',
+        'display_name' => 'Direct Message Handler',
+        'trigger_type' => 'direct_message',
+        'code' => 'await reply("old dm");',
+        'response_text' => '',
+        'response_type' => 'code',
+        'status' => 'inactive',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('bots.import.current', $bot), [
+            'import_file' => botExportImportUpload('backup.json', botExportImportPayload([
+                [
+                    'command_name' => '_*direct_message_handler**',
+                    'trigger_type' => 'direct_message',
+                    'code' => 'await reply("new dm");',
+                    'response_type' => 'code',
+                    'status' => 'active',
+                ],
+            ])),
+        ])
+        ->assertRedirect(route('bots.show', ['bot' => $bot, 'tab' => 'manage']))
+        ->assertSessionHasNoErrors();
+
+    $existing->refresh();
+
+    expect($bot->commands()->where('trigger_type', 'direct_message')->count())->toBe(1)
+        ->and($existing->code)->toBe('await reply("new dm");')
+        ->and($existing->status)->toBe('active')
+        ->and($existing->command_name)->toBe(\App\Models\BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.'existing')
         ->and($bot->commands()->where('command_name', '_*direct_message_handler**')->exists())->toBeFalse();
 });
