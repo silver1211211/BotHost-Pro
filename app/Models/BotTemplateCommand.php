@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'bot_template_id',
     'command_name',
+    'trigger_type',
     'description',
     'code',
     'response_text',

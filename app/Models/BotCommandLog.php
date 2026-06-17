@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'bot_id',
     'bot_command_id',
+    'command_name',
     'bot_user_id',
     'telegram_user_id',
     'telegram_username',
@@ -19,6 +20,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'reply_count',
     'execution_id',
     'execution_time_ms',
+    'public_error_message',
+    'internal_error_type',
+    'internal_error_message',
+    'internal_error_stack',
     'error_type',
     'error_message',
 ])]

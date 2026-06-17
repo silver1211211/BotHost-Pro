@@ -42,8 +42,10 @@ Available helpers:
 - `reply(text, options)`
 - `replyHTML(html, options)`
 - `replyMarkdown(text, options)`
-- `sendMessage(chatId, text, options)`
-- `sendPhoto(chatId, photoUrl, options)`
+- `sendMessage(chatId, text, options)` or `sendMessage(text, options)` for the current chat
+- `sendPhoto(chatId, photoUrlOrFileId, options)`; pass captions as `options.caption`
+- `editMessageText(chatId, messageId, text, options)` or `editMessageText(text, options)`
+- `answerCallbackQuery(text, options)`
 - `checkChannelMember(channelUsernameOrId, userId = currentUserId)`
 - `verifyTelegramChannel(channelUsernameOrId, userId = currentUserId)`
 - `isChannelMember(channelUsernameOrId, userId = currentUserId)`

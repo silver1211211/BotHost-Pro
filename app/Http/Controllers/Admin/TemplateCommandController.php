@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BotTemplate;
 use App\Models\BotTemplateCommand;
+use App\Models\BotCommand;
 use App\Services\AuditLogService;
 use App\Services\BotTemplateImporter;
 use Illuminate\Http\RedirectResponse;
@@ -21,7 +22,7 @@ class TemplateCommandController extends Controller
 
         $command = $template->commands()->create([
             ...$data,
-            'command_name' => BotTemplateImporter::normalizeCommandName($data['command_name']),
+            'command_name' => BotTemplateImporter::validateCommandName($data['command_name']),
             'aliases' => $this->aliasesFrom($data['aliases'] ?? null),
             'runtime' => $data['runtime'] ?: 'node',
             'language' => $data['language'] ?: 'javascript',
@@ -45,7 +46,7 @@ class TemplateCommandController extends Controller
 
         $command->update([
             ...$data,
-            'command_name' => BotTemplateImporter::normalizeCommandName($data['command_name']),
+            'command_name' => BotTemplateImporter::validateCommandName($data['command_name']),
             'aliases' => $this->aliasesFrom($data['aliases'] ?? null),
             'runtime' => $data['runtime'] ?: 'node',
             'language' => $data['language'] ?: 'javascript',
@@ -83,10 +84,11 @@ class TemplateCommandController extends Controller
     {
         return $request->validate([
             'command_name' => ['required', 'string', 'max:64', function (string $attribute, mixed $value, \Closure $fail): void {
-                if (! BotTemplateImporter::normalizeCommandName((string) $value)) {
-                    $fail('Command name must use letters, numbers, or underscores, and may start with /.');
+                if (! BotTemplateImporter::validateCommandName((string) $value)) {
+                    $fail('Command name cannot be empty and must be 64 characters or fewer.');
                 }
             }],
+            'trigger_type' => ['nullable', Rule::in(BotCommand::TRIGGER_TYPES)],
             'description' => ['nullable', 'string', 'max:500'],
             'code' => ['nullable', 'string'],
             'response_text' => ['nullable', 'string'],
@@ -111,7 +113,7 @@ class TemplateCommandController extends Controller
         }
 
         $aliases = collect(preg_split('/[\r\n,]+/', $value) ?: [])
-            ->map(fn (string $alias) => BotTemplateImporter::normalizeCommandName($alias))
+            ->map(fn (string $alias) => BotTemplateImporter::validateCommandName($alias))
             ->filter()
             ->unique()
             ->values()

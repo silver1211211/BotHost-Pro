@@ -51,7 +51,30 @@
             </div>
 
             {{-- Form --}}
-            <form method="POST" action="{{ route('bots.store') }}" class="p-6 space-y-5">
+            <form
+                method="POST"
+                action="{{ route('bots.store') }}"
+                novalidate
+                x-data="{
+                    e: { name: '', token: '' },
+                    focusEl(id) {
+                        this.$nextTick(() => {
+                            const el = document.getElementById(id);
+                            if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                        });
+                    },
+                    validate() {
+                        this.e = { name: '', token: '' };
+                        const n = (document.getElementById('name')?.value || '').trim();
+                        const t = (document.getElementById('token')?.value || '').trim();
+                        if (!n) { this.e.name = 'Enter a name for your workspace.'; this.focusEl('name'); return false; }
+                        if (!t) { this.e.token = 'Paste your Telegram bot token from BotFather.'; this.focusEl('token'); return false; }
+                        return true;
+                    }
+                }"
+                @submit="if (!validate()) $event.preventDefault()"
+                class="p-6 space-y-5"
+            >
                 @csrf
 
                 {{-- Bot Name --}}
@@ -62,13 +85,25 @@
                         name="name"
                         type="text"
                         value="{{ old('name') }}"
-                        required
                         maxlength="100"
                         {{ $limitReached ? 'disabled' : '' }}
-                        class="mt-2 w-full rounded-xl border border-[#27213D] bg-[#0B0918] px-4 py-3 text-sm text-[#F8FAFC] outline-none transition placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:ring-2 focus:ring-[#8B5CF6]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        @input="e.name = ''"
+                        class="mt-2 w-full rounded-xl border bg-[#0B0918] px-4 py-3 text-sm text-[#F8FAFC] outline-none transition placeholder:text-[#52525B] focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="e.name ? 'border-[#EF4444]/50 focus:border-[#EF4444]/70 focus:ring-[#EF4444]/10' : 'border-[#27213D] focus:border-[#8B5CF6]/60 focus:ring-[#8B5CF6]/20'"
                         placeholder="My Telegram Bot"
                     >
-                    <p class="mt-1.5 text-[11px] text-[#52525B]">This name helps you identify the bot inside your workspace.</p>
+                    <p
+                        x-show="e.name"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#F87171]"
+                    >
+                        <svg class="h-3 w-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                        <span x-text="e.name"></span>
+                    </p>
+                    <p x-show="!e.name" class="mt-1.5 text-[11px] text-[#52525B]">This name helps you identify the bot inside your workspace.</p>
                     @error('name')
                         <p class="mt-1.5 text-xs font-bold text-[#EF4444]">{{ $message }}</p>
                     @enderror
@@ -85,19 +120,31 @@
                             name="token"
                             type="password"
                             value=""
-                            required
                             autocomplete="new-password"
                             spellcheck="false"
                             autocapitalize="off"
                             {{ $limitReached ? 'disabled' : '' }}
-                            class="w-full rounded-xl border border-[#27213D] bg-[#0B0918] py-3 pl-4 pr-10 text-sm text-[#F8FAFC] outline-none transition placeholder:text-[#52525B] focus:border-[#8B5CF6]/60 focus:ring-2 focus:ring-[#8B5CF6]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            @input="e.token = ''"
+                            class="w-full rounded-xl border bg-[#0B0918] py-3 pl-4 pr-10 text-sm text-[#F8FAFC] outline-none transition placeholder:text-[#52525B] focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            :class="e.token ? 'border-[#EF4444]/50 focus:border-[#EF4444]/70 focus:ring-[#EF4444]/10' : 'border-[#27213D] focus:border-[#8B5CF6]/60 focus:ring-[#8B5CF6]/20'"
                             placeholder="CHANGE_ME_TELEGRAM_BOT_TOKEN"
                         >
                         <span class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-[#52525B]">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         </span>
                     </div>
-                    <p class="mt-1.5 text-[11px] text-[#52525B]">Paste the token you received from BotFather.</p>
+                    <p
+                        x-show="e.token"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#F87171]"
+                    >
+                        <svg class="h-3 w-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                        <span x-text="e.token"></span>
+                    </p>
+                    <p x-show="!e.token" class="mt-1.5 text-[11px] text-[#52525B]">Paste the token you received from BotFather.</p>
                     @error('token')
                         <p class="mt-1.5 text-xs font-bold text-[#EF4444]">{{ $message }}</p>
                     @enderror

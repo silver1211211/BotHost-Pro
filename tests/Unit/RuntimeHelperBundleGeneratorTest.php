@@ -116,6 +116,42 @@ class RuntimeHelperBundleGeneratorTest extends TestCase
         @rmdir($dir);
     }
 
+    public function test_publishing_changed_active_helper_changes_bundle_hash(): void
+    {
+        $helper = $this->createHelper('hashThing', 'return { ok: true, version: 1 };');
+        $dir = storage_path('framework/testing/runtime-helper-hash');
+        $livePath = $dir.'/admin-helpers-generated.js';
+        $tempPath = $dir.'/admin-helpers-generated.tmp.js';
+
+        if (is_file($livePath)) {
+            @unlink($livePath);
+        }
+        if (is_file($tempPath)) {
+            @unlink($tempPath);
+        }
+
+        $generator = $this->generator($livePath, $tempPath);
+        $first = $generator->publish();
+
+        $version = RuntimeHelperVersion::query()->create([
+            'helper_id' => $helper->id,
+            'version_number' => 2,
+            'code' => 'return { ok: true, version: 2 };',
+            'status' => 'active',
+        ]);
+        $helper->forceFill(['active_version_id' => $version->id])->save();
+
+        $second = $generator->publish();
+
+        $this->assertTrue($first['ok']);
+        $this->assertTrue($second['ok']);
+        $this->assertNotSame($first['helper_bundle_hash'], $second['helper_bundle_hash']);
+        $this->assertTrue($second['helper_bundle_changed']);
+
+        @unlink($livePath);
+        @rmdir($dir);
+    }
+
     private function generator(?string $livePath = null, ?string $tempPath = null): RuntimeHelperBundleGenerator
     {
         return new RuntimeHelperBundleGenerator(new RuntimeHelperSafetyScanner(), $livePath, $tempPath);

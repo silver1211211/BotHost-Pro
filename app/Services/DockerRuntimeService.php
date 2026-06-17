@@ -53,6 +53,7 @@ class DockerRuntimeService
             '--name', $name,
             '--label', 'bothost.runtime=bot',
             '--label', 'bothost.bot_id='.$bot->id,
+            '--label', 'com.bothost.helper_bundle_hash='.$this->adminHelperBundleHash(),
             '--restart', 'unless-stopped',
             '--memory', (string) config('runtime.docker.memory_limit'),
             '--cpus', (string) config('runtime.docker.cpu_limit'),
@@ -76,6 +77,7 @@ class DockerRuntimeService
             '-e', 'COMMAND_MAX_DELAY_MS='.(string) $this->settings->integer('max_delay_ms', 10000),
             '-e', 'NODE_RUNTIME_SECRET='.NodeRuntimeConfig::secret(),
             '-e', 'NODE_RUNTIME_INTERNAL_URL='.NodeRuntimeConfig::internalUrl(),
+            '-e', 'BOTHOST_HELPER_BUNDLE_HASH='.$this->adminHelperBundleHash(),
             '-p', '127.0.0.1:'.$port.':'.config('runtime.docker.internal_port'),
             '--network', (string) config('runtime.docker.network'),
             (string) config('runtime.docker.image'),
@@ -358,7 +360,7 @@ class DockerRuntimeService
         return ['available' => true, 'active' => $active, 'unhealthy' => $unhealthy, 'error' => null];
     }
 
-    public function recreateBotContainerForHelperBundle(Bot $bot): array
+    public function recreateBotContainerForHelperBundle(Bot $bot, bool $force = false): array
     {
         $containerName = (string) $bot->container_name;
 
@@ -386,7 +388,7 @@ class DockerRuntimeService
 
         $support = $this->inspectAdminRuntimeSupport($containerName);
 
-        if (($support['ok'] ?? false) && ($support['ready'] ?? false)) {
+        if (! $force && ($support['ok'] ?? false) && ($support['ready'] ?? false)) {
             return [
                 'ok' => true,
                 'bot_id' => $bot->id,
@@ -672,6 +674,9 @@ class DockerRuntimeService
                 'runtime_hash' => null,
                 'expected_runtime_hash' => $this->runtimeSourceHash(),
                 'runtime_hash_matches' => false,
+                'helper_bundle_hash' => null,
+                'expected_helper_bundle_hash' => $this->adminHelperBundleHash(),
+                'helper_bundle_hash_matches' => false,
                 'helper_loader_supported' => false,
                 'reason' => 'inspect failed',
                 'error' => $inspect['error'] ?? 'Docker inspect failed.',
@@ -689,6 +694,9 @@ class DockerRuntimeService
                 'runtime_hash' => null,
                 'expected_runtime_hash' => $this->runtimeSourceHash(),
                 'runtime_hash_matches' => false,
+                'helper_bundle_hash' => null,
+                'expected_helper_bundle_hash' => $this->adminHelperBundleHash(),
+                'helper_bundle_hash_matches' => false,
                 'helper_loader_supported' => false,
                 'reason' => 'container not found',
                 'error' => null,
@@ -706,6 +714,9 @@ class DockerRuntimeService
                 'runtime_hash' => $this->containerRuntimeSourceHash($inspect),
                 'expected_runtime_hash' => $this->runtimeSourceHash(),
                 'runtime_hash_matches' => false,
+                'helper_bundle_hash' => $this->containerHelperBundleHash($inspect),
+                'expected_helper_bundle_hash' => $this->adminHelperBundleHash(),
+                'helper_bundle_hash_matches' => false,
                 'helper_loader_supported' => false,
                 'reason' => 'container not running',
                 'error' => null,
@@ -719,6 +730,11 @@ class DockerRuntimeService
         $expectedHash = $this->runtimeSourceHash();
         $containerHash = $this->containerRuntimeSourceHash($inspect);
         $hashMatches = is_string($containerHash) && hash_equals($expectedHash, $containerHash);
+        $expectedHelperHash = $this->adminHelperBundleHash();
+        $containerHelperHash = $this->containerHelperBundleHash($inspect);
+        $helperHashMatches = is_string($expectedHelperHash)
+            && is_string($containerHelperHash)
+            && hash_equals($expectedHelperHash, $containerHelperHash);
         $helperLoaderSupported = is_string($containerHash) && $containerHash !== '';
         $localhostOnly = $this->hasLocalhostOnlyPortBinding($inspect);
         $reason = 'runtime support already up to date';
@@ -731,6 +747,8 @@ class DockerRuntimeService
             $reason = 'missing helper loader support';
         } elseif (! $hashMatches) {
             $reason = 'runtime source hash outdated';
+        } elseif (is_string($containerHelperHash) && ! $helperHashMatches) {
+            $reason = 'helper bundle hash outdated';
         } elseif (! $localhostOnly) {
             $reason = 'port binding is not localhost-only';
         }
@@ -741,10 +759,18 @@ class DockerRuntimeService
             'running' => true,
             'mounted' => $mounted,
             'read_only' => $readOnly,
-            'ready' => $mounted && $readOnly && $helperLoaderSupported && $hashMatches && $localhostOnly,
+            'ready' => $mounted
+                && $readOnly
+                && $helperLoaderSupported
+                && $hashMatches
+                && (! is_string($containerHelperHash) || $helperHashMatches)
+                && $localhostOnly,
             'runtime_hash' => $containerHash,
             'expected_runtime_hash' => $expectedHash,
             'runtime_hash_matches' => $hashMatches,
+            'helper_bundle_hash' => $containerHelperHash,
+            'expected_helper_bundle_hash' => $expectedHelperHash,
+            'helper_bundle_hash_matches' => $helperHashMatches,
             'helper_loader_supported' => $helperLoaderSupported,
             'localhost_only' => $localhostOnly,
             'reason' => $reason,
@@ -763,6 +789,13 @@ class DockerRuntimeService
         }
 
         return hash_final($hash);
+    }
+
+    public function adminHelperBundleHash(): ?string
+    {
+        $path = $this->adminHelperBundleHostPath();
+
+        return is_file($path) ? hash_file('sha256', $path) ?: null : null;
     }
 
     public function runtimeSourceFiles(): array
@@ -800,6 +833,24 @@ class DockerRuntimeService
             }
 
             return substr($env, strlen('BOTHOST_RUNTIME_SOURCE_HASH='));
+        }
+
+        return null;
+    }
+
+    private function containerHelperBundleHash(array $inspect): ?string
+    {
+        $labels = $inspect['labels'] ?? [];
+        if (is_array($labels) && filled($labels['com.bothost.helper_bundle_hash'] ?? null)) {
+            return (string) $labels['com.bothost.helper_bundle_hash'];
+        }
+
+        foreach (($inspect['env'] ?? []) as $env) {
+            if (! is_string($env) || ! str_starts_with($env, 'BOTHOST_HELPER_BUNDLE_HASH=')) {
+                continue;
+            }
+
+            return substr($env, strlen('BOTHOST_HELPER_BUNDLE_HASH='));
         }
 
         return null;

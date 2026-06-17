@@ -100,6 +100,8 @@
             <div><dt class="text-[#94A3B8]">Duration</dt><dd class="text-white">{{ $log->duration_ms ?? 0 }}ms</dd></div>
             <div><dt class="text-[#94A3B8]">Triggered by</dt><dd class="text-white">{{ $log->triggeredBy?->name ?? 'System' }}</dd></div>
             <div><dt class="text-[#94A3B8]">Helpers compiled</dt><dd class="text-white">{{ $log->helpers_compiled ?? $counts['helpers_compiled'] }}</dd></div>
+            <div><dt class="text-[#94A3B8]">Helper bundle changed</dt><dd class="text-white">{{ array_key_exists('helper_bundle_changed', $output) ? (($output['helper_bundle_changed'] ?? false) ? 'Yes' : 'No') : '-' }}</dd></div>
+            <div><dt class="text-[#94A3B8]">Helper bundle hash</dt><dd class="break-all font-mono text-xs text-white">{{ $output['expected_helper_bundle_hash'] ?? $output['bundle_hash'] ?? '-' }}</dd></div>
             <div><dt class="text-[#94A3B8]">Containers affected</dt><dd class="text-white">{{ $log->containers_affected ?? 0 }}</dd></div>
             <div><dt class="text-[#94A3B8]">Containers ok</dt><dd class="text-white">{{ $log->containers_ok ?? 0 }}</dd></div>
             <div><dt class="text-[#94A3B8]">Containers failed</dt><dd class="text-white">{{ $log->containers_failed ?? 0 }}</dd></div>
@@ -154,6 +156,7 @@
                                     <th class="px-3 py-2 text-left text-xs text-[#94A3B8]">Bot ID</th>
                                     <th class="px-3 py-2 text-left text-xs text-[#94A3B8]">Bot Name</th>
                                     <th class="px-3 py-2 text-left text-xs text-[#94A3B8]">Container</th>
+                                    <th class="px-3 py-2 text-left text-xs text-[#94A3B8]">Helper Hash</th>
                                     <th class="px-3 py-2 text-left text-xs text-[#94A3B8]">Reason</th>
                                     <th class="px-3 py-2 text-left text-xs text-[#94A3B8]">Error</th>
                                 </tr></thead>
@@ -163,6 +166,7 @@
                                             <td class="px-3 py-2 text-[#A1A1AA]">{{ $row['bot_id'] ?? '-' }}</td>
                                             <td class="px-3 py-2 text-white">{{ $row['bot_name'] ?? '-' }}</td>
                                             <td class="px-3 py-2 font-mono text-xs text-[#A1A1AA]">{{ $row['container_name'] ?? '-' }}</td>
+                                            <td class="px-3 py-2 font-mono text-xs text-[#A1A1AA]">{{ isset($row['helper_bundle_hash_matches']) ? (($row['helper_bundle_hash_matches'] ?? false) ? 'match' : 'mismatch') : '-' }}</td>
                                             <td class="px-3 py-2 text-[#A1A1AA]">{{ $row['reason'] ?? '-' }}</td>
                                             <td class="px-3 py-2 text-[#FCA5A5]">{{ $row['error'] ?? '-' }}</td>
                                         </tr>

@@ -6,11 +6,14 @@ use App\Models\ActivityLog;
 use App\Models\Bot;
 use App\Services\AuditLogService;
 use App\Services\BotAccessService;
+use App\Services\DockerRuntimeService;
 use App\Services\TelegramBotService;
 use App\Services\TelegramWebhookService;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Throwable;
 
 class BotSettingsController extends Controller
 {
@@ -19,7 +22,7 @@ class BotSettingsController extends Controller
         private readonly AuditLogService $audit,
     ) {}
 
-    public function update(Request $request, Bot $bot, TelegramBotService $telegram, TelegramWebhookService $webhooks): RedirectResponse
+    public function update(Request $request, Bot $bot, TelegramBotService $telegram, TelegramWebhookService $webhooks, DockerRuntimeService $dockerRuntime): RedirectResponse
     {
         $this->access->authorize($request, $bot);
 
@@ -35,6 +38,8 @@ class BotSettingsController extends Controller
         $name = trim((string) ($data['name'] ?? ''));
         $changedName = $name !== '' && $bot->name !== $name;
         $tokenChanged = false;
+        $oldToken = null;
+        $shouldRestartDockerRuntime = false;
         $payload = [];
 
         if ($changedName) {
@@ -45,6 +50,15 @@ class BotSettingsController extends Controller
         if ($request->filled('token')) {
             $newTokenHash = Bot::tokenHash($data['token']);
             $tokenChanged = $bot->token_hash !== $newTokenHash;
+            $shouldRestartDockerRuntime = $tokenChanged && $bot->runtime_mode === 'docker' && $bot->status === 'running';
+
+            if ($tokenChanged && filled($bot->getRawOriginal('token_encrypted'))) {
+                try {
+                    $oldToken = Crypt::decryptString($bot->getRawOriginal('token_encrypted'));
+                } catch (Throwable) {
+                    $oldToken = null;
+                }
+            }
 
             if (Bot::tokenInUse($data['token'], $bot->id)) {
                 return back()
@@ -71,6 +85,25 @@ class BotSettingsController extends Controller
             $payload['telegram_can_read_all_group_messages'] = $telegramData['can_read_all_group_messages'] ?? null;
             $payload['telegram_supports_inline_queries'] = $telegramData['supports_inline_queries'] ?? null;
             $payload['token_verified_at'] = now();
+
+            if ($tokenChanged) {
+                $payload['webhook_secret'] = Str::random(48);
+                $payload['webhook_url'] = null;
+                $payload['webhook_set_at'] = null;
+                $payload['webhook_status'] = 'not_set';
+                $payload['webhook_last_error'] = null;
+                $payload['last_webhook_update_at'] = null;
+                $payload['runtime_status'] = null;
+                $payload['last_runtime_error'] = null;
+            }
+        }
+
+        if ($tokenChanged && filled($oldToken)) {
+            try {
+                $telegram->deleteWebhook($oldToken);
+            } catch (Throwable) {
+                // Best effort only; never log token values.
+            }
         }
 
         if ($payload !== []) {
@@ -85,6 +118,16 @@ class BotSettingsController extends Controller
                 'bot_id' => $bot->id,
                 'ok' => (bool) ($webhookResult['ok'] ?? false),
             ], $request->user(), ($webhookResult['ok'] ?? false) ? 'success' : 'warning', Bot::class, $bot->id);
+
+            if ($shouldRestartDockerRuntime) {
+                $restart = $dockerRuntime->restartBotContainer($bot->fresh() ?: $bot);
+
+                $this->audit->log('runtime', 'runtime.restarted_after_token_change', 'Runtime restarted after bot token change.', [
+                    'bot_id' => $bot->id,
+                    'ok' => (bool) ($restart['ok'] ?? false),
+                    'reason' => $restart['reason'] ?? null,
+                ], $request->user(), ($restart['ok'] ?? false) ? 'success' : 'warning', Bot::class, $bot->id);
+            }
         }
 
         $settingPayload = [];

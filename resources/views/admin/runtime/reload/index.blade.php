@@ -1,7 +1,7 @@
 <x-admin-layout title="Runtime Helper Bundle" subtitle="Controlled helper bundle publishing.">
 <div class="space-y-5">
     <div class="rounded-2xl border border-[#F59E0B]/30 bg-[#F59E0B]/10 px-4 py-3 text-sm text-[#F59E0B]">
-        Publish compiles active helpers into the generated bundle. Apply Runtime To Bots recreates Docker bot containers only when their helper mount or runtime image support is outdated.
+        Publish compiles active helpers into the generated bundle. Apply Runtime To Bots recreates Docker bot containers when their helper mount, helper bundle hash, or runtime image support is outdated.
     </div>
 
     @if(session('runtime_reload_log_id'))
@@ -125,7 +125,7 @@
         <div class="grid gap-4 lg:grid-cols-2">
             <div>
                 <h2 class="text-sm font-black text-[#BBF7D0]">Publish & Apply Helpers</h2>
-                <p class="mt-2 text-sm text-[#86EFAC]">Use this after activating a helper. It publishes the bundle, then recreates only Docker bot containers that need the new runtime helper support.</p>
+                <p class="mt-2 text-sm text-[#86EFAC]">Use this after activating a helper. It publishes the bundle, detects helper bundle hash changes, then recreates only Docker bot containers that need the new helper list.</p>
             </div>
             <form method="POST" action="{{ route('admin.runtime.reload.publish-and-apply') }}" class="space-y-3">
                 @csrf
@@ -140,7 +140,7 @@
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-3xl">
                 <h2 class="text-sm font-black text-white">Runtime Container Refresh Planning</h2>
-                <p class="mt-2 text-sm text-[#A1A1AA]">Dry-run checks bundle mount, helper-loader support, and runtime source hash. It does not stop, remove, or restart any container.</p>
+                <p class="mt-2 text-sm text-[#A1A1AA]">Dry-run checks bundle mount, helper bundle hash, helper-loader support, and runtime source hash. It does not stop, remove, or restart any container.</p>
                 @if($lastDryRunLog)
                     <div class="mt-4 rounded-xl border border-[#27213D] bg-[#090713] p-3">
                         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -163,7 +163,7 @@
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="max-w-3xl">
                     <h2 class="text-sm font-black text-[#FCA5A5]">Apply Runtime To Bots</h2>
-                    <p class="mt-2 text-sm text-[#FCA5A5]">This recreates Docker runtime containers that are missing the helper bundle mount, missing helper-loader support, or running an old runtime source hash. It may cause short downtime for those bots. Run dry-run first.</p>
+                    <p class="mt-2 text-sm text-[#FCA5A5]">This recreates Docker runtime containers that are missing the helper bundle mount, missing helper-loader support, running an old helper bundle hash, or running an old runtime source hash. It may cause short downtime for those bots. Run dry-run first.</p>
                     <p class="mt-2 text-xs font-bold text-[#FECACA]">Latest dry run found {{ $lastDryRunWouldRecreateCount }} container{{ $lastDryRunWouldRecreateCount === 1 ? '' : 's' }} that would be recreated.</p>
                 </div>
                 <form method="POST" action="{{ route('admin.runtime.reload.docker-refresh-live') }}" class="w-full max-w-xl space-y-3">

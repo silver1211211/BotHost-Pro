@@ -210,14 +210,14 @@ class Bot extends Model
         $token = trim($token);
         $hash = self::tokenHash($token);
 
-        if (self::query()
+        if (self::withTrashed()
             ->where('token_hash', $hash)
             ->when($ignoreBotId, fn ($query) => $query->whereKeyNot($ignoreBotId))
             ->exists()) {
             return true;
         }
 
-        self::query()
+        self::withTrashed()
             ->whereNull('token_hash')
             ->whereNotNull('token_encrypted')
             ->when($ignoreBotId, fn ($query) => $query->whereKeyNot($ignoreBotId))
@@ -243,7 +243,7 @@ class Bot extends Model
                 }
             });
 
-        return self::query()
+        return self::withTrashed()
             ->where('token_hash', $hash)
             ->when($ignoreBotId, fn ($query) => $query->whereKeyNot($ignoreBotId))
             ->exists();

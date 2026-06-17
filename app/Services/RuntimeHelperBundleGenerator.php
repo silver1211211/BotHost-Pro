@@ -170,10 +170,12 @@ class RuntimeHelperBundleGenerator
     {
         $report = [];
         $tempPath = $this->tempPath();
+        $previousHash = $this->liveHash();
 
         try {
             $report = $this->generateToTemp();
             $tempPath = (string) $report['temp_path'];
+            $newHash = hash('sha256', (string) ($report['content'] ?? ''));
             $syntax = $this->checkBundleSyntax($tempPath);
 
             if (! ($syntax['passed'] ?? false)) {
@@ -195,6 +197,10 @@ class RuntimeHelperBundleGenerator
                 ...$report,
                 'ok' => true,
                 'live_path' => $this->livePath(),
+                'previous_hash' => $previousHash,
+                'bundle_hash' => $newHash,
+                'helper_bundle_hash' => $newHash,
+                'helper_bundle_changed' => ! is_string($previousHash) || ! hash_equals($previousHash, $newHash),
                 'syntax' => $syntax,
             ];
         } catch (Throwable $exception) {
@@ -213,6 +219,13 @@ class RuntimeHelperBundleGenerator
                 'error' => $exception->getMessage(),
             ];
         }
+    }
+
+    public function liveHash(): ?string
+    {
+        $path = $this->livePath();
+
+        return is_file($path) ? hash_file('sha256', $path) ?: null : null;
     }
 
     private function activeHelpers()

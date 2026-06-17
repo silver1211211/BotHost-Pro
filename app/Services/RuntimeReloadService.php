@@ -70,7 +70,7 @@ class RuntimeReloadService
         return $report;
     }
 
-    public function planDockerRefresh(RuntimeReloadLog $log): array
+    public function planDockerRefresh(RuntimeReloadLog $log, ?bool $helperBundleChanged = null, ?string $expectedHelperBundleHash = null): array
     {
         $log->forceFill([
             'current_step' => 'Checking bundle file',
@@ -78,6 +78,7 @@ class RuntimeReloadService
         ])->save();
 
         $bundleExists = is_file($this->generator->livePath());
+        $expectedHelperBundleHash = $expectedHelperBundleHash ?: $this->generator->liveHash();
         $ready = [];
         $wouldRecreate = [];
         $notRunning = [];
@@ -94,7 +95,7 @@ class RuntimeReloadService
         Bot::query()
             ->orderBy('id')
             ->get()
-            ->each(function (Bot $bot) use ($bundleExists, &$ready, &$wouldRecreate, &$notRunning, &$notFound, &$unknown, &$planned, &$skipped): void {
+            ->each(function (Bot $bot) use ($bundleExists, $helperBundleChanged, $expectedHelperBundleHash, &$ready, &$wouldRecreate, &$notRunning, &$notFound, &$unknown, &$planned, &$skipped): void {
                 $entry = [
                     'bot_id' => $bot->id,
                     'bot_name' => $bot->name,
@@ -160,9 +161,26 @@ class RuntimeReloadService
 
                 $supportContext = [
                     'runtime_hash_matches' => (bool) ($support['runtime_hash_matches'] ?? false),
+                    'helper_bundle_hash' => $support['helper_bundle_hash'] ?? null,
+                    'expected_helper_bundle_hash' => $expectedHelperBundleHash,
+                    'helper_bundle_hash_matches' => (bool) ($support['helper_bundle_hash_matches'] ?? false),
                     'helper_loader_supported' => (bool) ($support['helper_loader_supported'] ?? false),
                     'localhost_only' => (bool) ($support['localhost_only'] ?? false),
                 ];
+
+                $containerHelperHash = $support['helper_bundle_hash'] ?? null;
+                $helperHashMismatch = is_string($expectedHelperBundleHash)
+                    && is_string($containerHelperHash)
+                    && ! hash_equals($expectedHelperBundleHash, $containerHelperHash);
+                $helperHashMissingAfterChange = $helperBundleChanged === true && is_string($expectedHelperBundleHash) && ! is_string($containerHelperHash);
+
+                if ($helperHashMismatch || $helperHashMissingAfterChange) {
+                    $reason = $helperHashMismatch ? 'helper bundle hash outdated' : 'helper bundle hash metadata missing after bundle change';
+                    $wouldRecreate[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
+                    $planned[] = $entry + $supportContext + ['status' => 'recreate_required', 'action' => 'would_recreate', 'reason' => $reason];
+
+                    return;
+                }
 
                 if ($support['ready'] ?? false) {
                     $ready[] = $entry + $supportContext + ['status' => 'ready', 'action' => 'none', 'reason' => 'runtime support already up to date'];
@@ -181,6 +199,8 @@ class RuntimeReloadService
             'type' => 'docker_refresh',
             'dry_run' => true,
             'bundle_exists' => $bundleExists,
+            'helper_bundle_changed' => (bool) $helperBundleChanged,
+            'expected_helper_bundle_hash' => $expectedHelperBundleHash,
             'expected_runtime_source_hash' => $this->dockerRuntime->runtimeSourceHash(),
             'bots_checked' => count($planned),
             'ready' => $ready,
@@ -193,14 +213,14 @@ class RuntimeReloadService
         ];
     }
 
-    public function refreshDockerContainers(RuntimeReloadLog $log, bool $dryRun = true, bool $confirmLiveRefresh = false): array
+    public function refreshDockerContainers(RuntimeReloadLog $log, bool $dryRun = true, bool $confirmLiveRefresh = false, ?bool $helperBundleChanged = null, ?string $expectedHelperBundleHash = null): array
     {
         if (! $dryRun) {
             if (! $confirmLiveRefresh) {
                 return $this->blockLiveRefresh($log);
             }
 
-            $plan = $this->planDockerRefresh($log);
+            $plan = $this->planDockerRefresh($log, $helperBundleChanged, $expectedHelperBundleHash);
 
             if (! ($plan['bundle_exists'] ?? false)) {
                 return $this->blockLiveRefresh($log);
@@ -233,6 +253,8 @@ class RuntimeReloadService
                         'status' => 'failed',
                         'dry_run' => false,
                         'bundle_exists' => true,
+                        'helper_bundle_changed' => (bool) ($plan['helper_bundle_changed'] ?? false),
+                        'expected_helper_bundle_hash' => $plan['expected_helper_bundle_hash'] ?? null,
                         'expected_runtime_source_hash' => $plan['expected_runtime_source_hash'] ?? null,
                         'bots_checked' => $plan['bots_checked'] ?? 0,
                         'recreated' => [],
@@ -285,7 +307,7 @@ class RuntimeReloadService
                         'error' => 'Bot not found.',
                     ];
                 } else {
-                    $result = $this->dockerRuntime->recreateBotContainerForHelperBundle($bot);
+                    $result = $this->dockerRuntime->recreateBotContainerForHelperBundle($bot, true);
 
                     if ($result['ok'] ?? false) {
                         $recreated[] = $target + $result;
@@ -309,6 +331,9 @@ class RuntimeReloadService
                 'status' => $status,
                 'dry_run' => false,
                 'bundle_exists' => true,
+                'helper_bundle_changed' => (bool) ($plan['helper_bundle_changed'] ?? false),
+                'expected_helper_bundle_hash' => $plan['expected_helper_bundle_hash'] ?? null,
+                'expected_runtime_source_hash' => $plan['expected_runtime_source_hash'] ?? null,
                 'bots_checked' => $plan['bots_checked'] ?? 0,
                 'recreated' => $recreated,
                 'failed' => $failed,
@@ -335,7 +360,7 @@ class RuntimeReloadService
             return $report;
         }
 
-        $report = $this->planDockerRefresh($log);
+        $report = $this->planDockerRefresh($log, $helperBundleChanged, $expectedHelperBundleHash);
 
         $log->forceFill([
             'current_step' => 'Writing dry-run report',
@@ -356,6 +381,8 @@ class RuntimeReloadService
             'type' => 'docker_refresh',
             'dry_run' => false,
             'bundle_exists' => is_file($this->generator->livePath()),
+            'helper_bundle_changed' => false,
+            'expected_helper_bundle_hash' => $this->generator->liveHash(),
             'error' => 'Live Docker refresh requires explicit confirmation.',
         ];
 
@@ -400,11 +427,18 @@ class RuntimeReloadService
         }
 
         if ($dockerRefresh) {
+            $publishedBundle = $reports['publish_bundle'] ?? [];
             $log->forceFill([
                 'current_step' => $dryRun ? 'Preparing Docker refresh plan' : 'Preparing live Docker refresh',
                 'steps_completed' => 1,
             ])->save();
-            $reports['docker_refresh'] = $this->refreshDockerContainers($log, $dryRun, (bool) ($options['confirm_live_refresh'] ?? false));
+            $reports['docker_refresh'] = $this->refreshDockerContainers(
+                $log,
+                $dryRun,
+                (bool) ($options['confirm_live_refresh'] ?? false),
+                array_key_exists('helper_bundle_changed', $publishedBundle) ? (bool) $publishedBundle['helper_bundle_changed'] : null,
+                $publishedBundle['helper_bundle_hash'] ?? $publishedBundle['bundle_hash'] ?? null,
+            );
 
             if (! ($reports['docker_refresh']['ok'] ?? false)) {
                 return $this->finishFailed($log, $reports, (string) ($reports['docker_refresh']['error'] ?? 'Docker refresh failed.'));
@@ -449,6 +483,9 @@ class RuntimeReloadService
     {
         return $this->jsonSummary([
             'type' => 'bundle_publish',
+            'previous_hash' => $report['previous_hash'] ?? null,
+            'bundle_hash' => $report['helper_bundle_hash'] ?? $report['bundle_hash'] ?? null,
+            'helper_bundle_changed' => (bool) ($report['helper_bundle_changed'] ?? false),
             'helpers_total' => $report['helpers_total'] ?? 0,
             'helpers_compiled' => $report['helpers_compiled'] ?? 0,
             'helpers_skipped' => $report['helpers_skipped'] ?? 0,

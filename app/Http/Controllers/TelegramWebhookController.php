@@ -880,6 +880,10 @@ class TelegramWebhookController extends Controller
                 'execution_time_ms' => $result['execution_time_ms'] ?? null,
                 'error_type' => $result['error_type'] ?? 'RuntimeExecutionError',
                 'error_message' => $result['error'] ?? 'Runtime execution failed.',
+                'public_error_message' => 'Command error. Please contact the bot owner.',
+                'internal_error_type' => $result['error_type'] ?? 'RuntimeExecutionError',
+                'internal_error_message' => $result['error'] ?? 'Runtime execution failed.',
+                'internal_error_stack' => $result['error_stack'] ?? null,
             ]);
             $this->logRuntimeFailureIfNeeded($settings, $bot, $command, $telegramContext, $result);
             $this->markCommandFailure($command);
@@ -1206,6 +1210,10 @@ class TelegramWebhookController extends Controller
                 'execution_time_ms' => $result['execution_time_ms'] ?? null,
                 'error_type' => $result['error_type'] ?? 'RuntimeExecutionError',
                 'error_message' => $result['error'] ?? 'Runtime execution failed.',
+                'public_error_message' => 'Command error. Please contact the bot owner.',
+                'internal_error_type' => $result['error_type'] ?? 'RuntimeExecutionError',
+                'internal_error_message' => $result['error'] ?? 'Runtime execution failed.',
+                'internal_error_stack' => $result['error_stack'] ?? null,
             ]);
             $this->logRuntimeFailureIfNeeded($settings, $bot, $target, $nestedContext, $result);
             $this->markCommandFailure($target);
@@ -1339,6 +1347,7 @@ class TelegramWebhookController extends Controller
         $logData = [
             'bot_id' => $bot->id,
             'bot_command_id' => $command?->id,
+            'command_name' => $command?->command_name,
             'bot_user_id' => $telegramContext['bot_user_id'] ?? null,
             'telegram_user_id' => isset($telegramContext['user_id']) ? (string) $telegramContext['user_id'] : null,
             'telegram_username' => $telegramContext['username'] ?? null,
@@ -1349,8 +1358,12 @@ class TelegramWebhookController extends Controller
             'reply_count' => $data['reply_count'] ?? 0,
             'execution_id' => $data['execution_id'] ?? null,
             'execution_time_ms' => $data['execution_time_ms'] ?? null,
-            'error_type' => $data['error_type'] ?? null,
-            'error_message' => $data['error_message'] ?? null,
+            'public_error_message' => isset($data['public_error_message']) ? $this->sanitizeRuntimeLogValue((string) $data['public_error_message']) : null,
+            'internal_error_type' => isset($data['internal_error_type']) ? $this->sanitizeRuntimeLogValue((string) $data['internal_error_type'], 255) : null,
+            'internal_error_message' => isset($data['internal_error_message']) ? $this->sanitizeRuntimeLogValue((string) $data['internal_error_message']) : null,
+            'internal_error_stack' => isset($data['internal_error_stack']) ? $this->sanitizeRuntimeLogValue((string) $data['internal_error_stack'], 4000) : null,
+            'error_type' => isset($data['error_type']) ? $this->sanitizeRuntimeLogValue((string) $data['error_type'], 255) : null,
+            'error_message' => isset($data['error_message']) ? $this->sanitizeRuntimeLogValue((string) $data['error_message']) : null,
         ];
 
         if (! $this->hasTable('bot_command_logs')) {
@@ -1422,7 +1435,7 @@ class TelegramWebhookController extends Controller
             $bot,
             $isBackend ? 'error' : 'runtime',
             $isBackend ? 'Runtime command failed' : 'Command user-code error',
-            $result['error'] ?? 'Runtime execution failed.',
+            $this->sanitizeRuntimeLogValue((string) ($result['error'] ?? 'Runtime execution failed.')),
             [
                 'category' => $isBackend && $settings->string('runtime_mode', 'local') === 'docker' ? 'docker_runtime' : ($isBackend ? 'backend_runtime' : 'user_code'),
                 'command_id' => $command->id,
@@ -1432,10 +1445,23 @@ class TelegramWebhookController extends Controller
                 'callback_data' => $telegramContext['callback_data'] ?? null,
                 'execution_id' => $result['execution_id'] ?? null,
                 'execution_time_ms' => $result['execution_time_ms'] ?? null,
-                'error_type' => $errorType,
-                'error_stack' => $result['error_stack'] ?? null,
+                'public_error_message' => 'Command error. Please contact the bot owner.',
+                'error_type' => $this->sanitizeRuntimeLogValue((string) $errorType, 255),
+                'error_message' => $this->sanitizeRuntimeLogValue((string) ($result['error'] ?? 'Runtime execution failed.')),
+                'error_stack' => isset($result['error_stack']) ? $this->sanitizeRuntimeLogValue((string) $result['error_stack'], 4000) : null,
             ],
         );
+    }
+
+    private function sanitizeRuntimeLogValue(string $value, int $limit = 2000): string
+    {
+        return str($value)
+            ->replaceMatches('/\d{6,}:[A-Za-z0-9_-]{20,}/', '[redacted-token]')
+            ->replaceMatches('/(password|secret|token|api[_-]?key)(["\'\s:=]+)([^"\'\s,}]+)/i', '$1$2[redacted]')
+            ->replaceMatches('/(Bearer\s+)[A-Za-z0-9._~+\/=-]{16,}/i', '$1[redacted]')
+            ->replaceMatches('/([?&](?:token|secret|api[_-]?key)=)[^&\s]+/i', '$1[redacted]')
+            ->limit($limit, '')
+            ->toString();
     }
 
     private function logSlowCommandIfNeeded(RuntimeSettingsService $settings, Bot $bot, BotCommand $command, array $telegramContext, array $timings): void

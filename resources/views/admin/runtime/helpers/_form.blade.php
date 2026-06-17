@@ -154,6 +154,7 @@
                 <div>
                     <h2 class="text-sm font-black text-white">Test Helper</h2>
                     <p class="mt-1 text-xs leading-5 text-[#A1A1AA]">Dry-run tests use fake bot, user, balance, and bridge values. They do not publish helpers or touch live runtime.</p>
+                    <p class="mt-1 text-xs leading-5 text-[#FCD34D]">sendMessage/sendPhoto may use dry-run stubs only. Publish and test inside a live bot command to verify real Telegram delivery.</p>
                 </div>
                 <label class="flex items-center gap-2 text-sm text-[#E2E8F0]">
                     <input id="runtime-helper-test-dry-run" type="checkbox" checked class="accent-[#8B5CF6]">
@@ -177,7 +178,7 @@
 
             <div class="mt-4 flex flex-wrap items-center gap-3">
                 <button id="runtime-helper-run-test" type="button" class="rounded-xl border border-[#22C55E]/40 bg-[#22C55E]/10 px-4 py-2 text-sm font-black text-[#86EFAC] transition hover:bg-[#22C55E]/15">Run Test</button>
-                <p class="text-xs text-[#A1A1AA]">Real payment tests are disabled in private beta.</p>
+                <p class="text-xs text-[#A1A1AA]">Real payment tests are disabled in private beta. Live-only runtime helpers may require Publish & Apply before they are available in bot code.</p>
             </div>
             <div id="runtime-helper-test-result" class="mt-3 hidden rounded-xl border px-4 py-3 text-sm"></div>
         </div>

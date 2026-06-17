@@ -202,6 +202,8 @@ Route::middleware(['auth', 'active', 'verified.required'])->group(function () {
     Route::get('/recycle-bin', [RecycleBinController::class, 'index'])->name('recycle-bin.index');
     Route::post('/recycle-bin/bots/{bot}/restore', [RecycleBinController::class, 'restore'])->name('recycle-bin.bots.restore');
     Route::delete('/recycle-bin/bots/{bot}/force-delete', [RecycleBinController::class, 'forceDelete'])->name('recycle-bin.bots.force-delete');
+    Route::post('/recycle-bin/commands/{command}/restore', [RecycleBinController::class, 'restoreCommand'])->name('recycle-bin.commands.restore');
+    Route::delete('/recycle-bin/commands/{command}/force-delete', [RecycleBinController::class, 'forceDeleteCommand'])->name('recycle-bin.commands.force-delete');
     Route::get('/transfers', [TransferController::class, 'index'])->name('transfers.index');
     Route::post('/transfers/{transfer}/import', [TransferController::class, 'importTransfer'])->name('transfers.import');
     Route::post('/transfers/{transfer}/cancel', [TransferController::class, 'cancelTransfer'])->name('transfers.cancel');

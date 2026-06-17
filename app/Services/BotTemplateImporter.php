@@ -17,11 +17,11 @@ class BotTemplateImporter
 {
     public function conflicts(Bot $bot, BotTemplate $template): array
     {
-        $existing = $bot->commands()->pluck('command_name')->all();
+        $existing = $bot->commands()->withTrashed()->pluck('command_name')->all();
 
         return $template->commands()
             ->pluck('command_name')
-            ->map(fn (?string $name) => self::normalizeCommandName($name))
+            ->map(fn (?string $name) => self::validateCommandName($name))
             ->filter()
             ->intersect($existing)
             ->values()
@@ -48,7 +48,7 @@ class BotTemplateImporter
             ];
 
             if ($conflictStrategy === 'replace_all') {
-                $bot->commands()->delete();
+                $bot->commands()->withTrashed()->get()->each->forceDelete();
                 $summary['cleared_all'] = true;
             }
 
@@ -59,7 +59,7 @@ class BotTemplateImporter
                 $template->loadMissing('commands');
 
                 foreach ($template->commands as $templateCommand) {
-                    $commandName = self::normalizeCommandName($templateCommand->command_name);
+                    $commandName = self::validateCommandName($templateCommand->command_name);
 
                     if ($commandName === null) {
                         $skipped++;
@@ -71,11 +71,22 @@ class BotTemplateImporter
                     }
 
                     $finalName = $commandName;
-                    $exists = $this->commandExists($bot, $finalName);
+                    $conflict = $this->commandConflictStatus($bot, $finalName);
+                    $exists = $conflict !== null;
 
                     if ($exists && $conflictStrategy === 'skip') {
                         $skipped++;
                         $summary['skipped'][] = $finalName;
+                        continue;
+                    }
+
+                    if ($conflict === 'trashed') {
+                        $skipped++;
+                        $summary['skipped'][] = $finalName;
+                        $summary['errors'][] = [
+                            'command_name' => $finalName,
+                            'message' => 'Command exists in recycle bin. Restore it or permanently delete it before importing this command.',
+                        ];
                         continue;
                     }
 
@@ -131,8 +142,12 @@ class BotTemplateImporter
 
     public static function normalizeCommandName(?string $value): ?string
     {
-        $value = trim((string) $value);
-        $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
+        return self::validateCommandName($value);
+    }
+
+    public static function validateCommandName(?string $value): ?string
+    {
+        $value = (string) $value;
 
         if ($value === '') {
             return null;
@@ -143,7 +158,21 @@ class BotTemplateImporter
 
     private function commandExists(Bot $bot, string $commandName): bool
     {
-        return $bot->commands()->where('command_name', $commandName)->exists();
+        return $bot->commands()->withTrashed()->where('command_name', $commandName)->exists();
+    }
+
+    private function commandConflictStatus(Bot $bot, string $commandName): ?string
+    {
+        $command = $bot->commands()
+            ->withTrashed()
+            ->where('command_name', $commandName)
+            ->first();
+
+        if (! $command) {
+            return null;
+        }
+
+        return $command->trashed() ? 'trashed' : 'active';
     }
 
     private function nextAvailableCommandName(Bot $bot, string $commandName): string
@@ -166,6 +195,7 @@ class BotTemplateImporter
         $payload = [
             'bot_id' => $bot->id,
             'command_name' => $commandName,
+            'trigger_type' => in_array($templateCommand->trigger_type, BotCommand::TRIGGER_TYPES, true) ? $templateCommand->trigger_type : null,
             'status' => $templateCommand->status === 'active' ? 'active' : 'inactive',
         ];
 
@@ -173,7 +203,7 @@ class BotTemplateImporter
 
         foreach ([
             'code' => $templateCommand->code,
-            'display_name' => $commandName,
+            'display_name' => $templateCommand->trigger_type === 'direct_message' ? ($templateCommand->description ?: 'Direct Message Handler') : $commandName,
             'response_text' => $templateCommand->response_text,
             'aliases' => $templateCommand->aliases,
             'folder' => $templateCommand->folder,

@@ -29,6 +29,8 @@ Generated bundles are syntax checked before activation. If syntax checking fails
 
 Publishing writes `runtime-node/admin-helpers-generated.js` only after generation and syntax checks pass. Missing or broken helper bundles should not crash the Node runtime. Admin helpers cannot override system helpers; collisions, unsafe names, and non-function exports are skipped by the runtime loader.
 
+Publishing records a SHA-256 hash of the generated helper bundle. Docker runtime containers created by BotHost Pro store that hash in container metadata. Publish & Apply Helpers compares the current helper bundle hash against running containers and recreates affected containers when the helper bundle changed, even if the runtime source hash did not change.
+
 ## Docker Refresh
 
 Existing Docker containers must be recreated once before they can receive the admin helper bundle bind mount. The Docker dry-run inspects containers and reports:
@@ -39,6 +41,8 @@ Existing Docker containers must be recreated once before they can receive the ad
 - not found
 - unknown
 - skipped
+
+The report includes `helper_bundle_changed`, the expected helper bundle hash, recreated/skipped counts, and a reason for each container.
 
 Dry-run is the default. Live Docker refresh requires the exact confirmation text:
 
@@ -86,3 +90,23 @@ Cancel / Mark Failed only marks the database log as cancelled. It does not kill 
 ## Operator Warning
 
 Live Docker refresh can cause short bot downtime while containers are recreated. Always publish the bundle first, run Docker dry-run, inspect the log, export the report if needed, and only then run live refresh with explicit confirmation.
+
+## Telegram Helper Signatures
+
+Use the live runtime signatures below in helper examples and bot command code:
+
+| Helper | Signature |
+| --- | --- |
+| `sendMessage` | `await sendMessage(chatId, text, options)` or `await sendMessage(text, options)` for the current chat |
+| `sendPhoto` | `await sendPhoto(chatId, photoUrlOrFileId, options)` |
+| `editMessageText` | `await editMessageText(chatId, messageId, text, options)` or `await editMessageText(text, options)` for the current callback message |
+| `answerCallbackQuery` | `await answerCallbackQuery(text, options)` |
+| `notifyUser` | `await notifyUser(userId, text, options)` |
+
+For photos, pass the caption in `options`:
+
+```js
+await sendPhoto(chat.id, photoUrl, { caption: 'Photo' });
+```
+
+Admin helper dry-runs use isolated stubs and do not send real Telegram messages. `sendMessage`/`sendPhoto` dry-run success only verifies helper code shape; publish and test inside a live bot command to verify real Telegram delivery.

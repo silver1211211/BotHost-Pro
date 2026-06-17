@@ -74,6 +74,107 @@ it('blocks direct import of locked paid templates and allows free imports', func
     expect($bot->commands()->where('command_name', '/start')->exists())->toBeTrue();
 });
 
+it('preserves template command trigger type and exact command names on workspace import', function (): void {
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $template = marketplaceTemplate(['access_type' => 'free', 'price' => 0, 'slug' => 'identity-'.str()->random(8)]);
+    $template->commands()->delete();
+    $template->commands()->create([
+        'command_name' => '/start',
+        'trigger_type' => 'slash',
+        'response_text' => 'Start',
+        'status' => 'active',
+        'runtime' => 'node',
+        'language' => 'javascript',
+    ]);
+    $template->commands()->create([
+        'command_name' => 'ðŸ’°  Balance',
+        'trigger_type' => 'text',
+        'response_text' => 'Balance',
+        'status' => 'active',
+        'runtime' => 'node',
+        'language' => 'javascript',
+    ]);
+    $template->commands()->create([
+        'command_name' => '__direct_message_handler_exact',
+        'trigger_type' => 'direct_message',
+        'code' => 'await reply("dm");',
+        'status' => 'active',
+        'runtime' => 'node',
+        'language' => 'javascript',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('dashboard.templates.unlock-free', $template))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $template]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($bot->commands()->where('command_name', '/start')->where('trigger_type', 'slash')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', 'ðŸ’°  Balance')->where('trigger_type', 'text')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', '__direct_message_handler_exact')->where('trigger_type', 'direct_message')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', 'ðŸ’° Balance')->exists())->toBeFalse();
+});
+
+it('shows only unlocked templates in bot workspace picker with formatted about text', function (): void {
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $locked = marketplaceTemplate(['name' => 'Locked Picker Template', 'slug' => 'locked-picker-'.str()->random(8)]);
+    $unlocked = marketplaceTemplate([
+        'name' => 'Unlocked Picker Template',
+        'slug' => 'unlocked-picker-'.str()->random(8),
+        'short_description' => 'Import **bold** flows.',
+    ]);
+    $unlocked->purchases()->create([
+        'user_id' => $user->id,
+        'amount' => '5.00',
+        'currency' => 'USD',
+        'status' => 'completed',
+        'purchased_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('bots.templates.index', $bot))
+        ->assertOk()
+        ->assertSee('Unlocked Picker Template')
+        ->assertSee('<strong>bold</strong>', false)
+        ->assertSee('Import into this bot')
+        ->assertDontSee('Locked Picker Template')
+        ->assertDontSee('**bold**');
+});
+
+it('template import skips commands that conflict with recycle bin commands', function (): void {
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $command = $bot->commands()->create([
+        'command_name' => '/start',
+        'trigger_type' => 'slash',
+        'response_text' => 'Old',
+        'response_type' => 'text',
+        'status' => 'active',
+    ]);
+    $command->delete();
+
+    $template = marketplaceTemplate(['access_type' => 'free', 'price' => 0, 'slug' => 'recycle-conflict-'.str()->random(8)]);
+
+    $this->actingAs($user)
+        ->post(route('dashboard.templates.unlock-free', $template))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $template]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($bot->commands()->where('command_name', '/start')->count())->toBe(0)
+        ->and($bot->commands()->withTrashed()->where('command_name', '/start')->count())->toBe(1);
+});
+
 it('creates crypto invoices and unlocks paid templates after OxaPay confirms payment', function (): void {
     config(['oxapay.merchant_api_key' => 'test-key']);
     Http::fake([

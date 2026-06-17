@@ -90,6 +90,42 @@ test('admin helper cannot override protected system helper names', () => {
   }
 });
 
+test('new runtime process can access newly published helper bundle', async () => {
+  const logger = quietLogger();
+  const { dir, bundlePath } = makeTempBundle(`
+    module.exports = {
+      buildAdminHelpers() {
+        return {};
+      }
+    };
+  `);
+
+  try {
+    const beforeRefresh = createAdminHelperLoader({ bundlePath, logger }).createCommandSandbox({});
+    assert.equal(Object.prototype.hasOwnProperty.call(beforeRefresh, 'freshHelper'), false);
+
+    fs.writeFileSync(bundlePath, `
+      module.exports = {
+        buildAdminHelpers() {
+          return {
+            freshHelper: async () => ({ ok: true, loaded: 'after-refresh' })
+          };
+        }
+      };
+    `, 'utf8');
+
+    const afterRefresh = createAdminHelperLoader({ bundlePath, logger }).createCommandSandbox({});
+    const context = vm.createContext(afterRefresh);
+    const result = await new vm.Script(`
+      (async () => await freshHelper())()
+    `).runInContext(context);
+
+    assert.deepEqual(result, { ok: true, loaded: 'after-refresh' });
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('invalid admin helper bundle logs warning and keeps system helpers usable', () => {
   const logger = quietLogger();
   const { dir, bundlePath } = makeTempBundle('module.exports = { nope: true };');

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'bot_id',
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class BotCommand extends Model
 {
+    use SoftDeletes;
+
     public const STATUSES = ['active', 'inactive'];
     public const TRIGGER_TYPES = ['slash', 'text', 'callback', 'direct_message'];
     public const DIRECT_MESSAGE_COMMAND_PREFIX = '__direct_message_handler_';
@@ -48,6 +51,7 @@ class BotCommand extends Model
             'error_count' => 'integer',
             'license_locked' => 'boolean',
             'duplicate_count_used' => 'integer',
+            'deleted_at' => 'datetime',
         ];
     }
 

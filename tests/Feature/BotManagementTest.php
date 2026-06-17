@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class BotManagementTest extends TestCase
@@ -80,6 +81,7 @@ class BotManagementTest extends TestCase
                     'username' => 'support_desk_bot',
                 ],
             ]),
+            'api.telegram.org/*/deleteWebhook' => Http::response(['ok' => true, 'result' => true]),
         ]);
 
         $user = User::factory()->create();
@@ -117,6 +119,91 @@ class BotManagementTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('bots', 0);
+    }
+
+    public function test_recycled_bot_token_cannot_be_used_to_create_another_bot(): void
+    {
+        Http::fake();
+
+        $user = User::factory()->create();
+        $bot = Bot::create([
+            'user_id' => $user->id,
+            'name' => 'Recycled Bot',
+            'slug' => 'recycled-bot',
+            'token_encrypted' => '123456:AA-recycled-token',
+            'status' => 'stopped',
+            'language' => 'javascript',
+            'setup_type' => 'custom',
+        ]);
+
+        $bot->delete();
+
+        $this->actingAs($user)->post('/dashboard/bots', [
+            'token' => '123456:AA-recycled-token',
+            'name' => 'New Bot',
+            'setup_type' => 'custom',
+        ])->assertSessionHasErrors([
+            'token' => 'This bot token is already connected to another workspace.',
+        ]);
+
+        Http::assertNothingSent();
+        $this->assertSame(1, Bot::withTrashed()->count());
+        $this->assertSame(0, Bot::query()->count());
+    }
+
+    public function test_recycled_bot_can_be_permanently_deleted_and_token_reused(): void
+    {
+        config(['app.public_url' => 'http://127.0.0.1:8000']);
+
+        Http::fake([
+            'api.telegram.org/*/getMe' => Http::response([
+                'ok' => true,
+                'result' => [
+                    'id' => 987654321,
+                    'is_bot' => true,
+                    'first_name' => 'Reused Bot',
+                    'username' => 'reused_bot',
+                ],
+            ]),
+        ]);
+
+        $user = User::factory()->create();
+        $bot = Bot::create([
+            'user_id' => $user->id,
+            'name' => 'Recycled Bot',
+            'slug' => 'recycled-bot',
+            'token_encrypted' => '123456:AA-reusable-token',
+            'status' => 'stopped',
+            'language' => 'javascript',
+            'setup_type' => 'custom',
+        ]);
+
+        DB::table('bot_runtime_data')->insert([
+            'bot_id' => $bot->id,
+            'key' => 'state',
+            'value' => '{}',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $bot->delete();
+
+        $this->actingAs($user)
+            ->delete(route('recycle-bin.bots.force-delete', $bot->id))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Bot permanently deleted.');
+
+        $this->assertSame(0, Bot::withTrashed()->whereKey($bot->id)->count());
+        $this->assertDatabaseMissing('bot_runtime_data', ['bot_id' => $bot->id]);
+
+        $this->actingAs($user)->post('/dashboard/bots', [
+            'token' => '123456:AA-reusable-token',
+            'name' => 'New Bot',
+            'setup_type' => 'custom',
+        ])->assertRedirect();
+
+        $this->assertSame(1, Bot::query()->count());
+        $this->assertSame('New Bot', Bot::query()->first()->name);
     }
 
     public function test_malformed_telegram_token_does_not_call_telegram(): void
@@ -294,6 +381,67 @@ class BotManagementTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_command_in_recycle_bin_blocks_duplicate_until_permanently_deleted(): void
+    {
+        $user = User::factory()->create();
+        $bot = $this->createBot($user);
+        $command = $this->createCommand($bot, '/start');
+
+        $this->actingAs($user)
+            ->delete(route('bots.commands.destroy', [$bot, $command]))
+            ->assertRedirect();
+
+        $this->assertSoftDeleted('bot_commands', ['id' => $command->id]);
+
+        $this->actingAs($user)
+            ->post(route('bots.commands.store', $bot), [
+                'trigger_type' => 'slash',
+                'command_name' => '/start',
+                'code' => 'await reply("again");',
+                'status' => 'active',
+            ])
+            ->assertSessionHasErrors(['command_name' => 'This command already exists in the recycle bin. Restore it or permanently delete it before creating this command again.']);
+
+        $this->actingAs($user)
+            ->delete(route('recycle-bin.commands.force-delete', $command->id))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Command permanently deleted.');
+
+        $this->assertDatabaseMissing('bot_commands', ['id' => $command->id]);
+
+        $this->actingAs($user)
+            ->post(route('bots.commands.store', $bot), [
+                'trigger_type' => 'slash',
+                'command_name' => '/start',
+                'code' => 'await reply("again");',
+                'status' => 'active',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('bot_commands', [
+            'bot_id' => $bot->id,
+            'command_name' => '/start',
+            'deleted_at' => null,
+        ]);
+    }
+
+    public function test_recycle_bin_page_uses_custom_modal_for_permanent_command_delete(): void
+    {
+        $user = User::factory()->create();
+        $bot = $this->createBot($user);
+        $command = $this->createCommand($bot, '/delete-me');
+        $command->delete();
+
+        $this->actingAs($user)
+            ->get(route('recycle-bin.index'))
+            ->assertOk()
+            ->assertSee('Deleted Commands')
+            ->assertSee('openConfirm', false)
+            ->assertSee(route('recycle-bin.commands.force-delete', $command->id), false)
+            ->assertDontSee('confirm(', false);
+    }
+
     public function test_user_can_update_bot_name_and_token_from_workspace_settings(): void
     {
         Http::fake([
@@ -336,6 +484,79 @@ class BotManagementTest extends TestCase
         $this->assertTrue($bot->telegram_can_read_all_group_messages);
         $this->assertTrue($bot->telegram_supports_inline_queries);
         $this->assertNotNull($bot->token_verified_at);
+    }
+
+    public function test_token_update_rotates_webhook_secret_and_old_webhook_path_cannot_affect_bot(): void
+    {
+        config(['app.public_url' => 'https://abc123.ngrok-free.app']);
+
+        Http::fake([
+            'api.telegram.org/bot987654:BB-new-secret/getMe' => Http::response([
+                'ok' => true,
+                'result' => [
+                    'id' => 987654,
+                    'is_bot' => true,
+                    'first_name' => 'New Bot',
+                    'username' => 'new_bot',
+                ],
+            ]),
+            'api.telegram.org/bot123456:AA-secret-token-owned-bot/deleteWebhook' => Http::response(['ok' => true, 'result' => true]),
+            'api.telegram.org/bot987654:BB-new-secret/setWebhook' => Http::response(['ok' => true, 'result' => true]),
+            'api.telegram.org/bot987654:BB-new-secret/getWebhookInfo' => Http::response(['ok' => true, 'result' => ['url' => '']]),
+            'api.telegram.org/bot987654:BB-new-secret/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $user = User::factory()->create();
+        $bot = $this->createBot($user);
+        $bot->update([
+            'status' => 'running',
+            'webhook_secret' => 'old-secret',
+            'webhook_status' => 'active',
+            'token_verified_at' => now(),
+        ]);
+        $this->createCommand($bot, '/start', 'New token response');
+
+        $this->actingAs($user)->patch(route('bots.settings.update', $bot), [
+            'token' => '987654:BB-new-secret',
+        ])->assertRedirect(route('bots.show', ['bot' => $bot, 'tab' => 'settings']));
+
+        $bot->refresh();
+        $this->assertNotSame('old-secret', $bot->webhook_secret);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'old-secret']), [
+            'message' => ['text' => '/start', 'chat' => ['id' => 111], 'from' => ['id' => 222]],
+        ])->assertForbidden();
+
+        $this->postJson(route('telegram.webhook', [$bot, $bot->webhook_secret]), [
+            'message' => ['text' => '/start', 'chat' => ['id' => 111], 'from' => ['id' => 222]],
+        ])->assertOk()->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'bot123456:AA-secret-token-owned-bot/deleteWebhook'));
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'bot987654:BB-new-secret/sendMessage'));
+    }
+
+    public function test_runtime_telegram_bridge_uses_latest_saved_token_after_token_update(): void
+    {
+        $user = User::factory()->create();
+        $bot = $this->createBot($user);
+        $bot->update(['token_encrypted' => '987654:BB-new-secret']);
+
+        config(['services.node_runtime.secret' => 'bridge-secret']);
+        Http::fake([
+            'api.telegram.org/bot987654:BB-new-secret/sendMessage' => Http::response(['ok' => true, 'result' => ['message_id' => 55]]),
+        ]);
+
+        $this->withHeader('X-Runtime-Secret', 'bridge-secret')
+            ->postJson('/runtime/telegram', [
+                'bot_id' => $bot->id,
+                'action' => 'telegram.sendMessage',
+                'options' => ['chat_id' => 111, 'text' => 'Latest token'],
+            ])
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'bot987654:BB-new-secret/sendMessage'));
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'bot123456:AA-secret-token-owned-bot/sendMessage'));
     }
 
     public function test_invalid_settings_token_keeps_old_token(): void
@@ -439,6 +660,7 @@ class BotManagementTest extends TestCase
         $user = User::factory()->create();
         $bot = $this->createBot($user);
         $bot->update([
+            'status' => 'running',
             'webhook_secret' => 'secret-value',
             'webhook_status' => 'active',
         ]);
@@ -466,6 +688,7 @@ class BotManagementTest extends TestCase
         $user = User::factory()->create();
         $bot = $this->createBot($user);
         $bot->update([
+            'status' => 'running',
             'webhook_secret' => 'secret-value',
             'webhook_status' => 'active',
         ]);
@@ -501,6 +724,7 @@ class BotManagementTest extends TestCase
         $user = User::factory()->create();
         $bot = $this->createBot($user);
         $bot->update([
+            'status' => 'running',
             'webhook_secret' => 'secret-value',
             'webhook_status' => 'active',
         ]);
@@ -554,6 +778,13 @@ class BotManagementTest extends TestCase
         ]);
 
         Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response(['ok' => true]),
+            'http://127.0.0.1:8787/execute' => Http::response([
+                'ok' => true,
+                'replies' => [
+                    ['type' => 'text', 'text' => 'Hello from JavaScript runtime'],
+                ],
+            ]),
             'http://127.0.0.1:8787/execute-command' => Http::response([
                 'ok' => true,
                 'replies' => [
@@ -566,6 +797,7 @@ class BotManagementTest extends TestCase
         $user = User::factory()->create();
         $bot = $this->createBot($user);
         $bot->update([
+            'status' => 'running',
             'webhook_secret' => 'secret-value',
             'webhook_status' => 'active',
         ]);
@@ -579,7 +811,7 @@ class BotManagementTest extends TestCase
             ],
         ])->assertOk()->assertJson(['ok' => true]);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '127.0.0.1:8787/execute-command')
+        Http::assertSent(fn ($request) => str_contains($request->url(), '127.0.0.1:8787/execute')
             && $request->hasHeader('X-Runtime-Secret', 'local-dev-secret')
             && data_get($request->data(), 'telegram.message_text') === '/start'
             && data_get($request->data(), 'telegram.first_name') === 'Test');
@@ -621,6 +853,7 @@ class BotManagementTest extends TestCase
         $user = User::factory()->create();
         $bot = $this->createBot($user);
         $bot->update([
+            'status' => 'running',
             'webhook_secret' => 'secret-value',
             'webhook_status' => 'active',
         ]);
@@ -646,11 +879,17 @@ class BotManagementTest extends TestCase
             'http://127.0.0.1:8787/health' => Http::response(['ok' => true]),
             'http://127.0.0.1:8787/execute' => Http::response([
                 'ok' => false,
-                'error' => 'Test error',
+                'execution_id' => 'exec-secret-test',
+                'error_type' => 'ReferenceError',
+                'error' => 'Test error token=123456:AA-secret-token-owned-bot',
+                'error_stack' => "ReferenceError: Test error\n    at bot.js:1 token=123456:AA-secret-token-owned-bot",
             ]),
             'http://127.0.0.1:8787/execute-command' => Http::response([
                 'ok' => false,
-                'error' => 'Test error',
+                'execution_id' => 'exec-secret-test',
+                'error_type' => 'ReferenceError',
+                'error' => 'Test error token=123456:AA-secret-token-owned-bot',
+                'error_stack' => "ReferenceError: Test error\n    at bot.js:1 token=123456:AA-secret-token-owned-bot",
             ]),
             'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
         ]);
@@ -658,6 +897,7 @@ class BotManagementTest extends TestCase
         $user = User::factory()->create();
         $bot = $this->createBot($user);
         $bot->update([
+            'status' => 'running',
             'webhook_secret' => 'secret-value',
             'webhook_status' => 'active',
         ]);
@@ -674,20 +914,22 @@ class BotManagementTest extends TestCase
         Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
             && $request['text'] === 'Command error. Please contact the bot owner.');
 
-        $this->assertDatabaseHas('bot_logs', [
-            'bot_id' => $bot->id,
-            'type' => 'error',
-            'title' => 'Runtime command failed',
-            'message' => 'Test error',
-        ]);
-
         $this->assertDatabaseHas('bot_command_logs', [
             'bot_id' => $bot->id,
             'bot_command_id' => $bot->commands()->first()->id,
+            'command_name' => '/start',
             'message_text' => '/start',
             'status' => 'failed',
-            'error_type' => 'RuntimeExecutionError',
-            'error_message' => 'Test error',
+            'execution_id' => 'exec-secret-test',
+            'public_error_message' => 'Command error. Please contact the bot owner.',
+            'internal_error_type' => 'ReferenceError',
+            'internal_error_message' => 'Test error token=[redacted]',
+            'error_type' => 'ReferenceError',
+            'error_message' => 'Test error token=[redacted]',
+        ]);
+
+        $this->assertDatabaseMissing('bot_command_logs', [
+            'internal_error_message' => 'Test error token=123456:AA-secret-token-owned-bot',
         ]);
     }
 

@@ -60,11 +60,11 @@ class BotCommandController extends Controller
         }
 
         $data = $this->validatedCommand($request, $bot, requireCode: false);
-        $commandName = trim($data['command_name']);
+        $commandName = $data['command_name'];
 
         $command = $bot->commands()->create([
             'command_name' => $commandName,
-            'display_name' => trim($data['display_name']),
+            'display_name' => $data['display_name'],
             'trigger_type' => $data['trigger_type'],
             'code' => filled($data['code'] ?? null) ? $data['code'] : null,
             'response_text' => $data['response_text'] ?? null,
@@ -108,8 +108,8 @@ class BotCommandController extends Controller
         $data = $this->validatedCommand($request, $bot, $command, requireCode: false);
 
         $command->update([
-            'command_name' => trim($data['command_name']),
-            'display_name' => trim($data['display_name']),
+            'command_name' => $data['command_name'],
+            'display_name' => $data['display_name'],
             'trigger_type' => $data['trigger_type'],
             'response_text' => $data['response_text'] ?? null,
             'status' => $data['status'] ?? 'active',
@@ -221,7 +221,7 @@ class BotCommandController extends Controller
             $triggerType = $command->effectiveTriggerType();
         }
 
-        $visibleCommandName = trim((string) $request->input('command_name'));
+        $visibleCommandName = (string) $request->input('command_name');
         $displayName = $visibleCommandName;
         $commandName = $visibleCommandName;
 
@@ -255,17 +255,23 @@ class BotCommandController extends Controller
                         return;
                     }
 
-                    if (preg_match('/\s{2,}/u', $value)) {
-                        $fail('Command name cannot contain multiple consecutive spaces.');
-                    }
-
                     $duplicate = $bot->commands()
+                        ->withTrashed()
                         ->when($command, fn ($query) => $query->whereKeyNot($command->id))
                         ->get(['command_name'])
                         ->contains(fn (BotCommand $existing) => $existing->command_name === $value);
 
                     if ($duplicate) {
-                        $fail('This command already exists for this bot.');
+                        $trashedDuplicate = $bot->commands()
+                            ->withTrashed()
+                            ->where('command_name', $value)
+                            ->when($command, fn ($query) => $query->whereKeyNot($command->id))
+                            ->whereNotNull('deleted_at')
+                            ->exists();
+
+                        $fail($trashedDuplicate
+                            ? 'This command already exists in the recycle bin. Restore it or permanently delete it before creating this command again.'
+                            : 'This command already exists for this bot.');
                     }
                 },
             ],
@@ -311,6 +317,7 @@ class BotCommandController extends Controller
         }
 
         $exists = $bot->commands()
+            ->withTrashed()
             ->where('trigger_type', 'direct_message')
             ->where('status', 'active')
             ->when($command, fn ($query) => $query->whereKeyNot($command->id))

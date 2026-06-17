@@ -250,7 +250,8 @@ class TemplateZipImportService
 
     private function normalizeCommand(array $definition, array $files, string $source = 'zip'): ?array
     {
-        $commandName = BotTemplateImporter::normalizeCommandName($this->commandNameFromDefinition($definition));
+        $triggerType = $this->triggerTypeFromDefinition($definition);
+        $commandName = BotTemplateImporter::validateCommandName($this->commandNameFromDefinition($definition));
 
         if (! $commandName) {
             return null;
@@ -279,6 +280,7 @@ class TemplateZipImportService
 
         return [
             'command_name' => $commandName,
+            'trigger_type' => $triggerType,
             'description' => Str::limit((string) ($definition['description'] ?? ''), 500, ''),
             'code' => filled($code) ? (string) $code : null,
             'response_text' => filled($responseText) ? (string) $responseText : null,
@@ -298,7 +300,7 @@ class TemplateZipImportService
         }
 
         $normalized = collect($aliases)
-            ->map(fn (mixed $alias) => BotTemplateImporter::normalizeCommandName(is_string($alias) ? $alias : null))
+            ->map(fn (mixed $alias) => BotTemplateImporter::validateCommandName(is_string($alias) ? $alias : null))
             ->filter()
             ->unique()
             ->values()
@@ -321,6 +323,19 @@ class TemplateZipImportService
             'direct_message', 'message', 'dm' => 'direct_message',
             'callback', 'callback_query' => filled($definition['callback'] ?? null) ? (string) $definition['callback'] : 'callback_query',
             'menu' => filled($definition['menu_key'] ?? null) ? (string) $definition['menu_key'] : 'menu',
+            default => null,
+        };
+    }
+
+    private function triggerTypeFromDefinition(array $definition): ?string
+    {
+        $type = strtolower((string) ($definition['trigger_type'] ?? $definition['type'] ?? ''));
+
+        return match ($type) {
+            'direct_message', 'message', 'dm' => 'direct_message',
+            'callback', 'callback_query', 'menu' => 'callback',
+            'slash', 'command' => 'slash',
+            'text' => 'text',
             default => null,
         };
     }
