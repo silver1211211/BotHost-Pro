@@ -6,8 +6,10 @@ use App\Models\PaymentInvoice;
 use App\Models\User;
 use App\Models\WalletTransaction;
 use App\Jobs\RecheckBotTemplatePurchase;
+use App\Services\BotTemplateImporter;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Validation\ValidationException;
 
 function marketplaceUser(array $attributes = []): User
 {
@@ -119,7 +121,8 @@ it('preserves template command trigger type and exact command names on workspace
 
     expect($bot->commands()->where('command_name', '/start')->where('trigger_type', 'slash')->exists())->toBeTrue()
         ->and($bot->commands()->where('command_name', 'ðŸ’°  Balance')->where('trigger_type', 'text')->exists())->toBeTrue()
-        ->and($bot->commands()->where('command_name', '__direct_message_handler_exact')->where('trigger_type', 'direct_message')->exists())->toBeTrue()
+        ->and($bot->commands()->where('command_name', '__direct_message_handler_exact')->exists())->toBeFalse()
+        ->and($bot->commands()->where('trigger_type', 'direct_message')->first()?->displayName())->toBe('Direct Message Handler')
         ->and($bot->commands()->where('command_name', 'ðŸ’° Balance')->exists())->toBeFalse();
 });
 
@@ -193,6 +196,14 @@ it('queues purchase recheck and still blocks imports without completed library o
     Queue::assertPushed(RecheckBotTemplatePurchase::class, fn (RecheckBotTemplatePurchase $job) => $job->userId === $user->id
         && $job->templateId === $template->id);
 });
+
+it('core template importer rejects templates without completed ownership', function (): void {
+    $user = marketplaceUser();
+    $bot = marketplaceBot($user);
+    $template = marketplaceTemplate(['name' => 'Service Locked Template']);
+
+    app(BotTemplateImporter::class)->import($bot, $template, $user);
+})->throws(ValidationException::class);
 
 it('background purchase rechecker repairs paid invoice ownership before import', function (): void {
     config(['queue.default' => 'sync']);

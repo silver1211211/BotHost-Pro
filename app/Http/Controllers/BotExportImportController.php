@@ -301,10 +301,12 @@ class BotExportImportController extends Controller
 
     private function commandPayload($cmd, bool $includeSourceFields): array
     {
+        $triggerType = $cmd->effectiveTriggerType();
         $payload = [
             'command_name'  => $cmd->command_name,
             'display_name'  => $cmd->displayName(),
-            'trigger_type'  => $cmd->trigger_type,
+            'trigger_type'  => $triggerType,
+            'type'          => $triggerType,
             'code'          => $cmd->code,
             'response_text' => $cmd->response_text,
             'response_type' => $cmd->response_type,
@@ -328,10 +330,14 @@ class BotExportImportController extends Controller
 
     private function commandImportPayload(array $cmdData): array
     {
+        $triggerType = in_array($cmdData['trigger_type'] ?? null, BotCommand::TRIGGER_TYPES, true)
+            ? $cmdData['trigger_type']
+            : (BotCommand::isDirectMessageMarker($cmdData['command_name'] ?? null) ? 'direct_message' : null);
+
         return [
             'command_name'  => $cmdData['command_name'],
-            'display_name'  => $cmdData['display_name'] ?? $cmdData['command_name'],
-            'trigger_type'  => in_array($cmdData['trigger_type'] ?? null, BotCommand::TRIGGER_TYPES, true) ? $cmdData['trigger_type'] : null,
+            'display_name'  => $triggerType === 'direct_message' ? 'Direct Message Handler' : ($cmdData['display_name'] ?? $cmdData['command_name']),
+            'trigger_type'  => $triggerType,
             'code'          => $cmdData['code'] ?? null,
             'response_text' => $cmdData['response_text'] ?? '',
             'response_type' => $cmdData['response_type'] ?? 'text',

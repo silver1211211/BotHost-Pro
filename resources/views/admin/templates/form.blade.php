@@ -355,9 +355,10 @@
             <div class="divide-y divide-[#27213D] bg-[#0F0D1A]">
                 @forelse ($template->commands as $command)
                     <div class="px-4 py-3">
-                        <p class="font-mono text-sm font-bold text-[#A855F7]">{{ $command->command_name }}</p>
+                        <p class="{{ $command->isDirectMessageHandler() ? 'text-sm' : 'font-mono text-sm' }} font-bold text-[#A855F7]">{{ $command->displayName() }}</p>
                         <p class="mt-0.5 text-xs text-[#94A3B8]">
                             {{ $command->folder ?: 'No folder' }} &middot; {{ $command->status }} &middot; {{ filled($command->code) ? 'code' : 'text' }}
+                            @if($command->isDirectMessageHandler()) &middot; direct message handler @endif
                         </p>
                     </div>
                 @empty

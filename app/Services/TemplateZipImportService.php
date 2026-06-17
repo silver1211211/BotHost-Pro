@@ -250,8 +250,9 @@ class TemplateZipImportService
 
     private function normalizeCommand(array $definition, array $files, string $source = 'zip'): ?array
     {
-        $triggerType = $this->triggerTypeFromDefinition($definition);
         $commandName = BotTemplateImporter::validateCommandName($this->commandNameFromDefinition($definition));
+        $triggerType = $this->triggerTypeFromDefinition($definition)
+            ?: (\App\Models\BotTemplateCommand::isDirectMessageMarker($commandName) ? 'direct_message' : null);
 
         if (! $commandName) {
             return null;

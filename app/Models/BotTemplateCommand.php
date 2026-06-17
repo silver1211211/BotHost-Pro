@@ -25,6 +25,8 @@ class BotTemplateCommand extends Model
 {
     public const STATUSES = ['active', 'paused', 'disabled'];
 
+    public const DIRECT_MESSAGE_LABEL = 'Direct Message Handler';
+
     protected function casts(): array
     {
         return [
@@ -37,5 +39,43 @@ class BotTemplateCommand extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(BotTemplate::class, 'bot_template_id');
+    }
+
+    public function effectiveTriggerType(): ?string
+    {
+        if ($this->trigger_type === 'direct_message' || self::isDirectMessageMarker($this->command_name)) {
+            return 'direct_message';
+        }
+
+        return $this->trigger_type;
+    }
+
+    public function isDirectMessageHandler(): bool
+    {
+        return $this->effectiveTriggerType() === 'direct_message';
+    }
+
+    public function displayName(): string
+    {
+        return $this->isDirectMessageHandler()
+            ? self::DIRECT_MESSAGE_LABEL
+            : (string) $this->command_name;
+    }
+
+    public static function isDirectMessageMarker(?string $value): bool
+    {
+        $value = (string) $value;
+
+        if ($value === '') {
+            return false;
+        }
+
+        if (str_starts_with($value, \App\Models\BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX)) {
+            return true;
+        }
+
+        $normalized = strtolower(preg_replace('/[^a-z0-9]+/i', '', $value) ?? '');
+
+        return str_starts_with($normalized, 'directmessagehandler');
     }
 }

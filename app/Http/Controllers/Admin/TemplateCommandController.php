@@ -19,10 +19,12 @@ class TemplateCommandController extends Controller
     public function store(Request $request, BotTemplate $template): RedirectResponse
     {
         $data = $this->validatedCommand($request);
+        $triggerType = $this->effectiveTriggerType($data);
 
         $command = $template->commands()->create([
             ...$data,
             'command_name' => BotTemplateImporter::validateCommandName($data['command_name']),
+            'trigger_type' => $triggerType,
             'aliases' => $this->aliasesFrom($data['aliases'] ?? null),
             'runtime' => $data['runtime'] ?: 'node',
             'language' => $data['language'] ?: 'javascript',
@@ -43,10 +45,12 @@ class TemplateCommandController extends Controller
     {
         abort_unless($command->bot_template_id === $template->id, 403);
         $data = $this->validatedCommand($request);
+        $triggerType = $this->effectiveTriggerType($data);
 
         $command->update([
             ...$data,
             'command_name' => BotTemplateImporter::validateCommandName($data['command_name']),
+            'trigger_type' => $triggerType,
             'aliases' => $this->aliasesFrom($data['aliases'] ?? null),
             'runtime' => $data['runtime'] ?: 'node',
             'language' => $data['language'] ?: 'javascript',
@@ -120,5 +124,14 @@ class TemplateCommandController extends Controller
             ->all();
 
         return $aliases === [] ? null : $aliases;
+    }
+
+    private function effectiveTriggerType(array $data): ?string
+    {
+        if (($data['trigger_type'] ?? null) === 'direct_message' || BotTemplateCommand::isDirectMessageMarker($data['command_name'] ?? null)) {
+            return 'direct_message';
+        }
+
+        return $data['trigger_type'] ?? null;
     }
 }

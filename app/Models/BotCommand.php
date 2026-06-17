@@ -57,6 +57,10 @@ class BotCommand extends Model
 
     public function effectiveTriggerType(): string
     {
+        if ($this->trigger_type === 'direct_message' || self::isDirectMessageMarker($this->command_name)) {
+            return 'direct_message';
+        }
+
         if (in_array($this->trigger_type, self::TRIGGER_TYPES, true)) {
             return $this->trigger_type;
         }
@@ -73,6 +77,23 @@ class BotCommand extends Model
         return $this->effectiveTriggerType() === 'direct_message'
             ? 'Direct Message Handler'
             : (string) $this->command_name;
+    }
+
+    public static function isDirectMessageMarker(?string $value): bool
+    {
+        $value = (string) $value;
+
+        if ($value === '') {
+            return false;
+        }
+
+        if (str_starts_with($value, self::DIRECT_MESSAGE_COMMAND_PREFIX)) {
+            return true;
+        }
+
+        $normalized = strtolower(preg_replace('/[^a-z0-9]+/i', '', $value) ?? '');
+
+        return str_starts_with($normalized, 'directmessagehandler');
     }
 
     public function bot(): BelongsTo

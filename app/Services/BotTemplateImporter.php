@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class BotTemplateImporter
@@ -20,8 +21,10 @@ class BotTemplateImporter
         $existing = $bot->commands()->withTrashed()->pluck('command_name')->all();
 
         return $template->commands()
-            ->pluck('command_name')
-            ->map(fn (?string $name) => self::validateCommandName($name))
+            ->get()
+            ->reject(fn (BotTemplateCommand $command) => $command->isDirectMessageHandler())
+            ->map(fn (BotTemplateCommand $command) => self::validateCommandName($command->command_name))
+            ->toBase()
             ->filter()
             ->intersect($existing)
             ->values()
@@ -30,6 +33,12 @@ class BotTemplateImporter
 
     public function import(Bot $bot, BotTemplate $template, User $user, string $conflictStrategy = 'skip'): BotTemplateImport
     {
+        if (! $template->canBeImportedBy($user)) {
+            throw ValidationException::withMessages([
+                'template' => 'Please purchase this template before importing.',
+            ]);
+        }
+
         $conflictStrategy = in_array($conflictStrategy, ['skip', 'rename', 'replace', 'replace_all'], true) ? $conflictStrategy : 'skip';
 
         return DB::transaction(function () use ($bot, $template, $user, $conflictStrategy): BotTemplateImport {
@@ -59,6 +68,13 @@ class BotTemplateImporter
                 $template->loadMissing('commands');
 
                 foreach ($template->commands as $templateCommand) {
+                    if ($templateCommand->isDirectMessageHandler()) {
+                        $this->upsertDirectMessageHandler($bot, $template, $templateCommand, $purchase?->id);
+                        $imported++;
+                        $summary['imported'][] = BotTemplateCommand::DIRECT_MESSAGE_LABEL;
+                        continue;
+                    }
+
                     $commandName = self::validateCommandName($templateCommand->command_name);
 
                     if ($commandName === null) {
@@ -192,10 +208,11 @@ class BotTemplateImporter
 
     private function botCommandPayload(Bot $bot, BotTemplate $template, BotTemplateCommand $templateCommand, string $commandName, ?int $purchaseId): array
     {
+        $triggerType = $templateCommand->effectiveTriggerType();
         $payload = [
             'bot_id' => $bot->id,
             'command_name' => $commandName,
-            'trigger_type' => in_array($templateCommand->trigger_type, BotCommand::TRIGGER_TYPES, true) ? $templateCommand->trigger_type : null,
+            'trigger_type' => in_array($triggerType, BotCommand::TRIGGER_TYPES, true) ? $triggerType : null,
             'status' => $templateCommand->status === 'active' ? 'active' : 'inactive',
         ];
 
@@ -203,7 +220,7 @@ class BotTemplateImporter
 
         foreach ([
             'code' => $templateCommand->code,
-            'display_name' => $templateCommand->trigger_type === 'direct_message' ? ($templateCommand->description ?: 'Direct Message Handler') : $commandName,
+            'display_name' => $triggerType === 'direct_message' ? BotTemplateCommand::DIRECT_MESSAGE_LABEL : $commandName,
             'response_text' => $templateCommand->response_text,
             'aliases' => $templateCommand->aliases,
             'folder' => $templateCommand->folder,
@@ -223,5 +240,42 @@ class BotTemplateImporter
         }
 
         return $payload;
+    }
+
+    private function upsertDirectMessageHandler(Bot $bot, BotTemplate $template, BotTemplateCommand $templateCommand, ?int $purchaseId): BotCommand
+    {
+        $existing = $bot->commands()
+            ->withTrashed()
+            ->where('trigger_type', 'direct_message')
+            ->first();
+
+        if (! $existing) {
+            $existing = $bot->commands()
+                ->withTrashed()
+                ->get()
+                ->first(fn (BotCommand $command) => BotCommand::isDirectMessageMarker($command->command_name));
+        }
+
+        $commandName = $existing?->command_name ?: $this->newDirectMessageCommandName();
+        $payload = $this->botCommandPayload($bot, $template, $templateCommand, $commandName, $purchaseId);
+        $payload['trigger_type'] = 'direct_message';
+        $payload['display_name'] = BotTemplateCommand::DIRECT_MESSAGE_LABEL;
+
+        if ($existing) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill($payload)->save();
+
+            return $existing;
+        }
+
+        return BotCommand::create($payload);
+    }
+
+    private function newDirectMessageCommandName(): string
+    {
+        return BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.Str::lower(Str::random(10));
     }
 }

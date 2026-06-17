@@ -253,7 +253,88 @@ it('counts every imported template command record including non slash handlers',
 
     expect($template->commands_count)->toBe(4)
         ->and($template->commands()->pluck('command_name')->all())->toContain('/start', '$balance', 'direct_message', 'menu:settings')
+        ->and($template->commands()->where('command_name', 'direct_message')->first()?->effectiveTriggerType())->toBe('direct_message')
         ->and($template->metadata['zip_parse']['imported'] ?? null)->toBe(4);
+});
+
+it('admin template edit page displays direct message handler instead of internal marker', function (): void {
+    $admin = templateImportUser(['role' => 'admin']);
+    $template = templateImportPublishedTemplate();
+    $template->commands()->create([
+        'command_name' => '__direct_message_handler_yflvbcehed',
+        'trigger_type' => 'direct_message',
+        'code' => 'await reply("dm");',
+        'status' => 'active',
+        'runtime' => 'node',
+        'language' => 'javascript',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.templates.edit', $template))
+        ->assertOk()
+        ->assertSee('Direct Message Handler')
+        ->assertDontSee('__direct_message_handler_yflvbcehed');
+});
+
+it('template import treats legacy direct message marker as handler without command conflict', function (): void {
+    $user = templateImportUser();
+    $bot = templateImportBot($user);
+    $bot->commands()->create([
+        'command_name' => '/start',
+        'trigger_type' => 'slash',
+        'response_text' => 'Normal start command',
+        'response_type' => 'text',
+        'status' => 'active',
+    ]);
+
+    $template = templateImportPublishedTemplate();
+    $template->commands()->delete();
+    $template->commands()->create([
+        'command_name' => '_*direct_message_handler**',
+        'trigger_type' => null,
+        'code' => 'await reply("dm");',
+        'status' => 'active',
+        'runtime' => 'node',
+        'language' => 'javascript',
+    ]);
+    $template->purchases()->create([
+        'user_id' => $user->id,
+        'amount' => 0,
+        'currency' => 'USD',
+        'status' => 'completed',
+        'purchased_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('bots.templates.import', [$bot, $template]), ['conflict_strategy' => 'skip'])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($bot->commands()->where('command_name', '/start')->where('trigger_type', 'slash')->exists())->toBeTrue()
+        ->and($bot->commands()->where('trigger_type', 'direct_message')->first()?->displayName())->toBe('Direct Message Handler')
+        ->and($bot->templateImports()->latest('id')->first()->skipped_commands_count)->toBe(0);
+});
+
+it('bot export preserves direct message handler trigger type metadata', function (): void {
+    $user = templateImportUser();
+    $bot = templateImportBot($user);
+    $bot->commands()->create([
+        'command_name' => '__direct_message_handler_export',
+        'display_name' => 'Direct Message Handler',
+        'trigger_type' => 'direct_message',
+        'code' => 'await reply("dm");',
+        'response_type' => 'code',
+        'status' => 'active',
+    ]);
+
+    $payload = $this->actingAs($user)
+        ->get(route('bots.export', $bot))
+        ->assertOk()
+        ->json();
+
+    expect(data_get($payload, 'commands.0.trigger_type'))->toBe('direct_message')
+        ->and(data_get($payload, 'commands.0.type'))->toBe('direct_message')
+        ->and(data_get($payload, 'commands.0.display_name'))->toBe('Direct Message Handler');
 });
 
 it('rejects uploaded template files that are not valid ZIP or JSON exports', function (): void {
