@@ -273,7 +273,7 @@ it('background purchase rechecker repairs paid invoice ownership before import',
         ->and($bot->commands()->where('command_name', '/start')->exists())->toBeTrue();
 });
 
-it('template import skips commands that conflict with recycle bin commands', function (): void {
+it('template import can recreate a command after the old command is permanently deleted', function (): void {
     $user = marketplaceUser();
     $bot = marketplaceBot($user);
     $command = $bot->commands()->create([
@@ -283,7 +283,7 @@ it('template import skips commands that conflict with recycle bin commands', fun
         'response_type' => 'text',
         'status' => 'active',
     ]);
-    $command->delete();
+    $command->forceDelete();
 
     $template = marketplaceTemplate(['access_type' => 'free', 'price' => 0, 'slug' => 'recycle-conflict-'.str()->random(8)]);
 
@@ -297,8 +297,8 @@ it('template import skips commands that conflict with recycle bin commands', fun
         ->assertRedirect()
         ->assertSessionHasNoErrors();
 
-    expect($bot->commands()->where('command_name', '/start')->count())->toBe(0)
-        ->and($bot->commands()->withTrashed()->where('command_name', '/start')->count())->toBe(1);
+    expect($bot->commands()->where('command_name', '/start')->count())->toBe(1)
+        ->and($bot->commands()->where('command_name', '/start')->first()->source)->toBe('marketplace');
 });
 
 it('creates crypto invoices and unlocks paid templates after OxaPay confirms payment', function (): void {

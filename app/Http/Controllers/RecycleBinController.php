@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bot;
-use App\Models\BotCommand;
 use App\Services\AuditLogService;
 use App\Services\BotRecycleService;
 use App\Services\PlanAccessService;
@@ -41,14 +40,6 @@ class RecycleBinController extends Controller
             'expiringCount' => Bot::onlyTrashed()
                 ->where('user_id', $request->user()->id)
                 ->where('deleted_at', '<=', now()->subDays($retentionDays - 7))
-                ->count(),
-            'commands' => BotCommand::onlyTrashed()
-                ->whereHas('bot', fn ($query) => $query->where('user_id', $request->user()->id))
-                ->with('bot')
-                ->latest('deleted_at')
-                ->paginate(12, ['*'], 'commands_page'),
-            'deletedCommandCount' => BotCommand::onlyTrashed()
-                ->whereHas('bot', fn ($query) => $query->where('user_id', $request->user()->id))
                 ->count(),
         ]);
     }
@@ -94,50 +85,4 @@ class RecycleBinController extends Controller
         return back()->with('status', 'Bot permanently deleted.');
     }
 
-    public function restoreCommand(Request $request, int|string $command): RedirectResponse
-    {
-        $commandId = (int) $command;
-        $trashedCommand = BotCommand::onlyTrashed()
-            ->whereHas('bot', fn ($query) => $query->where('user_id', $request->user()->id))
-            ->findOrFail($commandId);
-
-        $conflict = BotCommand::query()
-            ->where('bot_id', $trashedCommand->bot_id)
-            ->where('command_name', $trashedCommand->command_name)
-            ->exists();
-
-        if ($conflict) {
-            return back()->withErrors(['restore' => 'An active command with this exact name already exists. Delete or rename it before restoring this command.']);
-        }
-
-        $trashedCommand->restore();
-
-        $this->audit->log('recycle', 'command.restored', 'Command restored from recycle bin.', [
-            'bot_id' => $trashedCommand->bot_id,
-            'command_id' => $trashedCommand->id,
-            'command_name' => $trashedCommand->command_name,
-        ], $request->user(), 'success', BotCommand::class, $trashedCommand->id);
-
-        return back()->with('status', 'Command restored.');
-    }
-
-    public function forceDeleteCommand(Request $request, int|string $command): RedirectResponse
-    {
-        $commandId = (int) $command;
-        $trashedCommand = BotCommand::onlyTrashed()
-            ->whereHas('bot', fn ($query) => $query->where('user_id', $request->user()->id))
-            ->findOrFail($commandId);
-
-        $botId = $trashedCommand->bot_id;
-        $commandName = $trashedCommand->command_name;
-        $trashedCommand->forceDelete();
-
-        $this->audit->log('recycle', 'command.permanently_deleted', 'Command permanently deleted from recycle bin.', [
-            'bot_id' => $botId,
-            'command_id' => $commandId,
-            'command_name' => $commandName,
-        ], $request->user(), 'success', BotCommand::class, $commandId);
-
-        return back()->with('status', 'Command permanently deleted.');
-    }
 }

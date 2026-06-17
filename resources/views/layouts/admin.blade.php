@@ -9,9 +9,7 @@
     @php
         $branding = \App\Support\Branding::assets();
     @endphp
-    @if($branding['favicon_url'])
-        <link rel="icon" href="{{ $branding['favicon_url'] }}">
-    @endif
+    @include('partials.favicon', ['branding' => $branding])
     <title>{{ $title }} — Admin — {{ config('app.name', 'BotHost Pro') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />

@@ -9,6 +9,8 @@
          'icon' => 'M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z'],
         ['id' => 'branding',      'label' => 'Branding',         'danger' => false,
          'icon' => 'M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42'],
+        ['id' => 'seo',           'label' => 'SEO Management',   'danger' => false,
+         'icon' => 'M7.5 3.75h9m-9 4.5h9m-10.5 4.5h12M5.25 17.25h13.5M3.75 21h16.5A1.5 1.5 0 0 0 21.75 19.5v-15A1.5 1.5 0 0 0 20.25 3h-16.5A1.5 1.5 0 0 0 2.25 4.5v15A1.5 1.5 0 0 0 3.75 21Z'],
         ['id' => 'links',         'label' => 'Links',            'danger' => false,
          'icon' => 'M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244'],
         ['id' => 'payments',      'label' => 'Payments',         'danger' => false,
@@ -363,6 +365,112 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+
+        {{-- ───────────────────────────────
+             SEO MANAGEMENT
+        ─────────────────────────────── --}}
+        <div x-show="tab === 'seo'" x-cloak>
+            <div class="space-y-4">
+                @if($errors->any() && $currentTab === 'seo')
+                    <div class="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/8 px-4 py-3 text-sm text-[#EF4444]">{{ $errors->first() }}</div>
+                @endif
+
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div class="min-w-0">
+                        <h2 class="text-base font-black text-[#F8FAFC]">SEO Management</h2>
+                        <p class="mt-0.5 text-xs text-[#94A3B8]">Edit search, Open Graph, Twitter/X, canonical, and robots metadata for supported pages.</p>
+                    </div>
+                    <a href="{{ url('/sitemap.xml') }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-[#27213D] bg-[#0F0D1A] px-4 py-2 text-xs font-black text-[#A1A1AA] transition hover:border-[#8B5CF6]/40 hover:text-white">View Sitemap</a>
+                </div>
+
+                <div class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-5">
+                    <div class="grid gap-3 lg:grid-cols-2">
+                        @foreach($seoPages as $key => $page)
+                            <details class="rounded-2xl border border-[#27213D] bg-[#11101C] p-4" @if($loop->first) open @endif>
+                                <summary class="cursor-pointer list-none">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="font-black text-[#F8FAFC]">{{ $page['name'] }}</p>
+                                            <p class="mt-1 font-mono text-[11px] text-[#6B6890]">{{ $page['route_name'] }} · {{ $page['path'] }}</p>
+                                            <p class="mt-2 truncate text-xs text-[#A1A1AA]">{{ $page['title'] }}</p>
+                                        </div>
+                                        <span class="shrink-0 rounded-full border border-[#27213D] px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-[#94A3B8]">{{ $page['robots'] }}</span>
+                                    </div>
+                                </summary>
+
+                                <form method="POST" action="{{ route('admin.settings.seo.save') }}" class="mt-5 space-y-4">
+                                    @csrf
+                                    <input type="hidden" name="page_key" value="{{ $key }}">
+
+                                    <div>
+                                        <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">SEO Title</label>
+                                        <input type="text" name="title" maxlength="70" value="{{ old('page_key') === $key ? old('title') : $page['title'] }}" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Meta Description</label>
+                                        <textarea name="meta_description" maxlength="180" rows="3" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">{{ old('page_key') === $key ? old('meta_description') : $page['meta_description'] }}</textarea>
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Keywords</label>
+                                        <input type="text" name="meta_keywords" maxlength="255" value="{{ old('page_key') === $key ? old('meta_keywords') : $page['meta_keywords'] }}" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                    </div>
+
+                                    <div class="grid gap-3 md:grid-cols-2">
+                                        <div>
+                                            <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Open Graph Title</label>
+                                            <input type="text" name="og_title" maxlength="70" value="{{ old('page_key') === $key ? old('og_title') : $page['og_title'] }}" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                        </div>
+                                        <div>
+                                            <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Twitter/X Title</label>
+                                            <input type="text" name="twitter_title" maxlength="70" value="{{ old('page_key') === $key ? old('twitter_title') : $page['twitter_title'] }}" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid gap-3 md:grid-cols-2">
+                                        <div>
+                                            <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Open Graph Description</label>
+                                            <textarea name="og_description" maxlength="180" rows="3" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">{{ old('page_key') === $key ? old('og_description') : $page['og_description'] }}</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Twitter/X Description</label>
+                                            <textarea name="twitter_description" maxlength="180" rows="3" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">{{ old('page_key') === $key ? old('twitter_description') : $page['twitter_description'] }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid gap-3 md:grid-cols-2">
+                                        <div>
+                                            <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Open Graph Image URL</label>
+                                            <input type="url" name="og_image" value="{{ old('page_key') === $key ? old('og_image') : ($page['og_image'] ?? '') }}" placeholder="https://example.com/social-image.png" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                        </div>
+                                        <div>
+                                            <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Canonical URL</label>
+                                            <input type="url" name="canonical_url" value="{{ old('page_key') === $key ? old('canonical_url') : ($page['canonical_url'] ?? '') }}" placeholder="{{ url($page['path'] === '/' ? '/' : $page['path']) }}" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1.5 block text-xs font-bold text-[#A1A1AA]">Robots</label>
+                                        <select name="robots" class="w-full rounded-xl border border-[#27213D] bg-[#0B0A14] px-3.5 py-2.5 text-sm text-[#F8FAFC] outline-none transition focus:border-[#8B5CF6]/60 focus:ring-1 focus:ring-[#8B5CF6]/20">
+                                            @foreach($seoRobotsOptions as $robotsValue)
+                                                <option value="{{ $robotsValue }}" @selected((old('page_key') === $key ? old('robots') : $page['robots']) === $robotsValue)>{{ $robotsValue }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="flex flex-wrap justify-end gap-2 border-t border-[#27213D] pt-4">
+                                        <button type="submit" formaction="{{ route('admin.settings.seo.reset') }}" formmethod="POST" class="rounded-xl border border-[#27213D] px-4 py-2 text-xs font-black text-[#A1A1AA] transition hover:border-[#F59E0B]/40 hover:text-[#FCD34D]">Reset Default</button>
+                                        <button type="submit" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-xs font-black text-white transition hover:bg-[#7C3AED]">Save SEO</button>
+                                    </div>
+                                </form>
+                            </details>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </div>
 
 

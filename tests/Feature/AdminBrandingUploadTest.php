@@ -58,3 +58,35 @@ test('branding upload rejects invalid logo files', function () {
 
     $response->assertSessionHasErrors('platform_logo');
 });
+
+test('uploaded admin favicon is rendered across public auth user and admin pages', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('branding/favicon-test.png', 'favicon');
+    PlatformSetting::setValue('favicon_path', 'branding/favicon-test.png');
+
+    $faviconUrl = asset('storage/branding/favicon-test.png');
+    $assertHasFavicon = fn ($response) => $response
+        ->assertOk()
+        ->assertSee('<link rel="icon" href="'.$faviconUrl.'">', false)
+        ->assertSee('<link rel="shortcut icon" href="'.$faviconUrl.'">', false)
+        ->assertSee('<link rel="apple-touch-icon" href="'.$faviconUrl.'">', false);
+
+    $assertHasFavicon($this->get(route('home')));
+    $assertHasFavicon($this->get(route('login')));
+    $assertHasFavicon($this->get(route('admin.login')));
+    $assertHasFavicon($this->get(route('legal.privacy')));
+
+    $user = User::factory()->create([
+        'role' => 'user',
+        'status' => 'active',
+    ]);
+
+    $assertHasFavicon($this->actingAs($user)->get(route('dashboard')));
+
+    $admin = User::factory()->create([
+        'role' => 'admin',
+        'status' => 'active',
+    ]);
+
+    $assertHasFavicon($this->actingAs($admin)->get(route('admin.dashboard')));
+});

@@ -4,11 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php $branding = $branding ?? \App\Support\Branding::assets(); @endphp
-    @if($branding['favicon_url'])
-        <link rel="icon" href="{{ $branding['favicon_url'] }}">
-    @endif
-    <title>BotHost Pro — Telegram Bot Workspace Platform</title>
-    <meta name="description" content="Create bots, manage commands, import templates, track users, send broadcasts, and connect webhooks — all from one clean workspace.">
+    @include('partials.favicon', ['branding' => $branding])
+    @include('partials.seo', ['pageKey' => 'home'])
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])

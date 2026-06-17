@@ -381,7 +381,7 @@ class BotManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_command_in_recycle_bin_blocks_duplicate_until_permanently_deleted(): void
+    public function test_deleted_command_is_permanently_removed_and_trigger_can_be_reused(): void
     {
         $user = User::factory()->create();
         $bot = $this->createBot($user);
@@ -389,21 +389,6 @@ class BotManagementTest extends TestCase
 
         $this->actingAs($user)
             ->delete(route('bots.commands.destroy', [$bot, $command]))
-            ->assertRedirect();
-
-        $this->assertSoftDeleted('bot_commands', ['id' => $command->id]);
-
-        $this->actingAs($user)
-            ->post(route('bots.commands.store', $bot), [
-                'trigger_type' => 'slash',
-                'command_name' => '/start',
-                'code' => 'await reply("again");',
-                'status' => 'active',
-            ])
-            ->assertSessionHasErrors(['command_name' => 'This command already exists in the recycle bin. Restore it or permanently delete it before creating this command again.']);
-
-        $this->actingAs($user)
-            ->delete(route('recycle-bin.commands.force-delete', $command->id))
             ->assertRedirect()
             ->assertSessionHas('status', 'Command permanently deleted.');
 
@@ -426,7 +411,7 @@ class BotManagementTest extends TestCase
         ]);
     }
 
-    public function test_recycle_bin_page_uses_custom_modal_for_permanent_command_delete(): void
+    public function test_recycle_bin_page_does_not_show_deleted_commands(): void
     {
         $user = User::factory()->create();
         $bot = $this->createBot($user);
@@ -436,9 +421,9 @@ class BotManagementTest extends TestCase
         $this->actingAs($user)
             ->get(route('recycle-bin.index'))
             ->assertOk()
-            ->assertSee('Deleted Commands')
             ->assertSee('openConfirm', false)
-            ->assertSee(route('recycle-bin.commands.force-delete', $command->id), false)
+            ->assertDontSee('Deleted Commands')
+            ->assertDontSee('/delete-me')
             ->assertDontSee('confirm(', false);
     }
 

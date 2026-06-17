@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php($branding = \App\Support\Branding::assets())
-    @if($branding['favicon_url'])
-        <link rel="icon" href="{{ $branding['favicon_url'] }}">
-    @endif
+    @include('partials.favicon', ['branding' => $branding])
     <title>Account Locked — {{ config('app.name', 'BotHost Pro') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />

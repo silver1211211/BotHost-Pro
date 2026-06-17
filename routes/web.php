@@ -50,6 +50,7 @@ use App\Http\Controllers\RuntimeTelegramController;
 use App\Http\Controllers\UpgradeController;
 use App\Models\Bot;
 use App\Models\PlatformSetting;
+use App\Support\Seo;
 use Illuminate\Support\Facades\Route;
 
 Route::bind('bot', fn (string $value) => Bot::withTrashed()->findOrFail($value));
@@ -57,6 +58,9 @@ Route::bind('bot', fn (string $value) => Bot::withTrashed()->findOrFail($value))
 Route::get('/', function () {
     return view('welcome', ['branding' => \App\Support\Branding::assets()]);
 })->name('home');
+Route::get('/sitemap.xml', fn () => response()
+    ->view('seo.sitemap', ['urls' => Seo::sitemapUrls()], 200, ['Content-Type' => 'application/xml']));
+Route::get('/robots.txt', fn () => response(Seo::robotsTxt(), 200, ['Content-Type' => 'text/plain']));
 Route::view('/privacy-policy', 'legal.privacy-policy')->name('legal.privacy');
 Route::view('/terms', 'legal.terms')->name('legal.terms');
 Route::view('/cookie-policy', 'legal.cookie-policy')->name('legal.cookies');
@@ -202,8 +206,6 @@ Route::middleware(['auth', 'active', 'verified.required'])->group(function () {
     Route::get('/recycle-bin', [RecycleBinController::class, 'index'])->name('recycle-bin.index');
     Route::post('/recycle-bin/bots/{bot}/restore', [RecycleBinController::class, 'restore'])->name('recycle-bin.bots.restore');
     Route::delete('/recycle-bin/bots/{bot}/force-delete', [RecycleBinController::class, 'forceDelete'])->name('recycle-bin.bots.force-delete');
-    Route::post('/recycle-bin/commands/{command}/restore', [RecycleBinController::class, 'restoreCommand'])->name('recycle-bin.commands.restore');
-    Route::delete('/recycle-bin/commands/{command}/force-delete', [RecycleBinController::class, 'forceDeleteCommand'])->name('recycle-bin.commands.force-delete');
     Route::get('/transfers', [TransferController::class, 'index'])->name('transfers.index');
     Route::post('/transfers/{transfer}/import', [TransferController::class, 'importTransfer'])->name('transfers.import');
     Route::post('/transfers/{transfer}/cancel', [TransferController::class, 'cancelTransfer'])->name('transfers.cancel');
@@ -316,6 +318,8 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings/general', [AdminSettingsController::class, 'saveGeneral'])->name('settings.general.save');
         Route::post('/settings/branding', [AdminSettingsController::class, 'saveBranding'])->name('settings.branding.save');
+        Route::post('/settings/seo', [AdminSettingsController::class, 'saveSeo'])->name('settings.seo.save');
+        Route::post('/settings/seo/reset', [AdminSettingsController::class, 'resetSeo'])->name('settings.seo.reset');
         Route::post('/settings/payments', [AdminSettingsController::class, 'savePayments'])->name('settings.payments.save');
         Route::post('/settings/trigger-webhooks', [AdminSettingsController::class, 'saveTriggerWebhooks'])->name('settings.triggers.save');
         Route::post('/settings/storage', [AdminSettingsController::class, 'saveStorage'])->name('settings.storage.save');

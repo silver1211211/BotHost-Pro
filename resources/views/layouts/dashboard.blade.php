@@ -11,10 +11,36 @@
     @php
         $branding = \App\Support\Branding::assets();
     @endphp
-    @if($branding['favicon_url'])
-        <link rel="icon" href="{{ $branding['favicon_url'] }}">
+    @include('partials.favicon', ['branding' => $branding])
+    @php
+        $resolvedSeoPage = \App\Support\Seo::keyForRoute();
+        $resolvedSeoOverrides = [];
+        $routeTemplate = request()->route('template');
+
+        if ($resolvedSeoPage === 'template_details' && $routeTemplate instanceof \App\Models\BotTemplate) {
+            $templateDescription = strip_tags((string) ($routeTemplate->short_description ?: $routeTemplate->description ?: ''));
+            $resolvedSeoOverrides = [
+                'title' => str($routeTemplate->name)->limit(55, '').' - BotHost Pro',
+                'og_title' => $routeTemplate->name.' - BotHost Pro',
+                'twitter_title' => $routeTemplate->name.' - BotHost Pro',
+            ];
+
+            if (filled($templateDescription)) {
+                $resolvedSeoOverrides['meta_description'] = (string) str($templateDescription)->squish()->limit(175, '');
+                $resolvedSeoOverrides['og_description'] = $resolvedSeoOverrides['meta_description'];
+                $resolvedSeoOverrides['twitter_description'] = $resolvedSeoOverrides['meta_description'];
+            }
+
+            if ($routeTemplate->thumbnail_url) {
+                $resolvedSeoOverrides['og_image'] = $routeTemplate->thumbnail_url;
+            }
+        }
+    @endphp
+    @if(in_array($resolvedSeoPage, ['pricing', 'marketplace', 'template_details', 'support'], true))
+        @include('partials.seo', ['pageKey' => $resolvedSeoPage, 'seoOverrides' => $resolvedSeoOverrides])
+    @else
+        <title>{{ $title }} - {{ config('app.name', 'BotHost Pro') }}</title>
     @endif
-    <title>{{ $title }} - {{ config('app.name', 'BotHost Pro') }}</title>
     <style>
         html,
         body {

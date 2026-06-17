@@ -21,7 +21,7 @@ class BotRecycleService
             // Runtime cleanup should not block permanent delete.
         }
 
-        $bot->commands()->delete();
+        $bot->commands()->withTrashed()->get()->each->forceDelete();
         $bot->logs()->delete();
         $bot->commandLogs()->delete();
         $bot->broadcasts()->each(function (BotBroadcast $broadcast): void {

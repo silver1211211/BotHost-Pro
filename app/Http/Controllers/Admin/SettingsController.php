@@ -27,6 +27,7 @@ use Throwable;
 use Illuminate\Http\UploadedFile;
 use App\Support\PublicCallbackUrl;
 use App\Support\Branding;
+use App\Support\Seo;
 
 class SettingsController extends Controller
 {
@@ -160,6 +161,10 @@ class SettingsController extends Controller
             'runtimeStatusPersisted' => (string) PlatformSetting::getValue('runtime_status', 'unknown'),
             'runtimeStatusCheckedAt' => (string) PlatformSetting::getValue('runtime_status_checked_at', ''),
             'runtimeStatusLastError' => (string) PlatformSetting::getValue('runtime_status_last_error', ''),
+
+            // SEO
+            'seoPages' => Seo::editablePages(),
+            'seoRobotsOptions' => Seo::ROBOTS,
         ]);
     }
 
@@ -227,6 +232,50 @@ class SettingsController extends Controller
 
         return redirect()->route('admin.settings.index', ['tab' => 'branding'])
             ->with('status', 'Branding settings saved.');
+    }
+
+    public function saveSeo(Request $request): RedirectResponse
+    {
+        $pageKeys = array_keys(Seo::defaults());
+
+        $data = $request->validate([
+            'page_key' => ['required', Rule::in($pageKeys)],
+            'title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:180'],
+            'meta_keywords' => ['nullable', 'string', 'max:255'],
+            'og_title' => ['nullable', 'string', 'max:70'],
+            'og_description' => ['nullable', 'string', 'max:180'],
+            'og_image' => ['nullable', 'url', 'max:2048'],
+            'twitter_title' => ['nullable', 'string', 'max:70'],
+            'twitter_description' => ['nullable', 'string', 'max:180'],
+            'canonical_url' => ['nullable', 'url', 'max:2048'],
+            'robots' => ['required', Rule::in(Seo::ROBOTS)],
+        ]);
+
+        Seo::save($data['page_key'], $data);
+
+        $this->audit->log('admin', 'seo_settings.updated', 'SEO settings updated.', [
+            'page_key' => $data['page_key'],
+        ], $request->user());
+
+        return redirect()->route('admin.settings.index', ['tab' => 'seo'])
+            ->with('status', 'SEO settings saved.');
+    }
+
+    public function resetSeo(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'page_key' => ['required', Rule::in(array_keys(Seo::defaults()))],
+        ]);
+
+        Seo::reset($data['page_key']);
+
+        $this->audit->log('admin', 'seo_settings.reset', 'SEO settings reset to defaults.', [
+            'page_key' => $data['page_key'],
+        ], $request->user());
+
+        return redirect()->route('admin.settings.index', ['tab' => 'seo'])
+            ->with('status', 'SEO settings reset to default.');
     }
 
     private function storeBrandingUpload(?UploadedFile $file, string $settingKey, string $name): void

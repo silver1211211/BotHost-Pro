@@ -7,9 +7,7 @@
         @php
             $branding = \App\Support\Branding::assets();
         @endphp
-        @if($branding['favicon_url'])
-            <link rel="icon" href="{{ $branding['favicon_url'] }}">
-        @endif
+        @include('partials.favicon', ['branding' => $branding])
 
         <title>{{ config('app.name', 'BotHost Pro') }}</title>
 

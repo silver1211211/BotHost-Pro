@@ -202,13 +202,13 @@ class BotCommandController extends Controller
         }
 
         $name = $command->displayName();
-        $command->delete();
-        $this->log($request, 'command_deleted', 'Deleted command '.$name.' from '.$bot->name);
+        $command->forceDelete();
+        $this->log($request, 'command_deleted', 'Permanently deleted command '.$name.' from '.$bot->name);
         $this->commandCache->clearBot($bot);
 
         return redirect()
             ->route('bots.show', ['bot' => $bot, 'tab' => 'commands'])
-            ->with('status', 'Command deleted.');
+            ->with('status', 'Command permanently deleted.');
     }
 
     private function validatedCommand(Request $request, Bot $bot, ?BotCommand $command = null, bool $requireCode = true): array
@@ -256,22 +256,12 @@ class BotCommandController extends Controller
                     }
 
                     $duplicate = $bot->commands()
-                        ->withTrashed()
                         ->when($command, fn ($query) => $query->whereKeyNot($command->id))
                         ->get(['command_name'])
                         ->contains(fn (BotCommand $existing) => $existing->command_name === $value);
 
                     if ($duplicate) {
-                        $trashedDuplicate = $bot->commands()
-                            ->withTrashed()
-                            ->where('command_name', $value)
-                            ->when($command, fn ($query) => $query->whereKeyNot($command->id))
-                            ->whereNotNull('deleted_at')
-                            ->exists();
-
-                        $fail($trashedDuplicate
-                            ? 'This command already exists in the recycle bin. Restore it or permanently delete it before creating this command again.'
-                            : 'This command already exists for this bot.');
+                        $fail('This command already exists for this bot.');
                     }
                 },
             ],
@@ -317,7 +307,6 @@ class BotCommandController extends Controller
         }
 
         $exists = $bot->commands()
-            ->withTrashed()
             ->where('trigger_type', 'direct_message')
             ->where('status', 'active')
             ->when($command, fn ($query) => $query->whereKeyNot($command->id))

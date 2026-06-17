@@ -13,10 +13,13 @@ use App\Services\TelegramBotService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 class BotExportImportController extends Controller
 {
+    private const IMPORT_FILE_ERROR = 'Please upload a valid BotHost Pro JSON export file.';
+
     public function __construct(
         private readonly BotAccessService $access,
         private readonly PlanAccessService $planAccess,
@@ -200,23 +203,19 @@ class BotExportImportController extends Controller
         $this->access->authorize($request, $bot);
 
         $request->validate([
-            'import_file' => ['required', 'file', 'mimes:json', 'max:512'],
+            'import_file' => ['required', 'file', 'max:512'],
         ]);
 
-        $data = $this->readExportFile($request);
+        $data = $this->readExportFile($request->file('import_file'));
 
         if (! $data) {
-            return back()->withErrors(['import_file' => 'Invalid export file format.']);
+            return back()->withErrors(['import_file' => self::IMPORT_FILE_ERROR]);
         }
 
         foreach ($data['commands'] as $cmdData) {
-            if (empty($cmdData['command_name'])) {
-                continue;
-            }
-
             $bot->commands()->updateOrCreate(
-                ['command_name' => $cmdData['command_name']],
-                $this->commandImportPayload($cmdData)
+                $this->commandImportIdentity($bot, $cmdData),
+                $this->commandImportPayload($bot, $cmdData)
             );
         }
 
@@ -241,15 +240,15 @@ class BotExportImportController extends Controller
         }
 
         $request->validate([
-            'import_file'  => ['required', 'file', 'mimes:json', 'max:512'],
+            'import_file'  => ['required', 'file', 'max:512'],
             'import_name'  => ['required', 'string', 'max:100'],
             'import_token' => ['required', 'string', 'max:255'],
         ]);
 
-        $data = $this->readExportFile($request);
+        $data = $this->readExportFile($request->file('import_file'));
 
         if (! $data) {
-            return back()->withErrors(['import_file' => 'Invalid export file format.']);
+            return back()->withErrors(['import_file' => self::IMPORT_FILE_ERROR]);
         }
 
         if (Bot::tokenInUse($request->input('import_token'))) {
@@ -285,10 +284,7 @@ class BotExportImportController extends Controller
         $bot->setting()->create($this->safeSettingsFromImport($data['settings'] ?? []));
 
         foreach ($data['commands'] as $cmdData) {
-            if (empty($cmdData['command_name'])) {
-                continue;
-            }
-            $bot->commands()->create($this->commandImportPayload($cmdData));
+            $bot->commands()->create($this->commandImportPayload($bot, $cmdData));
         }
 
         $this->audit->log('bot', 'bot_imported', 'Bot imported.', [
@@ -328,30 +324,60 @@ class BotExportImportController extends Controller
         return $payload;
     }
 
-    private function commandImportPayload(array $cmdData): array
+    private function commandImportIdentity(Bot $bot, array $cmdData): array
     {
-        $triggerType = in_array($cmdData['trigger_type'] ?? null, BotCommand::TRIGGER_TYPES, true)
-            ? $cmdData['trigger_type']
-            : (BotCommand::isDirectMessageMarker($cmdData['command_name'] ?? null) ? 'direct_message' : null);
+        if ($this->commandTriggerType($cmdData) === 'direct_message') {
+            return ['trigger_type' => 'direct_message'];
+        }
+
+        return ['command_name' => $cmdData['command_name']];
+    }
+
+    private function commandImportPayload(Bot $bot, array $cmdData): array
+    {
+        $triggerType = $this->commandTriggerType($cmdData);
+        $commandName = $triggerType === 'direct_message'
+            ? $this->directMessageCommandName($bot)
+            : $cmdData['command_name'];
 
         return [
-            'command_name'  => $cmdData['command_name'],
+            'command_name'  => $commandName,
             'display_name'  => $triggerType === 'direct_message' ? 'Direct Message Handler' : ($cmdData['display_name'] ?? $cmdData['command_name']),
             'trigger_type'  => $triggerType,
             'code'          => $cmdData['code'] ?? null,
             'response_text' => $cmdData['response_text'] ?? '',
             'response_type' => $cmdData['response_type'] ?? 'text',
-            'status'        => $cmdData['status'] ?? 'active',
-            'is_pinned'     => $cmdData['is_pinned'] ?? false,
-            'admin_only'    => $cmdData['admin_only'] ?? false,
-            'aliases'       => $cmdData['aliases'] ?? null,
-            'folder'        => $cmdData['folder'] ?? null,
-            'source'        => $cmdData['source'] ?? null,
-            'source_template_id' => $cmdData['source_template_id'] ?? null,
-            'source_template_purchase_id' => $cmdData['source_template_purchase_id'] ?? null,
-            'license_locked' => $cmdData['license_locked'] ?? false,
-            'duplicate_count_used' => $cmdData['duplicate_count_used'] ?? 0,
+            'status'        => in_array($cmdData['status'] ?? null, BotCommand::STATUSES, true) ? $cmdData['status'] : 'active',
+            'is_pinned'     => (bool) ($cmdData['is_pinned'] ?? false),
+            'admin_only'    => (bool) ($cmdData['admin_only'] ?? false),
+            'aliases'       => is_array($cmdData['aliases'] ?? null) ? $cmdData['aliases'] : null,
+            'folder'        => is_string($cmdData['folder'] ?? null) ? $cmdData['folder'] : null,
+            'source'        => null,
+            'source_template_id' => null,
+            'source_template_purchase_id' => null,
+            'license_locked' => false,
+            'duplicate_count_used' => 0,
         ];
+    }
+
+    private function commandTriggerType(array $cmdData): ?string
+    {
+        $triggerType = $cmdData['trigger_type'] ?? $cmdData['type'] ?? null;
+
+        if (in_array($triggerType, BotCommand::TRIGGER_TYPES, true)) {
+            return $triggerType;
+        }
+
+        return BotCommand::isDirectMessageMarker($cmdData['command_name'] ?? null) ? 'direct_message' : null;
+    }
+
+    private function directMessageCommandName(Bot $bot): string
+    {
+        $existing = $bot->commands()
+            ->where('trigger_type', 'direct_message')
+            ->value('command_name');
+
+        return $existing ?: BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.Str::lower(Str::random(10));
     }
 
     private function isProtectedCommand($cmd): bool
@@ -383,14 +409,89 @@ class BotExportImportController extends Controller
             ->all();
     }
 
-    private function readExportFile(Request $request): ?array
+    private function readExportFile(UploadedFile $file): ?array
     {
-        $contents = file_get_contents($request->file('import_file')->getRealPath());
+        if (! $this->isAllowedJsonUpload($file)) {
+            return null;
+        }
+
+        $contents = file_get_contents($file->getRealPath());
+        if (! is_string($contents) || trim($contents) === '') {
+            return null;
+        }
+
         $data = json_decode($contents, true);
 
-        return is_array($data) && isset($data['commands']) && is_array($data['commands'])
-            ? $data
-            : null;
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($data) || ! $this->isSupportedExportPayload($data)) {
+            return null;
+        }
+
+        $commands = $this->validatedImportCommands($data['commands']);
+        if ($commands === null) {
+            return null;
+        }
+
+        $data['commands'] = $commands;
+
+        return $data;
+    }
+
+    private function isAllowedJsonUpload(UploadedFile $file): bool
+    {
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $mime = strtolower((string) $file->getClientMimeType());
+
+        if ($extension === 'json') {
+            return true;
+        }
+
+        return in_array($mime, ['application/json', 'text/json', 'text/plain'], true);
+    }
+
+    private function isSupportedExportPayload(array $data): bool
+    {
+        if (! isset($data['commands']) || ! is_array($data['commands'])) {
+            return false;
+        }
+
+        $format = data_get($data, 'metadata.format');
+        if ($format !== null) {
+            return $format === 'bothost_pro_bot_export';
+        }
+
+        return isset($data['version'], $data['bot_name']);
+    }
+
+    private function validatedImportCommands(array $commands): ?array
+    {
+        $validCommands = [];
+
+        foreach ($commands as $command) {
+            if (! is_array($command)) {
+                return null;
+            }
+
+            $triggerType = $this->commandTriggerType($command);
+            $commandName = $command['command_name'] ?? null;
+
+            if ($triggerType !== 'direct_message' && (! is_string($commandName) || $commandName === '')) {
+                return null;
+            }
+
+            if (isset($command['aliases']) && ! is_array($command['aliases'])) {
+                return null;
+            }
+
+            foreach (['command_name', 'display_name', 'trigger_type', 'type', 'code', 'response_text', 'response_type', 'status', 'folder'] as $field) {
+                if (isset($command[$field]) && ! is_string($command[$field])) {
+                    return null;
+                }
+            }
+
+            $validCommands[] = $command;
+        }
+
+        return $validCommands;
     }
 
     private function uniqueSlug(int $userId, string $name): string

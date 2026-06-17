@@ -18,7 +18,7 @@ class BotTemplateImporter
 {
     public function conflicts(Bot $bot, BotTemplate $template): array
     {
-        $existing = $bot->commands()->withTrashed()->pluck('command_name')->all();
+        $existing = $bot->commands()->pluck('command_name')->all();
 
         return $template->commands()
             ->get()
@@ -96,18 +96,8 @@ class BotTemplateImporter
                         continue;
                     }
 
-                    if ($conflict === 'trashed') {
-                        $skipped++;
-                        $summary['skipped'][] = $finalName;
-                        $summary['errors'][] = [
-                            'command_name' => $finalName,
-                            'message' => 'Command exists in recycle bin. Restore it or permanently delete it before importing this command.',
-                        ];
-                        continue;
-                    }
-
                     if ($exists && $conflictStrategy === 'replace') {
-                        $bot->commands()->where('command_name', $finalName)->delete();
+                        $bot->commands()->where('command_name', $finalName)->get()->each->forceDelete();
                         $summary['replaced'][] = $finalName;
                     }
 
@@ -174,21 +164,16 @@ class BotTemplateImporter
 
     private function commandExists(Bot $bot, string $commandName): bool
     {
-        return $bot->commands()->withTrashed()->where('command_name', $commandName)->exists();
+        return $bot->commands()->where('command_name', $commandName)->exists();
     }
 
     private function commandConflictStatus(Bot $bot, string $commandName): ?string
     {
         $command = $bot->commands()
-            ->withTrashed()
             ->where('command_name', $commandName)
             ->first();
 
-        if (! $command) {
-            return null;
-        }
-
-        return $command->trashed() ? 'trashed' : 'active';
+        return $command ? 'active' : null;
     }
 
     private function nextAvailableCommandName(Bot $bot, string $commandName): string
@@ -245,13 +230,11 @@ class BotTemplateImporter
     private function upsertDirectMessageHandler(Bot $bot, BotTemplate $template, BotTemplateCommand $templateCommand, ?int $purchaseId): BotCommand
     {
         $existing = $bot->commands()
-            ->withTrashed()
             ->where('trigger_type', 'direct_message')
             ->first();
 
         if (! $existing) {
             $existing = $bot->commands()
-                ->withTrashed()
                 ->get()
                 ->first(fn (BotCommand $command) => BotCommand::isDirectMessageMarker($command->command_name));
         }
@@ -262,10 +245,6 @@ class BotTemplateImporter
         $payload['display_name'] = BotTemplateCommand::DIRECT_MESSAGE_LABEL;
 
         if ($existing) {
-            if ($existing->trashed()) {
-                $existing->restore();
-            }
-
             $existing->forceFill($payload)->save();
 
             return $existing;

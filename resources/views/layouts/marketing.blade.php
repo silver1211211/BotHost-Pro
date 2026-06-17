@@ -7,10 +7,8 @@
     @php
         $branding = \App\Support\Branding::assets();
     @endphp
-    @if($branding['favicon_url'])
-        <link rel="icon" href="{{ $branding['favicon_url'] }}">
-    @endif
-    <title>{{ config('app.name', 'BotHost Pro') }} - Premium Telegram Bot Hosting</title>
+    @include('partials.favicon', ['branding' => $branding])
+    @include('partials.seo', ['pageKey' => \App\Support\Seo::keyForRoute('home')])
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
