@@ -56,6 +56,11 @@ class RuntimeHelper extends Model
         return $this->belongsTo(RuntimeHelperCategory::class, 'category_id');
     }
 
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(RuntimeHelperType::class, 'helper_type', 'slug');
+    }
+
     public function versions(): HasMany
     {
         return $this->hasMany(RuntimeHelperVersion::class, 'helper_id');

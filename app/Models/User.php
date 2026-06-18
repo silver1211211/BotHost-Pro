@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 #[Fillable(['name', 'username', 'email', 'password', 'email_verified_at', 'role', 'status', 'subscription_plan', 'subscription_status', 'subscription_started_at', 'subscription_expires_at', 'plan_upgraded_at', 'ai_requests_remaining', 'wallet_balance', 'wallet_currency', 'suspended_until', 'suspension_message', 'suspension_cta_label', 'suspension_cta_url'])]
@@ -20,7 +21,7 @@ use Illuminate\Support\Str;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected function casts(): array
     {
@@ -33,6 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'subscription_expires_at' => 'datetime',
             'plan_upgraded_at'        => 'datetime',
             'suspended_until'         => 'datetime',
+            'deleted_at'              => 'datetime',
         ];
     }
 

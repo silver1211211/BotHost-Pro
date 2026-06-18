@@ -106,8 +106,8 @@ class UserController extends Controller
             'status'               => 'suspended',
             'suspended_until'      => $suspendedUntil,
             'suspension_message'   => filled($data['message']) ? $data['message'] : null,
-            'suspension_cta_label' => filled($data['cta_label']) ? $data['cta_label'] : null,
-            'suspension_cta_url'   => filled($data['cta_url']) ? $data['cta_url'] : null,
+            'suspension_cta_label' => filled($data['cta_label'] ?? null) ? $data['cta_label'] : null,
+            'suspension_cta_url'   => filled($data['cta_url'] ?? null) ? $data['cta_url'] : null,
         ]);
 
         $detail = $suspendedUntil ? "until {$suspendedUntil->toDateString()}" : 'until support contact';
@@ -187,6 +187,30 @@ class UserController extends Controller
         ], $request->user(), 'success', $user);
 
         return back()->with('success', "Plan updated to ".ucfirst($data['subscription_plan']).".");
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        if ($request->user()->is($user) || $user->isAdmin()) {
+            return back()->with('error', 'This user cannot be deleted.');
+        }
+
+        try {
+            $metadata = [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'bots_count' => $user->bots()->count(),
+                'templates_count' => $user->botTemplates()->count(),
+            ];
+
+            $user->delete();
+
+            $this->audit->log('admin', 'user.deleted', "Deleted {$metadata['email']}.", $metadata, $request->user(), 'warning');
+        } catch (\Throwable) {
+            return back()->with('error', 'This user cannot be deleted.');
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 
     private function isLastAdmin(User $user): bool

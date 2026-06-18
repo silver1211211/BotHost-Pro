@@ -11,13 +11,16 @@
             <h1 class="text-xl font-black text-white">Runtime Helpers</h1>
             <p class="mt-1 text-xs text-[#94A3B8]">Database activation only. Runtime reload is not connected yet.</p>
         </div>
-        <a href="{{ route('admin.runtime.helpers.create') }}" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-sm font-black text-white hover:bg-[#7C3AED]">New Helper</a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('admin.runtime.helper-types.index') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-sm font-black text-[#A1A1AA] hover:text-white">Helper Types</a>
+            <a href="{{ route('admin.runtime.helpers.create') }}" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-sm font-black text-white hover:bg-[#7C3AED]">New Helper</a>
+        </div>
     </div>
     <form method="GET" class="rounded-2xl border border-[#27213D] bg-[#0F0D1A] p-3">
         <div class="grid gap-2 md:grid-cols-6">
             <input name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Search helpers..." class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-white md:col-span-2">
             <select name="category_id" class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-white"><option value="">All categories</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(($filters['category_id'] ?? '') == $category->id)>{{ $category->name }}</option>@endforeach</select>
-            <input name="helper_type" value="{{ $filters['helper_type'] ?? '' }}" placeholder="Type" class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-white">
+            <select name="helper_type" class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-white"><option value="">All types</option>@foreach($helperTypes as $type)<option value="{{ $type->slug }}" @selected(($filters['helper_type'] ?? '') === $type->slug)>{{ $type->name }}</option>@endforeach</select>
             <select name="status" class="rounded-xl border border-[#27213D] bg-[#090713] px-3 py-2 text-sm text-white"><option value="">All statuses</option>@foreach(['draft','active','disabled','deprecated'] as $status)<option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ ucfirst($status) }}</option>@endforeach</select>
             <button class="rounded-xl border border-[#8B5CF6]/40 px-4 py-2 text-sm font-bold text-[#A855F7]">Filter</button>
         </div>
@@ -36,7 +39,7 @@
                 <tbody class="divide-y divide-[#1B172B]">
                     @forelse($helpers as $helper)
                         <tr class="hover:bg-[#151225]">
-                            <td class="px-4 py-3"><p class="font-bold text-white">{{ $helper->label }}</p><p class="font-mono text-xs text-[#94A3B8]">{{ $helper->name }} · {{ $helper->helper_type }}</p></td>
+                            <td class="px-4 py-3"><p class="font-bold text-white">{{ $helper->label }}</p><p class="font-mono text-xs text-[#94A3B8]">{{ $helper->name }} · {{ $helper->type?->name ?? $helper->helper_type }} ({{ $helper->helper_type }})</p></td>
                             <td class="px-4 py-3 text-[#A1A1AA]">{{ $helper->category?->name ?? '—' }}</td>
                             <td class="px-4 py-3"><span class="rounded-lg px-2 py-1 text-[10px] font-black uppercase {{ $helper->status === 'active' ? 'bg-[#22C55E]/10 text-[#22C55E]' : ($helper->status === 'disabled' ? 'bg-[#EF4444]/10 text-[#EF4444]' : 'bg-[#F59E0B]/10 text-[#F59E0B]') }}">{{ $helper->status }}</span></td>
                             <td class="px-4 py-3 text-xs text-[#94A3B8]">Active: {{ $helper->activeVersion?->version_number ?? 'none' }} · Latest: {{ $helper->versions_max_version_number ?? 'none' }}</td>

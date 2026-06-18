@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\LogController as AdminLogController;
 use App\Http\Controllers\Admin\RuntimeHelperCategoryController as AdminRuntimeHelperCategoryController;
 use App\Http\Controllers\Admin\RuntimeHelperController as AdminRuntimeHelperController;
 use App\Http\Controllers\Admin\RuntimeHelperTestController as AdminRuntimeHelperTestController;
+use App\Http\Controllers\Admin\RuntimeHelperTypeController as AdminRuntimeHelperTypeController;
 use App\Http\Controllers\Admin\RuntimeHelperVersionController as AdminRuntimeHelperVersionController;
 use App\Http\Controllers\Admin\RuntimeReloadController as AdminRuntimeReloadController;
 use App\Http\Controllers\Admin\SecurityController as AdminSecurityController;
@@ -245,6 +246,7 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::post('/users/{user}/activate', [AdminUserController::class, 'activate'])->name('users.activate');
         Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.role');
         Route::patch('/users/{user}/plan', [AdminUserController::class, 'updatePlan'])->name('users.plan');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
         // Bots
         Route::get('/bots', [AdminBotController::class, 'index'])->name('bots.index');
@@ -288,6 +290,14 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::patch('/runtime/helper-categories/{category}', [AdminRuntimeHelperCategoryController::class, 'update'])->name('runtime.helper-categories.update');
         Route::patch('/runtime/helper-categories/{category}/toggle', [AdminRuntimeHelperCategoryController::class, 'toggle'])->name('runtime.helper-categories.toggle');
         Route::delete('/runtime/helper-categories/{category}', [AdminRuntimeHelperCategoryController::class, 'destroy'])->name('runtime.helper-categories.destroy');
+
+        Route::get('/runtime/helper-types', [AdminRuntimeHelperTypeController::class, 'index'])->name('runtime.helper-types.index');
+        Route::get('/runtime/helper-types/create', [AdminRuntimeHelperTypeController::class, 'create'])->name('runtime.helper-types.create');
+        Route::post('/runtime/helper-types', [AdminRuntimeHelperTypeController::class, 'store'])->name('runtime.helper-types.store');
+        Route::get('/runtime/helper-types/{type}/edit', [AdminRuntimeHelperTypeController::class, 'edit'])->name('runtime.helper-types.edit');
+        Route::patch('/runtime/helper-types/{type}', [AdminRuntimeHelperTypeController::class, 'update'])->name('runtime.helper-types.update');
+        Route::patch('/runtime/helper-types/{type}/toggle', [AdminRuntimeHelperTypeController::class, 'toggle'])->name('runtime.helper-types.toggle');
+        Route::delete('/runtime/helper-types/{type}', [AdminRuntimeHelperTypeController::class, 'destroy'])->name('runtime.helper-types.destroy');
 
         Route::get('/runtime/helpers', [AdminRuntimeHelperController::class, 'index'])->name('runtime.helpers.index');
         Route::get('/runtime/helpers/create', [AdminRuntimeHelperController::class, 'create'])->name('runtime.helpers.create');

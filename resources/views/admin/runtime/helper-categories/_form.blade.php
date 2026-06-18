@@ -38,7 +38,11 @@
 
             <div>
                 <label for="helper_type" class="{{ $labelClass }}">Helper type</label>
-                <input id="helper_type" name="helper_type" value="{{ old('helper_type', $category->helper_type ?: 'utility') }}" placeholder="Example: validation" class="{{ $fieldClass }}">
+                <select id="helper_type" name="helper_type" class="{{ $fieldClass }}">
+                    @foreach(($helperTypes ?? collect()) as $type)
+                        <option value="{{ $type->slug }}" @selected(old('helper_type', $category->helper_type ?: 'utility') === $type->slug)>{{ $type->name }} ({{ $type->slug }}){{ ! $type->is_active ? ' - inactive' : '' }}</option>
+                    @endforeach
+                </select>
                 <p class="{{ $helpClass }}">Used to group helpers by purpose, such as validation, payment, telegram, data, admin, or security.</p>
             </div>
 

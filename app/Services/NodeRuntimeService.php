@@ -433,7 +433,7 @@ class NodeRuntimeService
             return $this->runtimeUnavailableResult('Local runtime fallback failed.', 'RuntimeRequestFailed');
         }
 
-        $payload = json_decode($process->getOutput(), true);
+        $payload = $this->decodeRuntimeJsonOutput($process->getOutput());
 
         if (! is_array($payload)) {
             return $this->runtimeUnavailableResult('Local runtime fallback returned an invalid response.', 'InvalidRuntimeResponse');
@@ -454,6 +454,34 @@ class NodeRuntimeService
             'error_stack' => null,
             'storage' => null,
         ];
+    }
+
+    private function decodeRuntimeJsonOutput(string $output): mixed
+    {
+        $payload = json_decode($output, true);
+
+        if (is_array($payload)) {
+            return $payload;
+        }
+
+        $lines = preg_split('/\R/', trim($output));
+        if (! is_array($lines)) {
+            return null;
+        }
+
+        for ($index = count($lines) - 1; $index >= 0; $index--) {
+            $line = trim($lines[$index]);
+            if ($line === '' || ! str_starts_with($line, '{')) {
+                continue;
+            }
+
+            $payload = json_decode($line, true);
+            if (is_array($payload)) {
+                return $payload;
+            }
+        }
+
+        return null;
     }
 
     private function nodeProcessEnvironment(): array

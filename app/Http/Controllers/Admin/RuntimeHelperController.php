@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\RuntimeHelper;
 use App\Models\RuntimeHelperCategory;
+use App\Models\RuntimeHelperType;
 use App\Models\RuntimeHelperVersion;
 use App\Services\AuditLogService;
 use App\Services\RuntimeHelperSafetyScanner;
@@ -28,7 +29,7 @@ class RuntimeHelperController extends Controller
         $filters = $request->only(['search', 'category_id', 'helper_type', 'status', 'last_test_status', 'requires_runtime_reload']);
 
         $helpers = RuntimeHelper::query()
-            ->with(['category', 'activeVersion'])
+            ->with(['category', 'type', 'activeVersion'])
             ->withMax('versions', 'version_number')
             ->when(filled($filters['search'] ?? null), fn ($query) => $query->where(function ($query) use ($filters): void {
                 $search = trim((string) $filters['search']);
@@ -48,7 +49,7 @@ class RuntimeHelperController extends Controller
         return view('admin.runtime.helpers.index', [
             'helpers' => $helpers,
             'categories' => RuntimeHelperCategory::query()->orderBy('name')->get(),
-            'helperTypes' => RuntimeHelperCategory::query()->distinct()->orderBy('helper_type')->pluck('helper_type')->filter()->values(),
+            'helperTypes' => $this->helperTypesForSelect(),
             'filters' => $filters,
         ]);
     }
@@ -58,6 +59,7 @@ class RuntimeHelperController extends Controller
         return view('admin.runtime.helpers.create', [
             'helper' => new RuntimeHelper(),
             'categories' => $this->activeCategories(),
+            'helperTypes' => $this->helperTypesForSelect(),
         ]);
     }
 
@@ -125,6 +127,7 @@ class RuntimeHelperController extends Controller
         return view('admin.runtime.helpers.edit', [
             'helper' => $helper,
             'categories' => $this->activeCategories(),
+            'helperTypes' => $this->helperTypesForSelect($helper->helper_type),
             'draftVersion' => $helper->versions->first(),
         ]);
     }
@@ -275,7 +278,13 @@ class RuntimeHelperController extends Controller
             'name' => array_filter(['required', 'string', 'max:100', $helper ? Rule::in([$helper->name]) : null]),
             'label' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
-            'helper_type' => ['required', 'string', 'max:50'],
+            'helper_type' => [
+                'required',
+                'string',
+                'max:50',
+                'regex:/^[a-z][a-z0-9_]*$/',
+                Rule::exists('runtime_helper_types', 'slug'),
+            ],
             'code' => ['required', 'string'],
             'parameters_schema' => ['nullable', 'string'],
             'return_schema' => ['nullable', 'string'],
@@ -369,5 +378,29 @@ class RuntimeHelperController extends Controller
     private function activeCategories()
     {
         return RuntimeHelperCategory::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+    }
+
+    private function helperTypesForSelect(?string $includeSlug = null)
+    {
+        $types = RuntimeHelperType::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        if (filled($includeSlug) && ! $types->contains('slug', $includeSlug)) {
+            $fallback = RuntimeHelperType::query()->where('slug', $includeSlug)->first();
+            if ($fallback) {
+                $types->push($fallback);
+            } else {
+                $types->push(new RuntimeHelperType([
+                    'name' => str($includeSlug)->replace('_', ' ')->title()->toString(),
+                    'slug' => $includeSlug,
+                    'is_active' => false,
+                ]));
+            }
+        }
+
+        return $types;
     }
 }

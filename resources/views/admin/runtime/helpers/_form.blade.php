@@ -5,11 +5,7 @@
     $labelClass = 'block text-sm font-bold text-[#F8FAFC]';
     $helpClass = 'mt-1 text-xs leading-5 text-[#A1A1AA]';
     $helperTypeValue = old('helper_type', $helper->helper_type);
-    $helperTypeOptions = collect(['utility', 'validation', 'payment', 'faucetpay', 'telegram', 'data', 'admin', 'security']);
-
-    if (filled($helperTypeValue) && ! $helperTypeOptions->contains($helperTypeValue)) {
-        $helperTypeOptions->push($helperTypeValue);
-    }
+    $helperTypeOptions = collect($helperTypes ?? []);
 
     $parametersSchemaValue = old('parameters_schema', ($sourceVersion?->parameters_schema ?: $helper->parameters_schema)
         ? json_encode($sourceVersion?->parameters_schema ?: $helper->parameters_schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
@@ -54,7 +50,7 @@
                     <select id="helper_type" name="helper_type" class="{{ $fieldClass }}">
                         <option value="">Select helper type</option>
                         @foreach($helperTypeOptions as $type)
-                            <option value="{{ $type }}" @selected($helperTypeValue === $type)>{{ $type }}</option>
+                            <option value="{{ $type->slug }}" @selected($helperTypeValue === $type->slug)>{{ $type->name }} ({{ $type->slug }}){{ ! $type->is_active ? ' - inactive' : '' }}</option>
                         @endforeach
                     </select>
                     <p class="{{ $helpClass }}">Select the runtime behavior category for this helper.</p>

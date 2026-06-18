@@ -333,12 +333,13 @@ function buildRuntimeHelpers(payload, actions) {
 
   const sendMessage = async (chatIdOrText, textOrOptions = undefined, opts = {}) => {
     try {
-      let chatId, text, options;
+      let chatId, text, options, explicitTarget = false;
       if (typeof textOrOptions === 'string') {
         // sendMessage(chatId, text [, options])
         chatId = chatIdOrText;
         text = textOrOptions;
         options = opts;
+        explicitTarget = true;
       } else {
         // sendMessage(text [, options]) — use current chat
         chatId = safeChat.id;
@@ -348,6 +349,15 @@ function buildRuntimeHelpers(payload, actions) {
       const normalizedText = requireString(text, 'sendMessage text');
       const targetChatId = requireChatId(chatId, 'sendMessage chatId');
       const normalizedOptions = normalizeMessageOptions(options);
+      const currentChatId = safeChat.id !== null && safeChat.id !== undefined ? String(safeChat.id) : null;
+      const isCurrentChatTarget = currentChatId !== null && String(targetChatId) === currentChatId;
+      if (explicitTarget && !isCurrentChatTarget && telegramBridgeUrl && telegramBridgeSecret) {
+        const result = await telegramRuntimeAction('telegram.sendMessage', { chat_id: targetChatId, text: normalizedText, ...normalizedOptions });
+        return result && result.ok
+          ? { ...result, queued: false }
+          : result;
+      }
+
       actions.push({
         type: 'text',
         chat_id: targetChatId,
@@ -360,9 +370,7 @@ function buildRuntimeHelpers(payload, actions) {
     }
   };
 
-  const reply = async (text, options = {}) => {
-    return sendMessage(safeChat.id, text, options);
-  };
+  const reply = async (text, options = {}) => sendMessage(text, options);
 
   const replyHTML = async (html, options = {}) => {
     return reply(html, { ...normalizeObject(options, 'replyHTML options'), parse_mode: 'HTML' });
@@ -2161,7 +2169,7 @@ function buildRuntimeHelpers(payload, actions) {
     if (!opts.parse_mode && typeof text === 'string' && /<[a-z][\s\S]*>/i.test(text)) {
       opts.parse_mode = 'HTML';
     }
-    try { await sendMessage(requireChatId(userId, 'notifyUser(userId, text)'), requireString(text, 'notifyUser(userId, text)'), opts); return { ok: true }; }
+    try { return await sendMessage(requireChatId(userId, 'notifyUser(userId, text)'), requireString(text, 'notifyUser(userId, text)'), opts); }
     catch (err) { return { ok: false, error: String((err && err.message) || err) }; }
   };
 

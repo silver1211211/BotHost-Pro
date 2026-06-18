@@ -528,19 +528,39 @@ class BotManagementTest extends TestCase
 
         config(['services.node_runtime.secret' => 'bridge-secret']);
         Http::fake([
-            'api.telegram.org/bot987654:BB-new-secret/sendMessage' => Http::response(['ok' => true, 'result' => ['message_id' => 55]]),
+            'api.telegram.org/bot987654:BB-new-secret/sendMessage' => Http::response([
+                'ok' => true,
+                'result' => [
+                    'message_id' => 55,
+                    'chat' => ['id' => 111],
+                    'date' => 1890000000,
+                ],
+            ]),
         ]);
 
         $this->withHeader('X-Runtime-Secret', 'bridge-secret')
             ->postJson('/runtime/telegram', [
                 'bot_id' => $bot->id,
                 'action' => 'telegram.sendMessage',
-                'options' => ['chat_id' => 111, 'text' => 'Latest token'],
+                'options' => [
+                    'chat_id' => 111,
+                    'text' => 'Latest token',
+                    'parse_mode' => 'HTML',
+                    'disable_web_page_preview' => true,
+                    'reply_markup' => ['inline_keyboard' => [[['text' => 'Open', 'callback_data' => '/open']]]],
+                ],
             ])
             ->assertOk()
-            ->assertJsonPath('ok', true);
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('queued', false)
+            ->assertJsonPath('result.message_id', 55)
+            ->assertJsonPath('result.chat.id', 111)
+            ->assertJsonPath('result.date', 1890000000);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'bot987654:BB-new-secret/sendMessage'));
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'bot987654:BB-new-secret/sendMessage')
+            && $request['parse_mode'] === 'HTML'
+            && $request['disable_web_page_preview'] === true
+            && $request['reply_markup']['inline_keyboard'][0][0]['callback_data'] === '/open');
         Http::assertNotSent(fn ($request) => str_contains($request->url(), 'bot123456:AA-secret-token-owned-bot/sendMessage'));
     }
 

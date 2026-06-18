@@ -2,6 +2,25 @@
 
 use Symfony\Component\Process\Process;
 
+function decodeNodeRuntimeOutput(string $output): ?array
+{
+    $lines = preg_split('/\R/', trim($output));
+
+    for ($i = count($lines) - 1; $i >= 0; $i--) {
+        $line = trim($lines[$i]);
+        if ($line === '' || $line[0] !== '{') {
+            continue;
+        }
+
+        $decoded = json_decode($line, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+    }
+
+    return null;
+}
+
 it('exposes telegram membership helpers in the fallback runtime', function (): void {
     $payload = [
         'bot' => ['id' => 123, 'name' => 'Membership Helper Bot'],
@@ -41,7 +60,7 @@ JS,
 
     expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
 
-    $output = json_decode($process->getOutput(), true);
+    $output = decodeNodeRuntimeOutput($process->getOutput());
 
     expect($output)->toBeArray()
         ->and($output['replies'][0]['text'] ?? null)->toBe(str_repeat('function,', 10).'function');
@@ -75,7 +94,7 @@ JS,
 
     expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
 
-    $output = json_decode($process->getOutput(), true);
+    $output = decodeNodeRuntimeOutput($process->getOutput());
 
     expect($output)->toBeArray()
         ->and($output['ok'])->toBeFalse()
@@ -157,7 +176,7 @@ JS,
 
         expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
 
-        $output = json_decode($process->getOutput(), true);
+        $output = decodeNodeRuntimeOutput($process->getOutput());
         $result = json_decode($output['replies'][0]['text'] ?? '', true);
 
         expect($result)->toBeArray()
@@ -216,7 +235,7 @@ JS,
 
     expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
 
-    $output = json_decode($process->getOutput(), true);
+    $output = decodeNodeRuntimeOutput($process->getOutput());
     $r = json_decode($output['replies'][0]['text'] ?? '', true);
 
     expect($r['ok'])->toBeFalse()
@@ -306,6 +325,166 @@ JS;
             ->and($result['replies'][0]['text'])->toBe('✅ NODE PING WORKING');
     } finally {
         $runtime->stop(0);
+        $bridge->stop(0);
+    }
+});
+
+it('direct telegram helpers return bridge message ids without queuing', function (): void {
+    $bridgePort = random_int(30001, 34000);
+
+    $bridgeCode = <<<'JS'
+const http = require('http');
+const port = Number(process.argv[1]);
+let count = 0;
+http.createServer((req, res) => {
+  let raw = '';
+  req.on('data', chunk => { raw += chunk; });
+  req.on('end', () => {
+    const body = JSON.parse(raw || '{}');
+    const options = body.options || {};
+    count += 1;
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({
+      ok: true,
+      queued: false,
+      result: {
+        message_id: 1000 + count,
+        chat: { id: options.chat_id },
+        date: 1890000000 + count,
+        text: options.text || null,
+        parse_mode: options.parse_mode || null,
+        disable_web_page_preview: options.disable_web_page_preview || false,
+        reply_markup: options.reply_markup || null
+      }
+    }));
+  });
+}).listen(port, '127.0.0.1');
+setInterval(() => {}, 1000);
+JS;
+
+    $bridge = new Process(['node', '-e', $bridgeCode, (string) $bridgePort], base_path(), null, null, 30);
+    $bridge->start();
+    usleep(300_000);
+
+    $payload = [
+        'bot' => ['id' => 123, 'name' => 'Direct Bridge Bot'],
+        'runtime' => [
+            'telegram_bridge_url' => "http://127.0.0.1:{$bridgePort}/runtime/telegram",
+            'telegram_bridge_secret' => 'test-secret',
+        ],
+        'command' => [
+            'id' => 1,
+            'name' => '/direct',
+            'trigger' => '/direct',
+            'type' => 'code',
+            'code' => <<<'JS'
+const keyboard = { inline_keyboard: [[{ text: "Reply", callback_data: "/admin reply T1 7701909986" }]] };
+async function notifyUserWithButtons(userId, text, buttons, options = {}) {
+  return notifyUser(userId, text, { ...options, reply_markup: { inline_keyboard: buttons } });
+}
+const direct = await sendMessage(8801909986, "<b>Direct</b>", {
+  parse_mode: "HTML",
+  disable_web_page_preview: true,
+  reply_markup: keyboard
+});
+const notified = await notifyUser(8801909986, "<b>Notify</b>", { reply_markup: keyboard });
+const helper = await notifyUserWithButtons(8801909986, "Buttons", [[{ text: "Open", callback_data: "/open" }]], { parse_mode: "HTML" });
+const queued = await sendMessage("Queued reply");
+await reply(JSON.stringify({ direct, notified, helper, queued }));
+JS,
+        ],
+        'telegram' => [
+            'user_id' => 7701909986,
+            'chat_id' => 7701909986,
+            'message' => ['chat' => ['id' => 7701909986], 'from' => ['id' => 7701909986], 'text' => '/direct'],
+        ],
+        'storage' => ['bot' => [], 'user' => [], 'cross_users' => []],
+        'settings' => ['command_timeout_ms' => 6000, 'max_delay_ms' => 1000],
+    ];
+
+    try {
+        $process = new Process(['node', base_path('runtime-node/execute-once.js')], base_path(), null, json_encode($payload, JSON_UNESCAPED_SLASHES), 10);
+        $process->run();
+
+        expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
+
+        $output = decodeNodeRuntimeOutput($process->getOutput());
+        $summary = json_decode($output['replies'][1]['text'] ?? '', true);
+
+        expect($output['replies'])->toHaveCount(2)
+            ->and($output['replies'][0]['text'])->toBe('Queued reply')
+            ->and($summary['queued']['queued'])->toBeTrue()
+            ->and($summary['direct']['queued'])->toBeFalse()
+            ->and($summary['direct']['result']['message_id'])->toBe(1001)
+            ->and($summary['direct']['result']['chat']['id'])->toBe(8801909986)
+            ->and($summary['direct']['result']['date'])->toBe(1890000001)
+            ->and($summary['direct']['result']['parse_mode'])->toBe('HTML')
+            ->and($summary['direct']['result']['disable_web_page_preview'])->toBeTrue()
+            ->and($summary['direct']['result']['reply_markup']['inline_keyboard'][0][0]['callback_data'])->toBe('/admin reply T1 7701909986')
+            ->and($summary['notified']['queued'])->toBeFalse()
+            ->and($summary['notified']['result']['message_id'])->toBe(1002)
+            ->and($summary['notified']['result']['parse_mode'])->toBe('HTML')
+            ->and($summary['helper']['queued'])->toBeFalse()
+            ->and($summary['helper']['result']['message_id'])->toBe(1003);
+    } finally {
+        $bridge->stop(0);
+    }
+});
+
+it('direct telegram helper errors return safe ok false payloads', function (): void {
+    $bridgePort = random_int(34001, 38000);
+
+    $bridgeCode = <<<'JS'
+const http = require('http');
+const port = Number(process.argv[1]);
+http.createServer((req, res) => {
+  res.writeHead(200, { 'content-type': 'application/json' });
+  res.end(JSON.stringify({ ok: false, error: 'Telegram sendMessage failed.' }));
+}).listen(port, '127.0.0.1');
+setInterval(() => {}, 1000);
+JS;
+
+    $bridge = new Process(['node', '-e', $bridgeCode, (string) $bridgePort], base_path(), null, null, 30);
+    $bridge->start();
+    usleep(300_000);
+
+    $payload = [
+        'bot' => ['id' => 123, 'name' => 'Direct Bridge Error Bot'],
+        'runtime' => [
+            'telegram_bridge_url' => "http://127.0.0.1:{$bridgePort}/runtime/telegram",
+            'telegram_bridge_secret' => 'test-secret',
+        ],
+        'command' => [
+            'id' => 1,
+            'name' => '/direct-error',
+            'trigger' => '/direct-error',
+            'type' => 'code',
+            'code' => <<<'JS'
+const result = await sendMessage(8801909986, "Fail");
+await reply(JSON.stringify(result));
+JS,
+        ],
+        'telegram' => [
+            'user_id' => 7701909986,
+            'chat_id' => 7701909986,
+            'message' => ['chat' => ['id' => 7701909986], 'from' => ['id' => 7701909986], 'text' => '/direct-error'],
+        ],
+        'storage' => ['bot' => [], 'user' => [], 'cross_users' => []],
+        'settings' => ['command_timeout_ms' => 6000, 'max_delay_ms' => 1000],
+    ];
+
+    try {
+        $process = new Process(['node', base_path('runtime-node/execute-once.js')], base_path(), null, json_encode($payload, JSON_UNESCAPED_SLASHES), 10);
+        $process->run();
+
+        expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
+
+        $output = decodeNodeRuntimeOutput($process->getOutput());
+        $result = json_decode($output['replies'][0]['text'] ?? '', true);
+
+        expect($result['ok'])->toBeFalse()
+            ->and($result['error'])->toBe('Telegram sendMessage failed.');
+    } finally {
         $bridge->stop(0);
     }
 });

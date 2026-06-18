@@ -11,36 +11,29 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'name',
     'slug',
     'description',
-    'helper_type',
-    'allowed_domains',
-    'default_timeout_ms',
-    'permission_level',
-    'sort_order',
     'is_active',
+    'sort_order',
     'created_by',
     'updated_by',
 ])]
-class RuntimeHelperCategory extends Model
+class RuntimeHelperType extends Model
 {
     protected function casts(): array
     {
         return [
-            'allowed_domains' => 'array',
             'is_active' => 'boolean',
-            'default_timeout_ms' => 'integer',
-            'permission_level' => 'integer',
             'sort_order' => 'integer',
         ];
     }
 
     public function helpers(): HasMany
     {
-        return $this->hasMany(RuntimeHelper::class, 'category_id');
+        return $this->hasMany(RuntimeHelper::class, 'helper_type', 'slug');
     }
 
-    public function type(): BelongsTo
+    public function categories(): HasMany
     {
-        return $this->belongsTo(RuntimeHelperType::class, 'helper_type', 'slug');
+        return $this->hasMany(RuntimeHelperCategory::class, 'helper_type', 'slug');
     }
 
     public function creator(): BelongsTo

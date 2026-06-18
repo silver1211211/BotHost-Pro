@@ -102,6 +102,7 @@
                     ],
                     'Runtime' => [
                         ['label' => 'Helper Categories', 'route' => 'admin.runtime.helper-categories.index', 'icon' => 'settings'],
+                        ['label' => 'Helper Types',      'route' => 'admin.runtime.helper-types.index',      'icon' => 'settings'],
                         ['label' => 'Runtime Helpers',   'route' => 'admin.runtime.helpers.index',           'icon' => 'templates'],
                         ['label' => 'Helper Bundle',     'route' => 'admin.runtime.reload.index',            'icon' => 'logs'],
                     ],

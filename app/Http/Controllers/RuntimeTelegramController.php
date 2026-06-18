@@ -146,7 +146,7 @@ class RuntimeTelegramController extends Controller
     private function safeResult(array $result): array
     {
         return ($result['ok'] ?? false)
-            ? ['ok' => true, 'result' => $result['data'] ?? null]
+            ? ['ok' => true, 'result' => $result['data'] ?? null, 'queued' => false]
             : ['ok' => false, 'error' => $result['message'] ?? 'Telegram request failed.'];
     }
 

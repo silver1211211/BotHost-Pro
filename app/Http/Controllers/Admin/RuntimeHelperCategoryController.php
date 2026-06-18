@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\RuntimeHelperCategory;
+use App\Models\RuntimeHelperType;
 use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ class RuntimeHelperCategoryController extends Controller
     {
         return view('admin.runtime.helper-categories.create', [
             'category' => new RuntimeHelperCategory(),
+            'helperTypes' => $this->helperTypesForSelect(),
         ]);
     }
 
@@ -67,6 +69,7 @@ class RuntimeHelperCategoryController extends Controller
     {
         return view('admin.runtime.helper-categories.edit', [
             'category' => $category,
+            'helperTypes' => $this->helperTypesForSelect($category->helper_type),
         ]);
     }
 
@@ -129,7 +132,13 @@ class RuntimeHelperCategoryController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'slug' => ['required', 'string', 'max:100', Rule::unique('runtime_helper_categories', 'slug')->ignore($category?->id)],
             'description' => ['nullable', 'string'],
-            'helper_type' => ['required', 'string', 'max:50'],
+            'helper_type' => [
+                'required',
+                'string',
+                'max:50',
+                'regex:/^[a-z][a-z0-9_]*$/',
+                Rule::exists('runtime_helper_types', 'slug'),
+            ],
             'allowed_domains' => ['nullable'],
             'default_timeout_ms' => ['required', 'integer', 'min:100', 'max:60000'],
             'permission_level' => ['required', 'integer', 'min:0', 'max:2'],
@@ -156,5 +165,29 @@ class RuntimeHelperCategoryController extends Controller
             ->unique()
             ->values()
             ->all();
+    }
+
+    private function helperTypesForSelect(?string $includeSlug = null)
+    {
+        $types = RuntimeHelperType::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        if (filled($includeSlug) && ! $types->contains('slug', $includeSlug)) {
+            $fallback = RuntimeHelperType::query()->where('slug', $includeSlug)->first();
+            if ($fallback) {
+                $types->push($fallback);
+            } else {
+                $types->push(new RuntimeHelperType([
+                    'name' => str($includeSlug)->replace('_', ' ')->title()->toString(),
+                    'slug' => $includeSlug,
+                    'is_active' => false,
+                ]));
+            }
+        }
+
+        return $types;
     }
 }
