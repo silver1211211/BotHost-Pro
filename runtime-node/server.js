@@ -2169,7 +2169,20 @@ function buildRuntimeHelpers(payload, actions) {
     if (!opts.parse_mode && typeof text === 'string' && /<[a-z][\s\S]*>/i.test(text)) {
       opts.parse_mode = 'HTML';
     }
-    try { return await sendMessage(requireChatId(userId, 'notifyUser(userId, text)'), requireString(text, 'notifyUser(userId, text)'), opts); }
+    try {
+      const targetChatId = requireChatId(userId, 'notifyUser(userId, text)');
+      const normalizedText = requireString(text, 'notifyUser(userId, text)');
+      const normalizedOptions = normalizeMessageOptions(opts);
+
+      if (!telegramBridgeUrl || !telegramBridgeSecret) {
+        return { ok: false, error: 'Telegram runtime bridge is not configured.' };
+      }
+
+      const result = await telegramRuntimeAction('telegram.sendMessage', { chat_id: targetChatId, text: normalizedText, ...normalizedOptions });
+      return result && result.ok
+        ? { ...result, queued: false }
+        : result;
+    }
     catch (err) { return { ok: false, error: String((err && err.message) || err) }; }
   };
 

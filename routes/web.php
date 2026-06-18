@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\RuntimeHelperController as AdminRuntimeHelperCont
 use App\Http\Controllers\Admin\RuntimeHelperTestController as AdminRuntimeHelperTestController;
 use App\Http\Controllers\Admin\RuntimeHelperTypeController as AdminRuntimeHelperTypeController;
 use App\Http\Controllers\Admin\RuntimeHelperVersionController as AdminRuntimeHelperVersionController;
+use App\Http\Controllers\Admin\RuntimeHealthController as AdminRuntimeHealthController;
 use App\Http\Controllers\Admin\RuntimeReloadController as AdminRuntimeReloadController;
 use App\Http\Controllers\Admin\SecurityController as AdminSecurityController;
 use App\Http\Controllers\Admin\TemplateCommandController as AdminTemplateCommandController;
@@ -323,6 +324,15 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::post('/runtime/reload/logs/{log}/cancel', [AdminRuntimeReloadController::class, 'cancel'])->name('runtime.reload.logs.cancel');
         Route::post('/runtime/reload/logs/{log}/retry', [AdminRuntimeReloadController::class, 'retry'])->name('runtime.reload.logs.retry');
         Route::get('/runtime/reload/logs/{log}', [AdminRuntimeReloadController::class, 'show'])->name('runtime.reload.show');
+
+        Route::get('/runtime/health', [AdminRuntimeHealthController::class, 'index'])->name('runtime.health.index');
+        Route::post('/runtime/health/check', [AdminRuntimeHealthController::class, 'runHealthCheck'])->name('runtime.health.check');
+        Route::post('/runtime/health/force-apply-helpers', [AdminRuntimeHealthController::class, 'forceApplyHelpers'])->name('runtime.health.force-apply-helpers');
+        Route::post('/runtime/health/force-runtime-refresh', [AdminRuntimeHealthController::class, 'forceRuntimeRefresh'])->name('runtime.health.force-runtime-refresh');
+        Route::post('/runtime/health/recreate-bot', [AdminRuntimeHealthController::class, 'recreateBot'])->name('runtime.health.recreate-bot');
+        Route::post('/runtime/health/recreate-all', [AdminRuntimeHealthController::class, 'recreateAll'])->name('runtime.health.recreate-all');
+        Route::post('/runtime/health/clear-cache', [AdminRuntimeHealthController::class, 'clearCache'])->name('runtime.health.clear-cache');
+        Route::post('/runtime/health/restart-queue', [AdminRuntimeHealthController::class, 'restartQueue'])->name('runtime.health.restart-queue');
 
         // Settings — full platform settings center
         Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');

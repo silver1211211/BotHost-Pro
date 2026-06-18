@@ -105,6 +105,7 @@
                         ['label' => 'Helper Types',      'route' => 'admin.runtime.helper-types.index',      'icon' => 'settings'],
                         ['label' => 'Runtime Helpers',   'route' => 'admin.runtime.helpers.index',           'icon' => 'templates'],
                         ['label' => 'Helper Bundle',     'route' => 'admin.runtime.reload.index',            'icon' => 'logs'],
+                        ['label' => 'Health Center',     'route' => 'admin.runtime.health.index',            'icon' => 'security'],
                     ],
                     'System' => [
                         ['label' => 'Logs',     'route' => 'admin.logs.index',      'icon' => 'logs'],

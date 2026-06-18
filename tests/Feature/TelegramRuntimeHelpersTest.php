@@ -387,7 +387,7 @@ const direct = await sendMessage(8801909986, "<b>Direct</b>", {
   disable_web_page_preview: true,
   reply_markup: keyboard
 });
-const notified = await notifyUser(8801909986, "<b>Notify</b>", { reply_markup: keyboard });
+const notified = await notifyUser(7701909986, "<b>Notify</b>", { reply_markup: keyboard });
 const helper = await notifyUserWithButtons(8801909986, "Buttons", [[{ text: "Open", callback_data: "/open" }]], { parse_mode: "HTML" });
 const queued = await sendMessage("Queued reply");
 await reply(JSON.stringify({ direct, notified, helper, queued }));
@@ -423,7 +423,9 @@ JS,
             ->and($summary['direct']['result']['reply_markup']['inline_keyboard'][0][0]['callback_data'])->toBe('/admin reply T1 7701909986')
             ->and($summary['notified']['queued'])->toBeFalse()
             ->and($summary['notified']['result']['message_id'])->toBe(1002)
+            ->and($summary['notified']['result']['chat']['id'])->toBe(7701909986)
             ->and($summary['notified']['result']['parse_mode'])->toBe('HTML')
+            ->and($summary['notified']['result']['reply_markup']['inline_keyboard'][0][0]['callback_data'])->toBe('/admin reply T1 7701909986')
             ->and($summary['helper']['queued'])->toBeFalse()
             ->and($summary['helper']['result']['message_id'])->toBe(1003);
     } finally {

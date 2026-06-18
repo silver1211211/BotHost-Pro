@@ -11,7 +11,13 @@
             <h1 class="text-xl font-black text-white">Runtime Helpers</h1>
             <p class="mt-1 text-xs text-[#94A3B8]">Database activation only. Runtime reload is not connected yet.</p>
         </div>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="POST" action="{{ route('admin.runtime.health.force-apply-helpers') }}" class="flex flex-wrap items-center gap-2">
+                @csrf
+                <input name="confirm_force_apply" autocomplete="off" class="w-64 rounded-xl border border-[#22C55E]/40 bg-[#090713] px-3 py-2 font-mono text-xs text-white placeholder:text-[#166534]" placeholder="FORCE_APPLY_RUNTIME_HELPERS">
+                <button class="rounded-xl border border-[#22C55E]/40 px-4 py-2 text-sm font-black text-[#22C55E] hover:bg-[#22C55E]/10">Force Apply Runtime Helpers</button>
+            </form>
+            <a href="{{ route('admin.runtime.health.index') }}" class="rounded-xl border border-[#38BDF8]/40 px-4 py-2 text-sm font-black text-[#7DD3FC] hover:bg-[#38BDF8]/10">Health Center</a>
             <a href="{{ route('admin.runtime.helper-types.index') }}" class="rounded-xl border border-[#27213D] px-4 py-2 text-sm font-black text-[#A1A1AA] hover:text-white">Helper Types</a>
             <a href="{{ route('admin.runtime.helpers.create') }}" class="rounded-xl bg-[#8B5CF6] px-4 py-2 text-sm font-black text-white hover:bg-[#7C3AED]">New Helper</a>
         </div>

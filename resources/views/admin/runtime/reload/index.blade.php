@@ -126,12 +126,28 @@
             <div>
                 <h2 class="text-sm font-black text-[#BBF7D0]">Publish & Apply Helpers</h2>
                 <p class="mt-2 text-sm text-[#86EFAC]">Use this after activating a helper. It publishes the bundle, detects helper bundle hash changes, then recreates only Docker bot containers that need the new helper list.</p>
+                <a href="{{ route('admin.runtime.health.index') }}" class="mt-3 inline-flex rounded-lg border border-[#22C55E]/40 px-3 py-1.5 text-xs font-black text-[#BBF7D0] hover:bg-[#22C55E]/10">Open Runtime Health Center</a>
             </div>
             <form method="POST" action="{{ route('admin.runtime.reload.publish-and-apply') }}" class="space-y-3">
                 @csrf
                 <label class="block text-xs font-bold text-[#BBF7D0]" for="confirm_publish_apply">Type PUBLISH_AND_APPLY_HELPERS to confirm</label>
                 <input id="confirm_publish_apply" name="confirm_publish_apply" autocomplete="off" class="w-full rounded-xl border border-[#22C55E]/40 bg-[#090713] px-3 py-2 font-mono text-sm text-white placeholder:text-[#166534]" placeholder="PUBLISH_AND_APPLY_HELPERS">
                 <button class="rounded-xl bg-[#16A34A] px-5 py-2.5 text-sm font-black text-white hover:bg-[#15803D]">Publish & Apply Helpers</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="rounded-2xl border border-[#38BDF8]/30 bg-[#38BDF8]/10 p-4">
+        <div class="grid gap-4 lg:grid-cols-2">
+            <div>
+                <h2 class="text-sm font-black text-[#BAE6FD]">Force Apply Runtime Helpers</h2>
+                <p class="mt-2 text-sm text-[#7DD3FC]">Use this when runtime containers are marked current but live helper delivery still needs a direct publish and Docker refresh.</p>
+            </div>
+            <form method="POST" action="{{ route('admin.runtime.health.force-apply-helpers') }}" class="space-y-3">
+                @csrf
+                <label class="block text-xs font-bold text-[#BAE6FD]" for="reload_confirm_force_apply">Type FORCE_APPLY_RUNTIME_HELPERS to confirm</label>
+                <input id="reload_confirm_force_apply" name="confirm_force_apply" autocomplete="off" class="w-full rounded-xl border border-[#38BDF8]/40 bg-[#090713] px-3 py-2 font-mono text-sm text-white placeholder:text-[#075985]" placeholder="FORCE_APPLY_RUNTIME_HELPERS">
+                <button class="rounded-xl border border-[#38BDF8]/40 px-5 py-2.5 text-sm font-black text-[#BAE6FD] hover:bg-[#38BDF8]/10">Force Apply Runtime Helpers</button>
             </form>
         </div>
     </div>
