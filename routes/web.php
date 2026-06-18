@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\BotCommandController;
 use App\Http\Controllers\BotController;
+use App\Http\Controllers\BotTelegramFileController;
 use App\Http\Controllers\BotBroadcastController;
 use App\Http\Controllers\BotExportImportController;
 use App\Http\Controllers\BotLogController;
@@ -138,6 +139,7 @@ Route::middleware(['auth', 'active', 'verified.required'])->group(function () {
     Route::get('/dashboard/bots/create', [BotController::class, 'create'])->name('bots.create');
     Route::post('/dashboard/bots', [BotController::class, 'store'])->name('bots.store');
     Route::get('/dashboard/bots/{bot}', [BotController::class, 'show'])->name('bots.show');
+    Route::get('/dashboard/bots/{bot}/files/{fileHash}', [BotTelegramFileController::class, 'show'])->name('bots.files.show');
     Route::delete('/dashboard/bots/{bot}', [BotController::class, 'destroy'])->name('bots.destroy');
     Route::get('/dashboard/bots/{bot}/settings', [BotController::class, 'settings'])->name('bots.settings.show');
     Route::patch('/dashboard/bots/{bot}/settings', [BotSettingsController::class, 'update'])->name('bots.settings.update');

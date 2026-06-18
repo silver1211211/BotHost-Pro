@@ -431,6 +431,106 @@ function buildRuntimeHelpers(payload, actions) {
     };
   };
 
+  const getTelegramImageFileId = (params = {}) => {
+    try {
+      const source = normalizeObject(params, 'getTelegramImageFileId params');
+      if (typeof source.file_id === 'string' && source.file_id.trim()) {
+        return {
+          ok: true,
+          error: null,
+          file_id: source.file_id.trim(),
+          file_unique_id: typeof source.file_unique_id === 'string' ? source.file_unique_id : null,
+          width: source.width ?? null,
+          height: source.height ?? null,
+          file_size: source.file_size ?? null,
+          source: 'file_id',
+        };
+      }
+
+      const photos = Array.isArray(source.photo)
+        ? source.photo
+        : (Array.isArray(source.photos) ? source.photos : []);
+      const candidates = photos
+        .filter((photo) => photo && typeof photo === 'object' && typeof photo.file_id === 'string' && photo.file_id.trim())
+        .map((photo) => plainObject(photo));
+
+      if (candidates.length === 0) {
+        return { ok: false, error: 'No Telegram image file_id found.' };
+      }
+
+      candidates.sort((a, b) => {
+        const aSize = Number(a.file_size || 0);
+        const bSize = Number(b.file_size || 0);
+        if (aSize !== bSize) return bSize - aSize;
+        return (Number(b.width || 0) * Number(b.height || 0)) - (Number(a.width || 0) * Number(a.height || 0));
+      });
+
+      const best = candidates[0];
+      return {
+        ok: true,
+        error: null,
+        file_id: String(best.file_id).trim(),
+        file_unique_id: typeof best.file_unique_id === 'string' ? best.file_unique_id : null,
+        width: best.width ?? null,
+        height: best.height ?? null,
+        file_size: best.file_size ?? null,
+        source: Array.isArray(source.photo) ? 'photo' : 'photos',
+      };
+    } catch (err) {
+      return { ok: false, error: safeTelegramError(err) };
+    }
+  };
+
+  const getTelegramFile = async (params = {}) => {
+    try {
+      const opts = normalizeObject(params, 'getTelegramFile params');
+      const fileId = requireTelegramFileId(opts.file_id);
+      const response = await telegramRuntimeAction('telegram.getFile', { file_id: fileId });
+
+      if (!response || !response.ok) {
+        return { ok: false, error: safeTelegramError(response && (response.error || response.message || response.description)) };
+      }
+
+      const file = plainObject(response.result || {});
+      return {
+        ok: true,
+        error: null,
+        file_id: file.file_id || fileId,
+        file_unique_id: file.file_unique_id ?? null,
+        file_path: file.file_path ?? null,
+        file_size: file.file_size ?? null,
+        file_url: null,
+      };
+    } catch (err) {
+      return { ok: false, error: safeTelegramError(err) };
+    }
+  };
+
+  const getTelegramFileUrl = async (params = {}) => {
+    try {
+      const opts = normalizeObject(params, 'getTelegramFileUrl params');
+      const fileId = requireTelegramFileId(opts.file_id);
+      const response = await telegramRuntimeAction('telegram.getFile', { file_id: fileId });
+
+      if (!response || !response.ok) {
+        return { ok: false, error: safeTelegramError(response && (response.error || response.message || response.description)) };
+      }
+
+      const file = plainObject(response.result || {});
+      return {
+        ok: true,
+        error: null,
+        file_id: file.file_id || fileId,
+        file_unique_id: file.file_unique_id ?? null,
+        file_path: file.file_path ?? null,
+        file_url: file.file_url ?? null,
+        file_size: file.file_size ?? null,
+      };
+    } catch (err) {
+      return { ok: false, error: safeTelegramError(err) };
+    }
+  };
+
   const safeCaption = (text, limit = 1024) => sanitizeText(String(text ?? ''), Math.min(Math.max(0, toNumber(limit, 1024)), 1024));
 
   const runCommand = async (commandName, commandArgs = []) => {
@@ -2543,6 +2643,9 @@ function buildRuntimeHelpers(payload, actions) {
       getMediaType,
       getIncomingMediaType,
       getIncomingMedia,
+      getTelegramFile,
+      getTelegramFileUrl,
+      getTelegramImageFileId,
       safeHTML,
       safeTelegramResult,
       safeCaption,
@@ -4083,6 +4186,15 @@ function requireString(value, label) {
   }
 
   return value;
+}
+
+function requireTelegramFileId(value) {
+  const fileId = String(value ?? '').trim();
+  if (!fileId) throw new Error('Telegram file_id is required.');
+  if (fileId.length > 512 || !/^[A-Za-z0-9_\-:]+$/.test(fileId)) {
+    throw new Error('Telegram file_id is invalid.');
+  }
+  return fileId;
 }
 
 function isSecretStorageKey(key) {

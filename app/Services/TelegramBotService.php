@@ -295,6 +295,51 @@ class TelegramBotService
             ];
     }
 
+    public function getFile(string $token, string $fileId): array
+    {
+        $fileId = trim($fileId);
+        if ($fileId === '' || strlen($fileId) > 512 || preg_match('/^[A-Za-z0-9_\-:]+$/', $fileId) !== 1) {
+            return ['ok' => false, 'message' => 'Telegram file_id is invalid.'];
+        }
+
+        $response = $this->request($token, 'getFile', ['file_id' => $fileId]);
+
+        if (! $response['ok']) {
+            return [
+                'ok' => false,
+                'message' => $response['network_failed'] ? self::UNAVAILABLE_MESSAGE : 'Telegram getFile failed.',
+            ];
+        }
+
+        $payload = $response['payload'];
+        if (! is_array($payload) || ($payload['ok'] ?? false) !== true || ! is_array($payload['result'] ?? null)) {
+            return [
+                'ok' => false,
+                'message' => is_array($payload)
+                    ? (string) ($payload['description'] ?? 'Telegram getFile failed.')
+                    : 'Telegram getFile failed.',
+                'error_code' => is_array($payload) ? ($payload['error_code'] ?? null) : null,
+            ];
+        }
+
+        $file = $payload['result'];
+        $filePath = (string) ($file['file_path'] ?? '');
+        if (! $this->isSafeTelegramFilePath($filePath)) {
+            return ['ok' => false, 'message' => 'Telegram file path is invalid.'];
+        }
+
+        return [
+            'ok' => true,
+            'message' => null,
+            'data' => [
+                'file_id' => (string) ($file['file_id'] ?? $fileId),
+                'file_unique_id' => isset($file['file_unique_id']) ? (string) $file['file_unique_id'] : null,
+                'file_path' => $filePath,
+                'file_size' => isset($file['file_size']) ? (int) $file['file_size'] : null,
+            ],
+        ];
+    }
+
     public function checkTelegramChannelMember(string $token, int|string $chatId, int|string $telegramUserId): array
     {
         $startedAt = microtime(true);
@@ -421,6 +466,38 @@ class TelegramBotService
         return $this->telegramBooleanResult($this->request($token, 'sendDocument', $payload, [
             'document' => $documentPathOrUrl,
         ]));
+    }
+
+    public function downloadFile(string $token, string $filePath): array
+    {
+        $filePath = trim(str_replace('\\', '/', $filePath));
+        if (! $this->isSafeTelegramFilePath($filePath)) {
+            return ['ok' => false, 'message' => 'Telegram file path is invalid.'];
+        }
+
+        $token = $this->normalizeToken($token);
+
+        try {
+            $response = Http::connectTimeout(5)
+                ->timeout(30)
+                ->get("https://api.telegram.org/file/bot{$token}/{$filePath}");
+        } catch (Throwable $exception) {
+            Log::warning('Telegram file download failed.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return ['ok' => false, 'message' => 'Telegram file download failed.'];
+        }
+
+        if (! $response->successful()) {
+            return ['ok' => false, 'message' => 'Telegram file download failed.'];
+        }
+
+        return [
+            'ok' => true,
+            'body' => $response->body(),
+            'content_type' => $response->header('Content-Type'),
+        ];
     }
 
     public function sendVideo(
@@ -724,6 +801,18 @@ class TelegramBotService
     private function looksLikeBotToken(string $token): bool
     {
         return preg_match('/^\d+:[A-Za-z0-9_-]{10,}$/', $token) === 1;
+    }
+
+    private function isSafeTelegramFilePath(string $path): bool
+    {
+        $path = trim(str_replace('\\', '/', $path));
+
+        return $path !== ''
+            && strlen($path) <= 512
+            && ! str_starts_with($path, '/')
+            && ! str_contains($path, '..')
+            && ! str_contains($path, '://')
+            && preg_match('#^[A-Za-z0-9_./-]+$#', $path) === 1;
     }
 
     private function channelMemberFailure(string $message, string $status = 'unknown', ?int $errorCode = null, ?array $raw = null, ?float $startedAt = null): array

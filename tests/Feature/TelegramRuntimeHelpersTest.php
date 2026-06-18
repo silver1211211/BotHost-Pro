@@ -490,3 +490,116 @@ JS,
         $bridge->stop(0);
     }
 });
+
+it('exposes secure telegram file helpers and returns safe proxy urls', function (): void {
+    $bridgePort = random_int(38001, 42000);
+
+    $bridgeCode = <<<'JS'
+const http = require('http');
+const port = Number(process.argv[1]);
+http.createServer((req, res) => {
+  let raw = '';
+  req.on('data', chunk => { raw += chunk; });
+  req.on('end', () => {
+    const body = JSON.parse(raw || '{}');
+    const fileId = (body.options || {}).file_id;
+    const response = body.action === 'telegram.getFile'
+      ? {
+          ok: true,
+          queued: false,
+          result: {
+            file_id: fileId,
+            file_unique_id: 'unique_' + fileId,
+            file_path: 'photos/file_1.jpg',
+            file_size: 12345,
+            file_url: 'https://bothost.test/dashboard/bots/123/files/safe-hash'
+          }
+        }
+      : { ok: false, error: 'unexpected action: ' + (body.action || 'none') };
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify(response));
+  });
+}).listen(port, '127.0.0.1');
+setInterval(() => {}, 1000);
+JS;
+
+    $bridge = new Process(['node', '-e', $bridgeCode, (string) $bridgePort], base_path(), null, null, 30);
+    $bridge->start();
+    usleep(300_000);
+
+    $payload = [
+        'bot' => ['id' => 123, 'name' => 'File Helper Bot'],
+        'runtime' => [
+            'telegram_bridge_url' => "http://127.0.0.1:{$bridgePort}/runtime/telegram",
+            'telegram_bridge_secret' => 'test-secret',
+        ],
+        'command' => [
+            'id' => 1,
+            'name' => '/file-debug',
+            'trigger' => '/file-debug',
+            'type' => 'code',
+            'code' => <<<'JS'
+const bySize = getTelegramImageFileId({ photo: [
+  { file_id: "small", file_unique_id: "u1", width: 90, height: 90, file_size: 100 },
+  { file_id: "large", file_unique_id: "u2", width: 640, height: 480, file_size: 5000 }
+] });
+const byArea = getTelegramImageFileId({ photos: [
+  { file_id: "wide", width: 1000, height: 100 },
+  { file_id: "big", width: 800, height: 800 }
+] });
+const direct = getTelegramImageFileId({ file_id: "direct_file_id" });
+const invalid = await getTelegramFile({ file_id: "../bad" });
+const file = await getTelegramFile({ file_id: bySize.file_id });
+const url = await getTelegramFileUrl({ file_id: bySize.file_id });
+const ticket = await createSupportTicket({
+  user_id: String(user.id),
+  type: "photo",
+  text: "photo caption",
+  attachment: url,
+  file_url: url.file_url,
+  file_id: bySize.file_id
+});
+await reply(JSON.stringify({
+  helpers: [typeof getTelegramFile, typeof getTelegramFileUrl, typeof getTelegramImageFileId],
+  bySize, byArea, direct, invalid, file, url, ticket
+}));
+JS,
+        ],
+        'telegram' => [
+            'user_id' => 7701909986,
+            'chat_id' => 7701909986,
+            'message' => [
+                'chat' => ['id' => 7701909986],
+                'from' => ['id' => 7701909986],
+                'text' => '/file-debug',
+            ],
+        ],
+        'storage' => ['bot' => [], 'user' => [], 'cross_users' => []],
+        'settings' => ['command_timeout_ms' => 6000, 'max_delay_ms' => 1000],
+    ];
+
+    try {
+        $process = new Process(['node', base_path('runtime-node/execute-once.js')], base_path(), null, json_encode($payload, JSON_UNESCAPED_SLASHES), 10);
+        $process->run();
+
+        expect($process->isSuccessful())->toBeTrue($process->getErrorOutput());
+
+        $output = decodeNodeRuntimeOutput($process->getOutput());
+        $summary = json_decode($output['replies'][0]['text'] ?? '', true);
+
+        expect($summary['helpers'])->toBe(['function', 'function', 'function'])
+            ->and($summary['bySize']['file_id'])->toBe('large')
+            ->and($summary['byArea']['file_id'])->toBe('big')
+            ->and($summary['direct']['file_id'])->toBe('direct_file_id')
+            ->and($summary['invalid']['ok'])->toBeFalse()
+            ->and($summary['file']['ok'])->toBeTrue()
+            ->and($summary['file']['file_path'])->toBe('photos/file_1.jpg')
+            ->and($summary['file']['file_url'])->toBeNull()
+            ->and($summary['url']['file_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['url']['file_url'])->not->toContain('bot123456:')
+            ->and($summary['ticket']['ok'])->toBeTrue()
+            ->and($summary['ticket']['ticket']['file_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash');
+    } finally {
+        $bridge->stop(0);
+    }
+});

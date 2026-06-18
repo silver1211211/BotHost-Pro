@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bot;
+use App\Models\TelegramFileReference;
 use App\Services\TelegramBotService;
 use App\Support\NodeRuntimeConfig;
 use Illuminate\Http\JsonResponse;
@@ -95,6 +96,10 @@ class RuntimeTelegramController extends Controller
                     $options['chat_id'] ?? '',
                     $options['user_id'] ?? '',
                 ),
+                'telegram.getFile' => $this->telegramFileResult(
+                    $bot,
+                    $telegram->getFile($token, (string) ($options['file_id'] ?? '')),
+                ),
                 'telegram.checkChannelMember' => $telegram->checkTelegramChannelMember(
                     $token,
                     $options['chat_id'] ?? '',
@@ -148,6 +153,36 @@ class RuntimeTelegramController extends Controller
         return ($result['ok'] ?? false)
             ? ['ok' => true, 'result' => $result['data'] ?? null, 'queued' => false]
             : ['ok' => false, 'error' => $result['message'] ?? 'Telegram request failed.'];
+    }
+
+    private function telegramFileResult(Bot $bot, array $result): array
+    {
+        if (! ($result['ok'] ?? false) || ! is_array($result['data'] ?? null)) {
+            return $result;
+        }
+
+        $file = $result['data'];
+        $fileHash = hash_hmac('sha256', implode('|', [
+            $bot->id,
+            (string) ($file['file_id'] ?? ''),
+            (string) ($file['file_path'] ?? ''),
+        ]), (string) config('app.key'));
+
+        TelegramFileReference::query()->updateOrCreate(
+            ['file_hash' => $fileHash],
+            [
+                'bot_id' => $bot->id,
+                'file_id' => (string) ($file['file_id'] ?? ''),
+                'file_unique_id' => $file['file_unique_id'] ?? null,
+                'file_path' => (string) ($file['file_path'] ?? ''),
+                'file_size' => $file['file_size'] ?? null,
+            ],
+        );
+
+        $result['data']['file_url'] = route('bots.files.show', [$bot, $fileHash]);
+        $result['data']['file_hash'] = $fileHash;
+
+        return $result;
     }
 
     private function safeMembershipResult(array $result): array
