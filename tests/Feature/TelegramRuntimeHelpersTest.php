@@ -512,7 +512,10 @@ http.createServer((req, res) => {
             file_unique_id: 'unique_' + fileId,
             file_path: 'photos/file_1.jpg',
             file_size: 12345,
-            file_url: 'https://bothost.test/dashboard/bots/123/files/safe-hash'
+            mime_type: 'image/jpeg',
+            file_name: 'photo.jpg',
+            file_url: 'https://bothost.test/dashboard/bots/123/files/safe-hash',
+            file_hash: 'safe-hash'
           }
         }
       : { ok: false, error: 'unexpected action: ' + (body.action || 'none') };
@@ -551,17 +554,32 @@ const direct = getTelegramImageFileId({ file_id: "direct_file_id" });
 const invalid = await getTelegramFile({ file_id: "../bad" });
 const file = await getTelegramFile({ file_id: bySize.file_id });
 const url = await getTelegramFileUrl({ file_id: bySize.file_id });
+const proxy = await getTelegramFileProxyUrl({ file_id: bySize.file_id });
+const alias = await telegramGetFile({ file_id: bySize.file_id });
+const shortAlias = await getFile({ file_id: bySize.file_id });
+const aliasProxy = await getFileProxyUrl({ file_id: bySize.file_id });
+const aliasUrl = await getFileUrl({ file_id: bySize.file_id });
 const ticket = await createSupportTicket({
   user_id: String(user.id),
   type: "photo",
   text: "photo caption",
   attachment: url,
-  file_url: url.file_url,
+  file_url: url.proxy_url,
   file_id: bySize.file_id
 });
 await reply(JSON.stringify({
-  helpers: [typeof getTelegramFile, typeof getTelegramFileUrl, typeof getTelegramImageFileId],
-  bySize, byArea, direct, invalid, file, url, ticket
+  helpers: {
+    getTelegramFile: typeof getTelegramFile,
+    telegramGetFile: typeof telegramGetFile,
+    getFile: typeof getFile,
+    getTelegramFileProxyUrl: typeof getTelegramFileProxyUrl,
+    getFileProxyUrl: typeof getFileProxyUrl,
+    getTelegramFileUrl: typeof getTelegramFileUrl,
+    getFileUrl: typeof getFileUrl,
+    getTelegramImageFileId: typeof getTelegramImageFileId,
+    deleteMessage: typeof deleteMessage
+  },
+  bySize, byArea, direct, invalid, file, url, proxy, alias, shortAlias, aliasProxy, aliasUrl, ticket
 }));
 JS,
         ],
@@ -587,16 +605,37 @@ JS,
         $output = decodeNodeRuntimeOutput($process->getOutput());
         $summary = json_decode($output['replies'][0]['text'] ?? '', true);
 
-        expect($summary['helpers'])->toBe(['function', 'function', 'function'])
+        expect($summary['helpers'])->toMatchArray([
+            'getTelegramFile' => 'function',
+            'telegramGetFile' => 'function',
+            'getFile' => 'function',
+            'getTelegramFileProxyUrl' => 'function',
+            'getFileProxyUrl' => 'function',
+            'getTelegramFileUrl' => 'function',
+            'getFileUrl' => 'function',
+            'getTelegramImageFileId' => 'function',
+            'deleteMessage' => 'function',
+        ])
             ->and($summary['bySize']['file_id'])->toBe('large')
             ->and($summary['byArea']['file_id'])->toBe('big')
             ->and($summary['direct']['file_id'])->toBe('direct_file_id')
             ->and($summary['invalid']['ok'])->toBeFalse()
             ->and($summary['file']['ok'])->toBeTrue()
-            ->and($summary['file']['file_path'])->toBe('photos/file_1.jpg')
-            ->and($summary['file']['file_url'])->toBeNull()
+            ->and($summary['file'])->not->toHaveKey('file_path')
+            ->and($summary['file'])->not->toHaveKey('file_url')
+            ->and($summary['file']['proxy_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['file']['reference_id'])->toBe('safe-hash')
+            ->and($summary['file']['mime_type'])->toBe('image/jpeg')
+            ->and($summary['file']['file_name'])->toBe('photo.jpg')
+            ->and($summary['url']['proxy_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
             ->and($summary['url']['file_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['proxy']['proxy_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['alias']['proxy_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['shortAlias']['proxy_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['aliasProxy']['proxy_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
+            ->and($summary['aliasUrl']['file_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash')
             ->and($summary['url']['file_url'])->not->toContain('bot123456:')
+            ->and($summary['file']['proxy_url'])->not->toContain('api.telegram.org/file/bot')
             ->and($summary['ticket']['ok'])->toBeTrue()
             ->and($summary['ticket']['ticket']['file_url'])->toBe('https://bothost.test/dashboard/bots/123/files/safe-hash');
     } finally {

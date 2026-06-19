@@ -389,43 +389,57 @@ function buildHelpers(payload, actions, settings) {
       }
 
       const file = plainObject(response.result || {});
+      const proxyUrl = safeTelegramProxyUrl(file.file_url ?? file.proxy_url);
       return {
         ok: true,
         error: null,
+        message: null,
         file_id: file.file_id || fileId,
         file_unique_id: file.file_unique_id ?? null,
-        file_path: file.file_path ?? null,
         file_size: file.file_size ?? null,
-        file_url: null,
+        mime_type: file.mime_type ?? null,
+        file_name: file.file_name ?? null,
+        proxy_url: proxyUrl,
+        reference_id: file.file_hash ?? file.reference_id ?? null,
       };
     } catch (err) {
-      return { ok: false, error: safeTelegramError(err) };
+      return { ok: false, error: safeTelegramError(err), message: safeTelegramError(err) };
     }
   };
+
+  const getTelegramFileProxyUrl = async (params = {}) => {
+    const file = await getTelegramFile(params);
+
+    if (!file || !file.ok) {
+      const error = safeTelegramError(file && (file.error || file.message));
+      return { ok: false, error, message: error, file_id: null, proxy_url: null };
+    }
+
+    return {
+      ok: true,
+      error: null,
+      message: null,
+      file_id: file.file_id,
+      proxy_url: file.proxy_url ?? null,
+    };
+  };
+
   const getTelegramFileUrl = async (params = {}) => {
     try {
-      const opts = normalizeObject(params, 'getTelegramFileUrl params');
-      const fileId = requireTelegramFileId(opts.file_id);
-      const response = await telegramRuntimeAction('telegram.getFile', { file_id: fileId });
-
-      if (!response || !response.ok) {
-        return { ok: false, error: safeTelegramError(response && (response.error || response.message || response.description)) };
-      }
-
-      const file = plainObject(response.result || {});
+      const result = await getTelegramFileProxyUrl(params);
       return {
-        ok: true,
-        error: null,
-        file_id: file.file_id || fileId,
-        file_unique_id: file.file_unique_id ?? null,
-        file_path: file.file_path ?? null,
-        file_url: file.file_url ?? null,
-        file_size: file.file_size ?? null,
+        ...result,
+        file_url: result.proxy_url ?? null,
       };
     } catch (err) {
-      return { ok: false, error: safeTelegramError(err) };
+      return { ok: false, error: safeTelegramError(err), message: safeTelegramError(err), file_id: null, proxy_url: null, file_url: null };
     }
   };
+
+  const telegramGetFile = getTelegramFile;
+  const getFile = getTelegramFile;
+  const getFileProxyUrl = getTelegramFileProxyUrl;
+  const getFileUrl = getTelegramFileUrl;
   const safeCaption = (text, limit = 1024) => sanitizeText(String(text ?? ''), Math.min(Math.max(0, toNumber(limit, 1024)), 1024));
 
   const runCommand = async (commandName, commandArgs = []) => {
@@ -2436,7 +2450,12 @@ function buildHelpers(payload, actions, settings) {
     getIncomingMediaType,
     getIncomingMedia,
     getTelegramFile,
+    telegramGetFile,
+    getFile,
+    getTelegramFileProxyUrl,
+    getFileProxyUrl,
     getTelegramFileUrl,
+    getFileUrl,
     getTelegramImageFileId,
     safeHTML,
     safeTelegramResult,
@@ -3704,6 +3723,13 @@ function requireHttpsUrl(value, label) {
 function requireString(value, label) {
   if (typeof value !== 'string') throw new Error(`${label} expects a string.`);
   return value;
+}
+
+function safeTelegramProxyUrl(value) {
+  const url = typeof value === 'string' ? value.trim() : '';
+  if (!url) return null;
+  if (/api\.telegram\.org\/file\/bot/i.test(url)) return null;
+  return url;
 }
 
 function requireTelegramFileId(value) {
