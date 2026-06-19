@@ -102,7 +102,7 @@ class TelegramWebhookController extends Controller
         $from = is_array($callbackQuery) ? (array) data_get($callbackQuery, 'from', []) : (array) data_get($effectiveMessage, 'from', []);
         $callbackData = is_array($callbackQuery) ? data_get($callbackQuery, 'data') : null;
         $isSlashCallback = is_array($callbackQuery) && is_string($callbackData) && str_starts_with(trim($callbackData), '/');
-        $text = is_string($callbackData) ? $callbackData : ($effectiveMessage['text'] ?? null);
+        $text = is_string($callbackData) ? $callbackData : ($effectiveMessage['text'] ?? $effectiveMessage['caption'] ?? null);
         $chatId = data_get($effectiveMessage, 'chat.id');
         $fromId = data_get($from, 'id');
         $username = data_get($from, 'username');
@@ -116,19 +116,11 @@ class TelegramWebhookController extends Controller
         }
 
         if (! is_string($text)) {
-            // Media messages (photo, document, video, etc.) have no message.text.
-            // Allow them through so the Direct Message Handler can process them.
-            $hasMedia = isset($effectiveMessage['photo'])
-                || isset($effectiveMessage['document'])
-                || isset($effectiveMessage['video'])
-                || isset($effectiveMessage['audio'])
-                || isset($effectiveMessage['voice'])
-                || isset($effectiveMessage['sticker']);
-            if (! $hasMedia) {
+            if (! is_array($message) || $callbackQuery) {
                 return response()->json(['ok' => true]);
             }
-            // Use caption as the effective text (empty string if no caption).
-            $text = (string) ($effectiveMessage['caption'] ?? '');
+
+            $text = '';
         }
 
         $text = preg_replace('/^\R+|\R+$/u', '', $text) ?? $text;

@@ -554,6 +554,122 @@ JS,
         ]);
     }
 
+    public function test_photo_message_runs_direct_message_handler(): void
+    {
+        Http::fake([
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+        $this->createCommand($bot, '__direct_message_handler_test', 'Photo direct won', 'direct_message');
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->photoUpdate())
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['chat_id'] === 111
+            && $request['text'] === 'Photo direct won');
+    }
+
+    public function test_document_message_runs_direct_message_handler(): void
+    {
+        Http::fake([
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+        $this->createCommand($bot, '__direct_message_handler_test', 'Document direct won', 'direct_message');
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->documentUpdate())
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['chat_id'] === 111
+            && $request['text'] === 'Document direct won');
+    }
+
+    public function test_direct_message_handler_can_read_largest_photo_file_id(): void
+    {
+        config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);
+
+        Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response([], 500),
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+
+        BotCommand::create([
+            'bot_id' => $bot->id,
+            'command_name' => BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.'photo-file',
+            'display_name' => 'Photo File Handler',
+            'trigger_type' => 'direct_message',
+            'code' => "await reply('photo id: ' + getLargestPhotoFileId());",
+            'response_type' => 'code',
+            'status' => 'active',
+        ]);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->photoUpdate())
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['chat_id'] === 111
+            && $request['text'] === 'photo id: photo_large_file_id');
+    }
+
+    public function test_direct_message_handler_can_read_document_file_id(): void
+    {
+        config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);
+
+        Http::fake([
+            'http://127.0.0.1:8787/health' => Http::response([], 500),
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+
+        BotCommand::create([
+            'bot_id' => $bot->id,
+            'command_name' => BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.'document-file',
+            'display_name' => 'Document File Handler',
+            'trigger_type' => 'direct_message',
+            'code' => "await reply('document id: ' + getDocumentFileId());",
+            'response_type' => 'code',
+            'status' => 'active',
+        ]);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->documentUpdate())
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['chat_id'] === 111
+            && $request['text'] === 'document id: document_file_id');
+    }
+
+    public function test_photo_caption_slash_command_routes_to_command(): void
+    {
+        Http::fake([
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+        $this->createCommand($bot, '/test_file_live', 'File command won', 'slash');
+        $this->createCommand($bot, '__direct_message_handler_test', 'Direct won', 'direct_message');
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->photoUpdate('/test_file_live'))
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['text'] === 'File command won');
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['text'] === 'Direct won');
+    }
+
     private function createRunningBot(array $overrides = []): Bot
     {
         return Bot::create(array_merge([
@@ -590,6 +706,47 @@ JS,
                 'from' => ['id' => $userId, 'username' => 'tester', 'first_name' => 'Test'],
             ],
         ];
+    }
+
+    private function photoUpdate(?string $caption = null, int $userId = 222, int $chatId = 111): array
+    {
+        $message = [
+            'message_id' => 55,
+            'chat' => ['id' => $chatId, 'type' => 'private'],
+            'from' => ['id' => $userId, 'username' => 'tester', 'first_name' => 'Test'],
+            'photo' => [
+                ['file_id' => 'photo_small_file_id', 'file_unique_id' => 'photo-small', 'width' => 90, 'height' => 90, 'file_size' => 1234],
+                ['file_id' => 'photo_large_file_id', 'file_unique_id' => 'photo-large', 'width' => 1280, 'height' => 960, 'file_size' => 98765],
+            ],
+        ];
+
+        if ($caption !== null) {
+            $message['caption'] = $caption;
+        }
+
+        return ['message' => $message];
+    }
+
+    private function documentUpdate(?string $caption = null, int $userId = 222, int $chatId = 111): array
+    {
+        $message = [
+            'message_id' => 56,
+            'chat' => ['id' => $chatId, 'type' => 'private'],
+            'from' => ['id' => $userId, 'username' => 'tester', 'first_name' => 'Test'],
+            'document' => [
+                'file_id' => 'document_file_id',
+                'file_unique_id' => 'document-unique',
+                'file_name' => 'proof.pdf',
+                'mime_type' => 'application/pdf',
+                'file_size' => 43210,
+            ],
+        ];
+
+        if ($caption !== null) {
+            $message['caption'] = $caption;
+        }
+
+        return ['message' => $message];
     }
 
     private function callbackUpdate(string $data, int $userId = 222, int $chatId = 111, int $messageFromId = 999): array
