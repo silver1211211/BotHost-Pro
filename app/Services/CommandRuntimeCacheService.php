@@ -297,6 +297,10 @@ class CommandRuntimeCacheService
     {
         $type = $command['trigger_type'] ?? null;
 
+        if ($type === 'direct_message' || BotCommand::isDirectMessageMarker($command['command_name'] ?? null)) {
+            return 'direct_message';
+        }
+
         if (in_array($type, BotCommand::TRIGGER_TYPES, true)) {
             return $type;
         }

@@ -590,6 +590,61 @@ JS,
             && $request['text'] === 'Document direct won');
     }
 
+    public function test_direct_message_handler_marker_routes_media_even_with_legacy_trigger_type(): void
+    {
+        Http::fake([
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+
+        BotCommand::create([
+            'bot_id' => $bot->id,
+            'command_name' => BotCommand::DIRECT_MESSAGE_COMMAND_PREFIX.'legacy',
+            'display_name' => 'Legacy Direct Handler',
+            'trigger_type' => 'text',
+            'response_text' => 'Legacy direct won',
+            'response_type' => 'text',
+            'status' => 'active',
+        ]);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->photoUpdate())
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['chat_id'] === 111
+            && $request['text'] === 'Legacy direct won');
+    }
+
+    public function test_photo_without_command_but_active_workflow_state_routes_to_direct_message_handler(): void
+    {
+        Http::fake([
+            'api.telegram.org/*/sendMessage' => Http::response(['ok' => true, 'result' => true]),
+        ]);
+
+        $bot = $this->createRunningBot();
+        $this->createCommand($bot, '/test_file_live', 'File command won', 'slash');
+        $this->createCommand($bot, '__direct_message_handler_test', 'Active state direct won', 'direct_message');
+
+        BotUserRuntimeData::create([
+            'bot_id' => $bot->id,
+            'telegram_user_id' => '222',
+            'key' => 'workflow_state',
+            'value' => 'awaiting_file',
+        ]);
+
+        $this->postJson(route('telegram.webhook', [$bot, 'secret-value']), $this->photoUpdate())
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['chat_id'] === 111
+            && $request['text'] === 'Active state direct won');
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/sendMessage')
+            && $request['text'] === 'File command won');
+    }
+
     public function test_direct_message_handler_can_read_largest_photo_file_id(): void
     {
         config(['services.node_runtime.url' => 'http://127.0.0.1:8787']);

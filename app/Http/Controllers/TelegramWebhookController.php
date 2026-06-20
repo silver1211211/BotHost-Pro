@@ -129,6 +129,21 @@ class TelegramWebhookController extends Controller
                 ? $this->parseCommandText($callbackData, $bot->telegram_username)
                 : ['trigger' => $text, 'args' => []])
             : $this->parseCommandText($text, $bot->telegram_username);
+        $routeDebug = array_merge([
+            'bot_id' => $bot->id,
+            'update_type' => $this->updateType(is_array($message) ? $message : null, is_array($callbackQuery) ? $callbackQuery : null),
+            'has_message' => is_array($message),
+            'has_text' => is_string(data_get($effectiveMessage, 'text')) && data_get($effectiveMessage, 'text') !== '',
+            'has_caption' => is_string(data_get($effectiveMessage, 'caption')) && data_get($effectiveMessage, 'caption') !== '',
+            'chat_id' => $chatId,
+            'user_id' => $fromId,
+            'command_candidate' => $commandParts['trigger'] !== '' ? str($commandParts['trigger'])->limit(80, '')->toString() : null,
+            'command_match_found' => false,
+            'direct_handler_found' => false,
+            'direct_handler_id' => null,
+            'direct_handler_trigger_type' => null,
+            'route_decision' => 'received',
+        ], $this->messageMediaFlags(is_array($effectiveMessage) ? $effectiveMessage : []));
 
         $telegramContext = [
             'chat_id' => $chatId,
@@ -244,6 +259,11 @@ class TelegramWebhookController extends Controller
         $matchStarted = microtime(true);
         $command = $commandCache->findMatchingCommandForUpdate($bot, $text, $commandParts['trigger'], is_string($callbackData) ? $callbackData : null, false);
         $commandMatchedBeforeFlow = $command !== null;
+        $routeDebug['command_match_found'] = $commandMatchedBeforeFlow;
+        $directHandler = ! $isSlashCallback ? $commandCache->findDirectMessageHandler($bot) : null;
+        $routeDebug['direct_handler_found'] = $directHandler !== null;
+        $routeDebug['direct_handler_id'] = $directHandler?->id;
+        $routeDebug['direct_handler_trigger_type'] = $directHandler?->effectiveTriggerType();
 
         if ($isSlashCallback && $command) {
             Log::info('[BotHost] callback_command_match_found', [
@@ -299,6 +319,7 @@ class TelegramWebhookController extends Controller
                 }
             }
 
+            $routeDebug['route_decision'] = 'command';
             Log::info('[BotHost] direct_message_handler_skipped_due_to_command_match', [
                 'bot_id' => $bot->id,
                 'user_id' => $fromId,
@@ -315,6 +336,7 @@ class TelegramWebhookController extends Controller
                 $command = $flow['command'];
                 $telegramContext['command_flow'] = $flow['context'];
                 $telegramContext['trigger'] = $command->command_name;
+                $routeDebug['route_decision'] = 'active_command_flow';
 
                 Log::info('[BotHost] active_command_flow_routed', [
                     'bot_id' => $bot->id,
@@ -328,9 +350,10 @@ class TelegramWebhookController extends Controller
         }
 
         if (! $command && ! $isSlashCallback) {
-            $command = $commandCache->findDirectMessageHandler($bot);
+            $command = $directHandler;
 
             if ($command) {
+                $routeDebug['route_decision'] = 'direct_message_handler';
                 Log::info('[BotHost] direct_message_handler_routed', [
                     'bot_id' => $bot->id,
                     'user_id' => $fromId,
@@ -342,7 +365,12 @@ class TelegramWebhookController extends Controller
             }
         }
 
+        if (! $command) {
+            $routeDebug['route_decision'] = $isSlashCallback ? 'callback_no_match' : 'no_match';
+        }
+
         $timings['command_match_ms'] = $this->elapsedMs($matchStarted);
+        Log::info('[BotHost] webhook_route_decision', $routeDebug);
         Log::info('[BotHost] Command Match', [
             'bot_id' => $bot->id,
             'user_id' => $fromId,
@@ -970,6 +998,38 @@ class TelegramWebhookController extends Controller
         return [
             'trigger' => $trigger,
             'args' => $args,
+        ];
+    }
+
+    private function updateType(?array $message, ?array $callbackQuery): string
+    {
+        if ($callbackQuery !== null) {
+            return 'callback_query';
+        }
+
+        if ($message === null) {
+            return 'unknown';
+        }
+
+        foreach (['photo', 'document', 'video', 'audio', 'voice', 'animation', 'sticker', 'text'] as $type) {
+            if (array_key_exists($type, $message)) {
+                return $type;
+            }
+        }
+
+        return 'message';
+    }
+
+    private function messageMediaFlags(array $message): array
+    {
+        return [
+            'has_photo' => is_array($message['photo'] ?? null) && $message['photo'] !== [],
+            'has_document' => is_array($message['document'] ?? null),
+            'has_video' => is_array($message['video'] ?? null),
+            'has_audio' => is_array($message['audio'] ?? null),
+            'has_voice' => is_array($message['voice'] ?? null),
+            'has_animation' => is_array($message['animation'] ?? null),
+            'has_sticker' => is_array($message['sticker'] ?? null),
         ];
     }
 
